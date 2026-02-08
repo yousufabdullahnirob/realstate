@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mahim Builders — Login</title>
+
+    <style>
+        :root{
+          --text:#eaf0ff;
+          --muted:rgba(234,240,255,.75);
+          --border:rgba(255,255,255,.14);
+          --shadow:0 24px 70px rgba(0,0,0,.45);
+          --radius:20px;
+          --glass1:rgba(255,255,255,.10);
+          --glass2:rgba(255,255,255,.06);
+          --accent1:#a5b4fc;
+          --accent2:#34d399;
+        }
+
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+          margin:0;
+          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+          color:var(--text);
+          background:#070b16;
+          overflow:hidden;
+        }
+
+        /* ✅ BACKGROUND IMAGE (Fixed asset) */
+        .bg{
+          position:fixed; inset:0;
+          background:
+            linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.55)),
+            radial-gradient(1200px 600px at 15% 10%, rgba(165,180,252,.22), transparent 60%),
+            radial-gradient(1000px 600px at 85% 20%, rgba(52,211,153,.16), transparent 55%),
+            url("assets/photo-1486406146926-c627a92ad1ab.avif");
+          background-size:cover;
+          background-position:center;
+          filter:saturate(1.05) contrast(1.05);
+          transform:scale(1.02);
+          z-index:-2;
+        }
+
+        /* soft overlay */
+        .veil{
+          position:fixed; inset:0;
+          background: radial-gradient(800px 500px at 30% 30%, rgba(255,255,255,.06), transparent 60%);
+          z-index:-1;
+          pointer-events:none;
+        }
+
+        .wrap{
+          height:100%;
+          display:grid;
+          place-items:center;
+          padding:24px;
+        }
+
+        .card{
+          width:min(520px, 100%);
+          border-radius:var(--radius);
+          border:1px solid var(--border);
+          background: linear-gradient(180deg, var(--glass1), var(--glass2));
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          box-shadow: var(--shadow);
+          overflow:hidden;
+        }
+
+        .top{
+          padding:18px 20px;
+          display:flex;
+          gap:14px;
+          align-items:center;
+          border-bottom:1px solid rgba(255,255,255,.10);
+        }
+
+        /* ✅ LOGO (Fixed asset) */
+        .logo{
+          width:56px;height:56px;
+          border-radius:16px;
+          overflow:hidden;
+          border:1px solid rgba(255,255,255,.16);
+          background: rgba(255,255,255,.06);
+          flex:0 0 auto;
+        }
+        .logo img{
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          display:block;
+        }
+
+        .brand h1{
+          margin:0;
+          font-size:18px;
+          line-height:1.15;
+          letter-spacing:.2px;
+        }
+        .brand p{
+          margin:5px 0 0;
+          font-size:13px;
+          color:var(--muted);
+        }
+
+        .content{
+          padding:18px 20px 20px;
+        }
+
+        .title{
+          margin:8px 0 16px;
+          font-size:32px;
+          letter-spacing:.2px;
+        }
+
+        .label{
+          display:block;
+          margin:14px 0 7px;
+          font-size:13px;
+          color:var(--muted);
+        }
+
+        .input{
+          width:100%;
+          padding:12px 12px;
+          border-radius:14px;
+          border:1px solid rgba(255,255,255,.14);
+          background: rgba(10,16,30,.35);
+          color:var(--text);
+          outline:none;
+          font-size:14px;
+        }
+        .input::placeholder{color:rgba(234,240,255,.45)}
+        .input:focus{
+          border-color:rgba(165,180,252,.55);
+          box-shadow:0 0 0 4px rgba(165,180,252,.18);
+        }
+
+        /* segmented control */
+        .seg{
+          display:flex;
+          gap:8px;
+          padding:8px;
+          border-radius:16px;
+          border:1px solid rgba(255,255,255,.14);
+          background: rgba(10,16,30,.25);
+        }
+        .seg button{
+          flex:1;
+          padding:10px 10px;
+          border-radius:12px;
+          border:1px solid transparent;
+          background:transparent;
+          color:rgba(234,240,255,.82);
+          cursor:pointer;
+          font-size:14px;
+          font-weight:700;
+          transition:.18s ease;
+          display:flex;
+          gap:8px;
+          align-items:center;
+          justify-content:center;
+        }
+        .seg button .dot{
+          width:10px;height:10px;border-radius:50%;
+          background:rgba(234,240,255,.30);
+        }
+        .seg button.active{
+          background: linear-gradient(135deg, rgba(165,180,252,.40), rgba(165,180,252,.16));
+          border-color: rgba(165,180,252,.40);
+          color:#fff;
+          box-shadow: 0 10px 26px rgba(165,180,252,.18);
+        }
+        .seg button.active .dot{ background: var(--accent2); }
+
+        .pwdWrap{ position:relative; }
+        .eye{
+          position:absolute;
+          right:10px; top:50%;
+          transform:translateY(-50%);
+          padding:8px 10px;
+          border-radius:12px;
+          border:1px solid rgba(255,255,255,.16);
+          background: rgba(255,255,255,.06);
+          color: rgba(234,240,255,.88);
+          cursor:pointer;
+          font-weight:800;
+          font-size:12px;
+        }
+        .eye:hover{ background: rgba(255,255,255,.10); }
+
+        .row{
+          margin-top:12px;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          flex-wrap:wrap;
+        }
+        .remember{
+          display:flex;
+          align-items:center;
+          gap:8px;
+          font-size:13px;
+          color:rgba(234,240,255,.82);
+          user-select:none;
+        }
+        .link{
+          color:rgba(234,240,255,.88);
+          text-decoration:none;
+          font-size:13px;
+        }
+        .link:hover{ text-decoration:underline; }
+
+        .error{
+          margin-top:12px;
+          padding:10px 12px;
+          border-radius:14px;
+          border:1px solid rgba(251,113,133,.45);
+          background: rgba(251,113,133,.12);
+          color:#ffd1d8;
+          font-size:13px;
+          display:none;
+        }
+
+        .btn{
+          margin-top:14px;
+          width:100%;
+          border:0;
+          border-radius:14px;
+          padding:13px 14px;
+          font-weight:900;
+          font-size:15px;
+          cursor:pointer;
+          color:#07131a;
+          background: linear-gradient(135deg, var(--accent1), var(--accent2));
+          box-shadow: 0 16px 36px rgba(52,211,153,.18);
+          transition: transform .08s ease, opacity .2s ease;
+        }
+        .btn:hover{opacity:.95}
+        .btn:active{transform:translateY(1px)}
+    </style>
+</head>
+
+<body>
+<div class="bg"></div>
+<div class="veil"></div>
+
+<main class="wrap">
+    <section class="card" aria-label="Login">
+
+        <div class="top">
+            <div class="logo">
+                <img src="assets/Mahim-Builders-Construction-LTD.svg" alt="Mahim Builders Logo">
+            </div>
+            <div class="brand">
+                <h1>Mahim Builders &amp; Construction Ltd.</h1>
+                <p>Apartment Selling Web Application</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="title">Login</div>
+
+            <span class="label">Login As</span>
+            <div class="seg" role="tablist" aria-label="Role switcher">
+                <button class="active" id="btnClient" type="button">
+                    <span class="dot"></span> Client / Customer
+                </button>
+                <button id="btnAdmin" type="button">
+                    <span class="dot"></span> Admin
+                </button>
+            </div>
+
+            <label class="label" for="email">Email Address</label>
+            <input class="input" id="email" type="email" placeholder="example@email.com" autocomplete="username">
+
+            <label class="label" for="pass">Password</label>
+            <div class="pwdWrap">
+                <input class="input" id="pass" type="password" placeholder="••••••••" autocomplete="current-password">
+                <button class="eye" id="togglePwd" type="button">SHOW</button>
+            </div>
+
+            <div class="row">
+                <label class="remember">
+                    <input type="checkbox" id="rememberMe">
+                    Remember me
+                </label>
+                <a class="link" href="#" id="forgot">Forgot Password?</a>
+            </div>
+
+            <div class="error" id="errorBox">Error message here.</div>
+
+            <button class="btn" id="loginBtn">Log In</button>
+
+            <div class="row">
+                <span style="color:rgba(234,240,255,.70);font-size:13px;">New here?</span>
+                <a class="link" href="#" id="signup">Create an account</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    // Role state
+    let role = "client";
+    const btnClient = document.getElementById("btnClient");
+    const btnAdmin  = document.getElementById("btnAdmin");
+
+    function setRole(r){
+      role = r;
+      btnClient.classList.toggle("active", r === "client");
+      btnAdmin.classList.toggle("active", r === "admin");
+    }
+    btnClient.addEventListener("click", () => setRole("client"));
+    btnAdmin.addEventListener("click", () => setRole("admin"));
+
+    // Show/Hide password
+    const passInput = document.getElementById("pass");
+    const togglePwd = document.getElementById("togglePwd");
+    togglePwd.addEventListener("click", () => {
+      const hidden = passInput.type === "password";
+      passInput.type = hidden ? "text" : "password";
+      togglePwd.textContent = hidden ? "HIDE" : "SHOW";
+    });
+
+    // Remember me (email only)
+    const emailInput = document.getElementById("email");
+    const rememberMe = document.getElementById("rememberMe");
+    const savedEmail = localStorage.getItem("savedEmail");
+    if(savedEmail){
+      emailInput.value = savedEmail;
+      rememberMe.checked = true;
+    }
+    rememberMe.addEventListener("change", () => {
+      if(rememberMe.checked) localStorage.setItem("savedEmail", emailInput.value.trim());
+      else localStorage.removeItem("savedEmail");
+    });
+    emailInput.addEventListener("input", () => {
+      if(rememberMe.checked) localStorage.setItem("savedEmail", emailInput.value.trim());
+    });
+
+    // Validation (demo)
+    const errorBox = document.getElementById("errorBox");
+    function showError(msg){
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+    }
+    function hideError(){
+      errorBox.style.display = "none";
+      errorBox.textContent = "";
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      hideError();
+      const email = emailInput.value.trim();
+      const pass  = passInput.value;
+
+      if(!email) return showError("Please enter your email address.");
+      if(!pass)  return showError("Please enter your password.");
+      if(!email.includes("@")) return showError("Please enter a valid email address.");
+
+      alert(`Demo Login Success ✅ (${role.toUpperCase()})`);
+    });
+
+    // Demo links
+    document.getElementById("forgot").addEventListener("click", e => {
+      e.preventDefault();
+      alert("Demo: Forgot Password flow (to be implemented).");
+    });
+    document.getElementById("signup").addEventListener("click", e => {
+      e.preventDefault();
+      alert("Demo: Registration page (to be implemented).");
+    });
+</script>
+</body>
+</html>
