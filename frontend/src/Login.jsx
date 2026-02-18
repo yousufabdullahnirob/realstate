@@ -1,22 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './Login.css';
-import logo from './assets/Mahim-Builders-Construction-LTD.svg'; // Ensure this asset is downloaded
+import logo from './assets/mahim_logo.png'; // Updated to restored logo
 
 const Login = () => {
     const [role, setRole] = useState('client');
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState(localStorage.getItem('savedEmail') || '');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
+    const [rememberMe, setRememberMe] = useState(!!localStorage.getItem('savedEmail'));
     const [error, setError] = useState('');
-
-    useEffect(() => {
-        const savedEmail = localStorage.getItem('savedEmail');
-        if (savedEmail) {
-            setEmail(savedEmail);
-            setRememberMe(true);
-        }
-    }, []);
 
     const handleRole = (r) => {
         setRole(r);
@@ -49,7 +41,7 @@ const Login = () => {
             } else {
                 setError(data.error || "Login failed");
             }
-        } catch (err) {
+        } catch (error) {
             setError("Failed to connect to server.");
         }
     };
