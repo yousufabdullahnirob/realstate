@@ -45,7 +45,7 @@ body {
       rgba(52, 211, 153, 0.16),
       transparent 55%
     ),
-    url("./assets/photo-1486406146926-c627a92ad1ab.avif"); /* Corrected path for Vite */
+    url("./assets/mahim_bg.png"); /* Updated to restored background */
   background-size: cover;
   background-position: center;
   filter: saturate(1.05) contrast(1.05);
