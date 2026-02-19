@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from './assets/mahim_logo.png'; // Updated to restored logo
 
 const Login = () => {
+    const navigate = useNavigate();
     const [role, setRole] = useState('client');
     const [email, setEmail] = useState(localStorage.getItem('savedEmail') || '');
     const [password, setPassword] = useState('');
@@ -32,7 +34,8 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert(`Login Success ✅ (${role.toUpperCase()})`);
+                // alert(`Login Success ✅ (${role.toUpperCase()})`); // Removed alert for smoother UX
+                navigate('/dashboard');
                 if (rememberMe) {
                     localStorage.setItem('savedEmail', email);
                 } else {
@@ -42,6 +45,7 @@ const Login = () => {
                 setError(data.error || "Login failed");
             }
         } catch (error) {
+            console.error("Login error:", error);
             setError("Failed to connect to server.");
         }
     };

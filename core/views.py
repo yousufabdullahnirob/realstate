@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from .models import Apartment
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, ApartmentSerializer
 
 # Create your views here.
 
@@ -14,6 +14,10 @@ def login_view(request):
 def apartment_list_view(request):
     apartments = Apartment.objects.all()
     return render(request, 'core/apartment_list.html', {'apartments': apartments})
+
+class ApartmentListAPIView(generics.ListAPIView):
+    queryset = Apartment.objects.all()
+    serializer_class = ApartmentSerializer
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
