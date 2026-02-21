@@ -1,9 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-    const navigate = useNavigate();
     const [apartments, setApartments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,12 +22,6 @@ const Dashboard = () => {
             });
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('savedEmail'); 
-        // In a real app, clear auth tokens too
-        navigate('/');
-    };
-
     if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading apartments...</div>;
     if (error) return <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>{error}</div>;
 
@@ -38,9 +29,6 @@ const Dashboard = () => {
         <div style={{ padding: '20px', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', background: '#f9f9f9', minHeight: '100vh' }}>
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', background: '#fff', padding: '15px 30px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                 <h1 style={{ margin: 0, color: '#333', fontSize: '24px' }}>Mahim Builders</h1>
-                <button onClick={handleLogout} style={{ padding: '10px 20px', cursor: 'pointer', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', transition: 'background 0.3s' }}>
-                    Logout
-                </button>
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>

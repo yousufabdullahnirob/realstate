@@ -1,28 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Apartment Listings - Mahim Builders</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
-        .apartment-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .price { color: #2ecc71; font-weight: bold; font-size: 1.2em; }
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        background: #f0f2f5;
+      }
+      .apartment-card {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .price {
+        color: #2ecc71;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Available Apartments</h1>
     <div class="list">
-        {% for apartment in apartments %}
-            <div class="apartment-card">
-                <h2>{{ apartment.title }}</h2>
-                <p>{{ apartment.description }}</p>
-                <div class="price">${{ apartment.price }}</div>
-                <p>Location: {{ apartment.location }}</p>
-                <p>{{ apartment.bedrooms }} Beds | {{ apartment.bathrooms }} Baths</p>
-            </div>
-        {% empty %}
-            <p>No apartments currently listed. Check back soon!</p>
-        {% endfor %}
+      {% for apartment in apartments %}
+      <div class="apartment-card">
+        <h2>{{ apartment.title }}</h2>
+        <p>{{ apartment.description }}</p>
+        <div class="price">${{ apartment.price }}</div>
+        <p>Location: {{ apartment.location }}</p>
+        <p>{{ apartment.bedrooms }} Beds | {{ apartment.bathrooms }} Baths</p>
+      </div>
+      {% empty %}
+      <p>No apartments currently listed. Check back soon!</p>
+      {% endfor %}
     </div>
-    <p><a href="{% url 'login' %}">Login</a></p>
-</body>
+  </body>
 </html>
