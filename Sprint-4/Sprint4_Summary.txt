@@ -1,0 +1,12 @@
+Sprint 4 Task: Finalize login and registration wireframe and Interface
+
+Completed Work:
+- Finalized Login UI (role selection removed).
+- Added Forgot Password option.
+- Finalized Registration UI with full validation.
+- Implemented navigation between Login and Registration.
+- Implemented redirect to client-dashboard.html after login.
+- Used consistent assets (logo and background).
+
+How to run:
+Open src/login.html in browser.
