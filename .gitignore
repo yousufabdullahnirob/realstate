@@ -1,3 +1,35 @@
+<<<<<<< HEAD
+### IntelliJ IDEA ###
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+.kotlin
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+=======
 # Python
 __pycache__/
 *.py[cod]
@@ -38,3 +70,4 @@ ENV/
 .vscode/
 *.swp
 *.swo
+>>>>>>> 70c7fba89db9657955ae9fefa9bd1845fc84ce3a
