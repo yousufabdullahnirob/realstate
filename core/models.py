@@ -19,12 +19,33 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
+class Project(models.Model):
+    class Status(models.TextChoices):
+        UPCOMING = 'upcoming', 'Upcoming'
+        ONGOING = 'ongoing', 'Ongoing'
+        COMPLETED = 'completed', 'Completed'
+
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    total_floors = models.PositiveIntegerField()
+    total_units = models.PositiveIntegerField()
+    launch_date = models.DateField()
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.UPCOMING)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
 class Apartment(models.Model):
     class Status(models.TextChoices):
         AVAILABLE = 'available', 'Available'
         BOOKED = 'booked', 'Booked'
         SOLD = 'sold', 'Sold'
 
+    project = models.ForeignKey(Project, related_name='apartments', on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
     location = models.CharField(max_length=255)
