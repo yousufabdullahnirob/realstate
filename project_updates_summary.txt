@@ -1,0 +1,30 @@
+Hey! Here is a breakdown of everything we accomplished in the Real Estate project today:
+
+1. Repository Merging:
+   - I successfully merged all the latest changes uploaded by Shakir-Hs (specifically from the sprint-4 branch) into the main project. This ensured we have the most up-to-date wireframes and interface details.
+
+2. User Registration Logic:
+   - Built a robust registration system that tracks Full Name, Email, Phone, and Roles (Admin/Customer).
+   - Added validation to make sure passwords match and are strong enough.
+   - For security, passwords are never stored in plain text; they are fully hashed before saving.
+
+3. Login & Authentication:
+   - Implemented a secure login system using JWT (JSON Web Tokens).
+   - The backend now verifies the email, password, and even checks if the user's role matches what they are trying to log in as.
+   - Users get an access and refresh token once they log in successfully.
+
+4. Admin Project Management (CRUD):
+   - Created a new "Project" entity to track real estate projects (Location, Total Floors, Launch Date, etc.).
+   - Admins now have full control: they can Create, View, Update, and Delete projects.
+   - Added some smart "soft delete" logic so nothing is permanently lost—projects are just hidden from the main view once deleted.
+   - Put in safeguards so you can't delete a project that already has apartments listed under it.
+
+5. System Configuration:
+   - Configured the entire Django REST Framework to handle these new features smoothly.
+   - Ran all database migrations to make sure the schema stays in sync.
+
+6. Deployment & Verification:
+   - Tested all endpoints with local scripts to ensure everything works perfectly.
+   - Pushed the entire updated project back to GitHub so it's ready for you!
+
+Everything is currently running and verified. Great progress today!
