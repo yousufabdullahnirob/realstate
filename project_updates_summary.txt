@@ -1,7 +1,7 @@
 Hey! Here is a breakdown of everything we accomplished in the Real Estate project today:
 
 1. Repository Merging:
-   - I successfully merged all the latest changes uploaded by Shakir-Hs (specifically from the sprint-4 branch) into the main project. This ensured we have the most up-to-date wireframes and interface details.
+   - I successfully merged all the latest changes uploaded  (specifically from the sprint-4 branch) into the main project. This ensured we have the most up-to-date wireframes and interface details.
 
 2. User Registration Logic:
    - Built a robust registration system that tracks Full Name, Email, Phone, and Roles (Admin/Customer).
@@ -27,4 +27,4 @@ Hey! Here is a breakdown of everything we accomplished in the Real Estate projec
    - Tested all endpoints with local scripts to ensure everything works perfectly.
    - Pushed the entire updated project back to GitHub so it's ready for you!
 
-Everything is currently running and verified. Great progress today!
+Everything is currently running and verified. 
