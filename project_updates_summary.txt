@@ -1,30 +1,30 @@
-Hey! Here is a breakdown of everything we accomplished in the Real Estate project today:
+Hey! Here is a breakdown of everything accomplished in the Real Estate project:
 
-1. Repository Merging:
-   - I successfully merged all the latest changes uploaded  (specifically from the sprint-4 branch) into the main project. This ensured we have the most up-to-date wireframes and interface details.
+1. Initial Backend Setup & Authentication (Sprint 4):
+   - Merged backend API for User Registration (Admin/Customer roles).
+   - Secure login system using JWT (JSON Web Tokens) with hashed passwords.
+   - Admin Project Management (CRUD) for creating, viewing, updating, and soft-deleting real estate projects.
 
-2. User Registration Logic:
-   - Built a robust registration system that tracks Full Name, Email, Phone, and Roles (Admin/Customer).
-   - Added validation to make sure passwords match and are strong enough.
-   - For security, passwords are never stored in plain text; they are fully hashed before saving.
+2. Frontend Initialization & Integration:
+   - Initialized React/Vite development environment.
+   - Connected the Login (`/login`) and Register (`/register`) pages to the backend REST API endpoints.
+   - Fixed payload mismatches to ensure seamless authentication flow.
 
-3. Login & Authentication:
-   - Implemented a secure login system using JWT (JSON Web Tokens).
-   - The backend now verifies the email, password, and even checks if the user's role matches what they are trying to log in as.
-   - Users get an access and refresh token once they log in successfully.
+3. Premium Design Overhaul & Asset Integration:
+   - Completely redesigned the frontend (`Landing.jsx`, `Projects.jsx`, `ProjectDetails.jsx`) based on high-fidelity HTML wireframes.
+   - Replaced all SVG placeholders with high-resolution architectural assets (`mahim_bg.png`, AVIF background photos) to deliver a premium, modern aesthetic.
+   - Restored original typography (Poppins and Roboto) and high-quality copy.
 
-4. Admin Project Management (CRUD):
-   - Created a new "Project" entity to track real estate projects (Location, Total Floors, Launch Date, etc.).
-   - Admins now have full control: they can Create, View, Update, and Delete projects.
-   - Added some smart "soft delete" logic so nothing is permanently lost—projects are just hidden from the main view once deleted.
-   - Put in safeguards so you can't delete a project that already has apartments listed under it.
+4. Mahim Builders Rebranding:
+   - Scoured the repository to eradicate all "ArchiSpace" branding.
+   - Successfully integrated the "Mahim Builders & Construction Ltd." logo and contact information across all headers, footers, and page metadata.
 
-5. System Configuration:
-   - Configured the entire Django REST Framework to handle these new features smoothly.
-   - Ran all database migrations to make sure the schema stays in sync.
+5. Functional Bug Fixes & Navigation Wiring:
+   - Resolved a critical global CSS issue (`overflow: hidden` on body) that was preventing users from scrolling down the home page.
+   - Wired up the Navbar links and the Hero "Search" buttons to correctly navigate across the application (`/` to `/projects`, etc.).
 
-6. Deployment & Verification:
-   - Tested all endpoints with local scripts to ensure everything works perfectly.
-   - Pushed the entire updated project back to GitHub so it's ready for you!
+6. Workspace Cleanup:
+   - Deleted all unnecessary, conflicting local files (e.g., `landing.html`, `.idea/`, old `realstate` directory) to keep the repository optimized.
 
-Everything is currently running and verified. 
+7. Final Deployment:
+   - The entire front-to-back solution is verified locally and pushed to the `main` branch on GitHub!
