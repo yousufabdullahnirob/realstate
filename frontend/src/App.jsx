@@ -3,6 +3,8 @@ import Dashboard from "./Dashboard";
 import Landing from "./Landing";
 import Projects from "./Projects";
 import ProjectDetails from "./ProjectDetails";
+import Login from "./Login";
+import Register from "./Register";
 import "./App.css";
 
 function App() {
@@ -13,6 +15,8 @@ function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/project-details" element={<ProjectDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,17 +1,24 @@
 import { Link } from "react-router-dom";
+import logo from "./assets/mahim_logo.png";
+import mahim_bg from "./assets/mahim_bg.png";
+import hero_img from "./assets/photo-1486406146926-c627a92ad1ab.avif";
 
 function ProjectDetails() {
   return (
     <>
       {/* ===== NAVBAR ===== */}
       <nav>
-        <div className="nav-logo">Archi<span>Space</span></div>
+        <div className="nav-logo">
+          <img src={logo} alt="Mahim Builders" style={{ height: '40px', marginRight: '10px' }} />
+          Mahim <span>Builders</span>
+        </div>
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><a href="#">Search</a></li>
-          <li><a href="#">About Us</a></li>
+          <li><Link to="/projects">Search</Link></li>
+          <li><Link to="/#about">About Us</Link></li>
           <li><Link to="/projects" className="active">Projects</Link></li>
-          <li><a href="#">Services</a></li>
+          <li><Link to="/#services">Services</Link></li>
+          <li><Link to="/login" className="nav-login-link" style={{ color: 'var(--cyan)', fontWeight: '600', marginLeft: '20px' }}>Login</Link></li>
         </ul>
         <button className="nav-contact-btn">Contact Us</button>
         <div className="nav-hamburger"><span></span><span></span><span></span></div>
@@ -21,11 +28,7 @@ function ProjectDetails() {
       <section className="hero-banner">
         <div className="hero-bg-pattern"></div>
         <div className="hero-banner-img">
-          <svg width="900" height="480" viewBox="0 0 900 480" fill="none">
-            <circle cx="260" cy="200" r="110" fill="white"/>
-            <polygon points="520,50 730,380 310,380" fill="white"/>
-            <rect x="80" y="370" width="740" height="10" rx="5" fill="white"/>
-          </svg>
+          <img src={hero_img} alt="Hero" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: '0.4' }} />
         </div>
         <div className="hero-gradient"></div>
         <div className="hero-content">
@@ -178,7 +181,7 @@ function ProjectDetails() {
                 <tr><td>Bathrooms</td><td>4 Bathrooms + 2 Powder Rooms</td></tr>
                 <tr><td>Parking</td><td>Double Garage + 2 External</td></tr>
                 <tr><td>Construction Year</td><td>2024</td></tr>
-                <tr><td>Architect</td><td>ArchiSpace Design Studio</td></tr>
+                <tr><td>Architect</td><td>Mahim Builders Design Studio</td></tr>
                 <tr><td>Interior Designer</td><td>Lumina Interiors</td></tr>
                 <tr><td>Structural Engineer</td><td>CoreBuild Engineering</td></tr>
                 <tr><td>Project Status</td><td style={{color:"#22c55e",fontWeight:"600"}}>✓ Completed</td></tr>
@@ -306,27 +309,27 @@ function ProjectDetails() {
       <footer>
         <div className="footer-main">
           <div className="footer-logo-block">
-            <div className="footer-logo-txt">Archi<span>Space</span></div>
+            <div className="footer-logo-txt">Mahim <span>Builders</span></div>
             <p>Transforming visions into timeless architecture. Building the future, one space at a time.</p>
           </div>
           <div className="footer-links-col">
             <h5>Navigation</h5>
             <Link to="/">Home</Link>
-            <a href="#">About Us</a>
+            <Link to="/#about">About Us</Link>
             <Link to="/projects">Projects</Link>
-            <a href="#">Services</a>
-            <a href="#">Contact</a>
+            <Link to="/#services">Services</Link>
+            <Link to="/contact">Contact</Link>
           </div>
           <div className="footer-contact-col">
             <h5>Get In Touch</h5>
             <div className="footer-contact-bar">
-              <p>📍 123 Design Avenue, Dubai, UAE</p>
-              <p>✉️ hello@archispace.com</p>
-              <p>📞 +971 4 000 0000</p>
-            </div>
+              <p>📍 123 Construction Avenue, Dhaka, Bangladesh</p>
+            <p>✉️ info@mahimbuilders.com</p>
+            <p>📞 +880 1234 567890</p>
           </div>
         </div>
-        <div className="footer-bottom">© 2026 ArchiSpace. All rights reserved. Designed with ❤️</div>
+      </div>
+      <div className="footer-bottom">© 2026 Mahim Builders & Construction Ltd. All rights reserved. Designed with ❤️</div>
       </footer>
 
       <style>{`
@@ -377,7 +380,8 @@ function ProjectDetails() {
 
         .hero-banner {
           margin-top: 68px; position: relative; height: 500px; overflow: hidden;
-          background: linear-gradient(135deg, #0f2460 0%, #1E3A8A 50%, #1a4fa0 100%);
+          background: linear-gradient(135deg, rgba(15, 36, 96, 0.95) 0%, rgba(30, 58, 138, 0.8) 50%, rgba(26, 79, 160, 0.7) 100%), url(${mahim_bg});
+          background-size: cover; background-position: center;
           display: flex; align-items: flex-end;
         }
         .hero-bg-pattern {

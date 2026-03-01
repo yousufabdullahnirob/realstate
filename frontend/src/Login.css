@@ -6,8 +6,8 @@
   --radius: 20px;
   --glass1: rgba(255, 255, 255, 0.1);
   --glass2: rgba(255, 255, 255, 0.06);
-  --accent1: #a5b4fc;
-  --accent2: #34d399;
+  --accent1: #1E3A8A; /* Blue */
+  --accent2: #06B6D4; /* Cyan */
 }
 
 * {
@@ -26,7 +26,6 @@ body {
     sans-serif;
   color: var(--text);
   background: #070b16;
-  overflow: hidden;
 }
 
 /* BACKGROUND */

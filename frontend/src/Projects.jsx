@@ -1,17 +1,23 @@
 import { Link } from "react-router-dom";
+import logo from "./assets/mahim_logo.png";
+import mahim_bg from "./assets/mahim_bg.png";
 
 function Projects() {
   return (
     <>
       {/* ===== NAVBAR ===== */}
       <nav>
-        <div className="nav-logo">Archi<span>Space</span></div>
+        <div className="nav-logo">
+          <img src={logo} alt="Mahim Builders" style={{ height: '40px', marginRight: '10px' }} />
+          Mahim <span>Builders</span>
+        </div>
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><a href="#">Search</a></li>
-          <li><a href="#">About Us</a></li>
+          <li><Link to="/projects">Search</Link></li>
+          <li><Link to="/#about">About Us</Link></li>
           <li><Link to="/projects" className="active">Projects</Link></li>
-          <li><a href="#">Services</a></li>
+          <li><Link to="/#services">Services</Link></li>
+          <li><Link to="/login" className="nav-login-link" style={{ color: 'var(--cyan)', fontWeight: '600', marginLeft: '20px' }}>Login</Link></li>
         </ul>
         <button className="nav-contact-btn">Contact Us</button>
         <div className="nav-hamburger"><span></span><span></span><span></span></div>
@@ -21,11 +27,7 @@ function Projects() {
       <section className="hero-banner">
         <div className="hero-banner-bg-pattern"></div>
         <div className="hero-banner-img">
-          <svg width="700" height="340" viewBox="0 0 700 340" fill="none">
-            <circle cx="200" cy="150" r="80" fill="white"/>
-            <polygon points="400,40 560,280 240,280" fill="white"/>
-            <rect x="100" y="260" width="500" height="8" rx="4" fill="white"/>
-          </svg>
+          <img src={mahim_bg} alt="Banner" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: '0.2' }} />
         </div>
         <div className="hero-banner-content">
           <div className="tag">Our Portfolio</div>
@@ -286,27 +288,27 @@ function Projects() {
       <footer>
         <div className="footer-main">
           <div className="footer-logo-block">
-            <div className="footer-logo-txt">Archi<span>Space</span></div>
+            <div className="footer-logo-txt">Mahim <span>Builders</span></div>
             <p>Transforming visions into timeless architecture. Building the future, one space at a time.</p>
           </div>
           <div className="footer-links-col">
             <h5>Navigation</h5>
             <Link to="/">Home</Link>
-            <a href="#">About Us</a>
+            <Link to="/#about">About Us</Link>
             <Link to="/projects">Projects</Link>
-            <a href="#">Services</a>
-            <a href="#">Contact</a>
+            <Link to="/#services">Services</Link>
+            <Link to="/contact">Contact</Link>
           </div>
           <div className="footer-contact-col">
             <h5>Get In Touch</h5>
             <div className="footer-contact-bar">
-              <p>📍 123 Design Avenue, Dubai, UAE</p>
-              <p>✉️ hello@archispace.com</p>
-              <p>📞 +971 4 000 0000</p>
-            </div>
+              <p>📍 123 Construction Avenue, Dhaka, Bangladesh</p>
+            <p>✉️ info@mahimbuilders.com</p>
+            <p>📞 +880 1234 567890</p>
           </div>
         </div>
-        <div className="footer-bottom">© 2026 ArchiSpace. All rights reserved. Designed with ❤️</div>
+      </div>
+      <div className="footer-bottom">© 2026 Mahim Builders & Construction Ltd. All rights reserved. Designed with ❤️</div>
       </footer>
 
       <style>{`
@@ -320,8 +322,8 @@ function Projects() {
           --gray-light: #F3F4F6;
           --gray-dark: #111827;
           --gray-mid: #6B7280;
-          --shadow: 0 4px 20px rgba(0,0,0,0.08);
-          --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+          --shadow: 0 4px 20px rgba(0,0,0,0.10);
+          --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -364,7 +366,8 @@ function Projects() {
         .hero-banner {
           margin-top: 68px;
           position: relative; height: 380px; overflow: hidden;
-          background: linear-gradient(135deg, #0f2460 0%, #1E3A8A 50%, #1a4fa0 100%);
+          background: linear-gradient(135deg, rgba(15, 36, 96, 0.95) 0%, rgba(30, 58, 138, 0.8) 50%, rgba(26, 79, 160, 0.7) 100%), url(${mahim_bg});
+          background-size: cover; background-position: center;
           display: flex; align-items: center; justify-content: center;
         }
         .hero-banner-bg-pattern {
@@ -373,7 +376,7 @@ function Projects() {
           background-size: 30px 30px;
         }
         .hero-banner-img {
-          position: absolute; inset: 0; display:: center; justify flex; align-items-content: center;
+          position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
         }
         .hero-banner-img svg { opacity: 0.2; }
         .hero-banner-content {

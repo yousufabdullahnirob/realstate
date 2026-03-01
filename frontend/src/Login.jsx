@@ -28,13 +28,17 @@ const Login = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: email, password: password }),
+                body: JSON.stringify({ email: email, password: password, role: role }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // alert(`Login Success ✅ (${role.toUpperCase()})`); // Removed alert for smoother UX
+                // Store tokens if needed, but for now just navigate
+                if (data.access) {
+                    localStorage.setItem('token', data.access);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
                 navigate('/dashboard');
                 if (rememberMe) {
                     localStorage.setItem('savedEmail', email);
@@ -42,7 +46,7 @@ const Login = () => {
                     localStorage.removeItem('savedEmail');
                 }
             } else {
-                setError(data.error || "Login failed");
+                setError(data.detail || data.error || "Login failed");
             }
         } catch (error) {
             console.error("Login error:", error);
@@ -73,8 +77,8 @@ const Login = () => {
                         <span className="label">Login As</span>
                         <div className="seg" role="tablist" aria-label="Role switcher">
                             <button 
-                                className={role === 'client' ? 'active' : ''} 
-                                onClick={() => handleRole('client')}
+                                className={role === 'customer' ? 'active' : ''} 
+                                onClick={() => handleRole('customer')}
                                 type="button"
                             >
                                 <span className="dot"></span> Client / Customer
@@ -125,19 +129,20 @@ const Login = () => {
                                     type="checkbox" 
                                     checked={rememberMe}
                                     onChange={(e) => setRememberMe(e.target.checked)} 
+                                    style={{ width: 'auto', marginBottom: 0 }}
                                 />
                                 Remember me
                             </label>
                             <span className="link" onClick={() => alert("Forgot Password not implemented")}>Forgot Password?</span>
                         </div>
 
-                        {error && <div className="error">{error}</div>}
+                        {error && <div className="error" style={{ color: '#ff6b6b', fontSize: '12px', marginBottom: '10px' }}>{error}</div>}
 
                         <button className="btn" onClick={handleLogin}>Log In</button>
 
                         <div className="row">
                             <span style={{ color: 'rgba(234, 240, 255, 0.7)', fontSize: '13px' }}>New here?</span>
-                            <span className="link" onClick={() => alert("Signup not implemented")}>Create an account</span>
+                            <span className="link" onClick={() => navigate('/register')}>Create an account</span>
                         </div>
                     </div>
                 </section>

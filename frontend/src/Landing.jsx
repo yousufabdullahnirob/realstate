@@ -1,17 +1,25 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "./assets/mahim_logo.png";
+import mahim_bg from "./assets/mahim_bg.png";
+import hero_img from "./assets/photo-1486406146926-c627a92ad1ab.avif";
 
 function Landing() {
+  const navigate = useNavigate();
   return (
     <>
       {/* ===== NAVBAR ===== */}
       <nav>
-        <div className="nav-logo">Archi<span>Space</span></div>
+        <div className="nav-logo">
+          <img src={logo} alt="Mahim Builders" style={{ height: '40px', marginRight: '10px' }} />
+          Mahim <span>Builders</span>
+        </div>
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><a href="#">Search</a></li>
-          <li><a href="#">About Us</a></li>
+          <li><Link to="/projects">Search</Link></li>
+          <li><a href="#about">About Us</a></li>
           <li><Link to="/projects">Projects</Link></li>
-          <li><a href="#">Services</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><Link to="/login" className="nav-login-link" style={{ color: 'var(--cyan)', fontWeight: '600' }}>Login</Link></li>
         </ul>
         <button className="nav-contact-btn">Contact Us</button>
         <div className="nav-hamburger"><span></span><span></span><span></span></div>
@@ -29,12 +37,7 @@ function Landing() {
           </div>
           <div className="hero-right">
             <div className="hero-img-card">
-              <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
-                <rect x="20" y="20" width="120" height="120" rx="12" fill="rgba(255,255,255,0.15)"/>
-                <circle cx="58" cy="65" r="22" fill="rgba(255,255,255,0.3)"/>
-                <polygon points="105,30 140,95 70,95" fill="rgba(255,255,255,0.3)"/>
-                <rect x="20" y="110" width="120" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
-              </svg>
+              <img src={hero_img} alt="Premium Residence" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           </div>
         </div>
@@ -68,12 +71,12 @@ function Landing() {
               <option>Large</option>
             </select>
           </div>
-          <button className="search-btn">Search</button>
+          <button className="search-btn" onClick={() => navigate('/projects')}>Search</button>
         </div>
       </section>
 
       {/* ===== ABOUT US ===== */}
-      <section className="about">
+      <section className="about" id="about">
         <div className="about-img">
           <svg width="140" height="140" viewBox="0 0 140 140" fill="none">
             <rect x="15" y="15" width="110" height="110" rx="10" fill="rgba(30,58,138,0.12)"/>
@@ -223,7 +226,7 @@ function Landing() {
           <div className="testimonial-card">
             <div className="t-avatar"></div>
             <div className="stars">★★★★★</div>
-            <blockquote>"ArchiSpace completely transformed our vision into a breathtaking reality. Every detail was handled with precision and care. We couldn't be prouder of our new home."</blockquote>
+            <blockquote>"Mahim Builders completely transformed our vision into a breathtaking reality. Every detail was handled with precision and care. We couldn't be prouder of our new home."</blockquote>
             <div className="t-name">Sarah Mitchell</div>
             <div className="t-role">Homeowner, Dubai</div>
           </div>
@@ -245,7 +248,7 @@ function Landing() {
       </section>
 
       {/* ===== SERVICES ===== */}
-      <section className="services">
+      <section className="services" id="services">
         <h2>Our Services</h2>
         <p className="subtitle">End-to-end architectural solutions tailored to your vision.</p>
         <div className="services-grid">
@@ -276,27 +279,27 @@ function Landing() {
       <footer>
         <div className="footer-main">
           <div className="footer-logo-block">
-            <div className="footer-logo-txt">Archi<span>Space</span></div>
+            <div className="footer-logo-txt">Mahim <span>Builders</span></div>
             <p>Transforming visions into timeless architecture. Building the future, one space at a time.</p>
           </div>
           <div className="footer-links-col">
             <h5>Navigation</h5>
             <Link to="/">Home</Link>
-            <a href="#">About Us</a>
+            <a href="#about">About Us</a>
             <Link to="/projects">Projects</Link>
-            <a href="#">Services</a>
-            <a href="#">Contact</a>
+            <a href="#services">Services</a>
+            <Link to="/contact">Contact</Link>
           </div>
           <div className="footer-contact-col">
             <h5>Get In Touch</h5>
             <div className="footer-contact-bar">
-              <p>📍 123 Design Avenue, Dubai, UAE</p>
-              <p>✉️ hello@archispace.com</p>
-              <p>📞 +971 4 000 0000</p>
+              <p>📍 123 Construction Avenue, Dhaka, Bangladesh</p>
+              <p>✉️ info@mahimbuilders.com</p>
+              <p>📞 +880 1234 567890</p>
             </div>
           </div>
         </div>
-        <div className="footer-bottom">© 2026 ArchiSpace. All rights reserved. Designed with ❤️</div>
+        <div className="footer-bottom">© 2026 Mahim Builders & Construction Ltd. All rights reserved. Designed with ❤️</div>
       </footer>
 
       <style>{`
@@ -357,7 +360,8 @@ function Landing() {
         /* ===== HERO ===== */
         .hero {
           position: relative; min-height: 100vh;
-          background: linear-gradient(135deg, #0f2460 0%, #1E3A8A 40%, #1a4fa0 70%, #0e3060 100%);
+          background: linear-gradient(135deg, rgba(15, 36, 96, 0.95) 0%, rgba(30, 58, 138, 0.8) 40%, rgba(26, 79, 160, 0.7) 100%), url(${mahim_bg});
+          background-size: cover; background-position: center;
           display: flex; flex-direction: column;
           padding-top: 68px; overflow: hidden;
         }
