@@ -6,4 +6,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.apartment_list_view, name='apartment_list'),
     path('api/apartments/', views.ApartmentListAPIView.as_view(), name='api_apartments'),
+    path('api/apartments/<int:id>/', views.ApartmentDetailAPIView.as_view(), name='api_apartment_detail'),
 ]

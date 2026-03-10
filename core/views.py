@@ -12,3 +12,8 @@ def apartment_list_view(request):
 class ApartmentListAPIView(generics.ListAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
+
+class ApartmentDetailAPIView(generics.RetrieveAPIView):
+    queryset = Apartment.objects.all()
+    serializer_class = ApartmentSerializer
+    lookup_field = 'id'
