@@ -38,10 +38,10 @@ function ProjectDetails() {
         </div>
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/projects">Search</Link></li>
-          <li><Link to="/#about">About Us</Link></li>
-          <li><Link to="/projects" className="active">Projects</Link></li>
-          <li><Link to="/#services">Services</Link></li>
+          <li><a href="/#projects">Search</a></li>
+          <li><a href="/#about">About Us</a></li>
+          <li><a href="/#projects">Projects</a></li>
+          <li><a href="/#services">Services</a></li>
           <li><Link to="/login" className="nav-login-link" style={{ color: 'var(--cyan)', fontWeight: '600', marginLeft: '20px' }}>Login</Link></li>
         </ul>
         <button className="nav-contact-btn">Contact Us</button>
@@ -59,7 +59,7 @@ function ProjectDetails() {
           <div className="hero-content-left">
             <div className="breadcrumb">
               <Link to="/">Home</Link><span>›</span>
-              <Link to="/#projects">Projects</Link><span>›</span>
+              <a href="/#projects">Projects</a><span>›</span>
               <span className="current">{apartment.title}</span>
             </div>
             <h1>{apartment.title.split(' ')[0]} <span>{apartment.title.split(' ').slice(1).join(' ')}</span></h1>
@@ -337,9 +337,9 @@ function ProjectDetails() {
           <div className="footer-links-col">
             <h5>Navigation</h5>
             <Link to="/">Home</Link>
-            <Link to="/#about">About Us</Link>
-            <Link to="/projects">Projects</Link>
-            <Link to="/#services">Services</Link>
+            <a href="/#about">About Us</a>
+            <a href="/#projects">Projects</a>
+            <a href="/#services">Services</a>
             <Link to="/contact">Contact</Link>
           </div>
           <div className="footer-contact-col">

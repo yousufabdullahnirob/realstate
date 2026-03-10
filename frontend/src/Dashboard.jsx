@@ -40,10 +40,10 @@ const Dashboard = () => {
                 </div>
                 <ul className="nav-links">
                 <li><Link to="/" className="active">Home</Link></li>
-                <li><Link to="/#search" >Search</Link></li>
-                <li><Link to="/#about">About Us</Link></li>
-                <li><Link to="/#projects">Projects</Link></li>
-                <li><Link to="/#services">Services</Link></li>
+                <li><a href="/#projects">Search</a></li>
+                <li><a href="/#about">About Us</a></li>
+                <li><a href="/#projects">Projects</a></li>
+                <li><a href="/#services">Services</a></li>
                 <li><button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: '"Poppins", sans-serif', fontSize: '0.88rem', color: 'var(--cyan)', fontWeight: '600', marginLeft: '20px' }}>Logout</button></li>
                 </ul>
                 <button className="nav-contact-btn">Contact Us</button>
@@ -101,6 +101,50 @@ const Dashboard = () => {
                 </div>
             </section>
 
+            {/* ===== ABOUT US SECTION ===== */}
+            <section id="about" style={{ padding: '70px 60px', background: 'var(--white)' }}>
+                <div className="sec-title" style={{ fontFamily: '"Poppins", sans-serif', fontWeight: '700', fontSize: '1.6rem', color: 'var(--blue)', marginBottom: '30px' }}>
+                    About Mahim Builders
+                </div>
+                <div style={{ display: 'flex', gap: '40px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 500px' }}>
+                        <p style={{ fontSize: '1.05rem', lineHeight: '1.8', color: 'var(--gray-mid)', marginBottom: '20px' }}>
+                            At Mahim Builders, we believe that a building is more than just a structure—it's a canvas where dreams are painted and lives are built. For over a decade, we have been at the forefront of the real estate industry in Bangladesh, pioneering designs that blend aesthetic elegance with functional excellence.
+                        </p>
+                        <p style={{ fontSize: '1.05rem', lineHeight: '1.8', color: 'var(--gray-mid)' }}>
+                            Our commitment to quality, sustainability, and customer satisfaction has made us a trusted name. Whether you're looking for a cozy apartment or a luxury penthouse, our dedicated team of architects and engineers work tirelessly to ensure every detail meets the highest standards.
+                        </p>
+                    </div>
+                    <div style={{ flex: '1 1 400px', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-lg)' }}>
+                        <img src={mahim_bg} alt="About Us" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== SERVICES SECTION ===== */}
+            <section id="services" style={{ padding: '70px 60px', background: 'var(--gray-light)' }}>
+                <div className="sec-title" style={{ fontFamily: '"Poppins", sans-serif', fontWeight: '700', fontSize: '1.6rem', color: 'var(--blue)', marginBottom: '30px', textAlign: 'center' }}>
+                    Our Premium Services
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
+                    <div style={{ background: 'var(--white)', padding: '40px 30px', borderRadius: '12px', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🏗️</div>
+                        <h4 style={{ fontFamily: '"Poppins", sans-serif', fontSize: '1.2rem', color: 'var(--blue)', marginBottom: '10px' }}>Construction</h4>
+                        <p style={{ color: 'var(--gray-mid)', fontSize: '0.9rem', lineHeight: '1.6' }}>End-to-end building solutions with top-tier materials and expert engineering for residential and commercial projects.</p>
+                    </div>
+                    <div style={{ background: 'var(--white)', padding: '40px 30px', borderRadius: '12px', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🏢</div>
+                        <h4 style={{ fontFamily: '"Poppins", sans-serif', fontSize: '1.2rem', color: 'var(--blue)', marginBottom: '10px' }}>Real Estate Sales</h4>
+                        <p style={{ color: 'var(--gray-mid)', fontSize: '0.9rem', lineHeight: '1.6' }}>Connecting buyers with their dream properties through transparent, hassle-free transactions and dedicated support.</p>
+                    </div>
+                    <div style={{ background: 'var(--white)', padding: '40px 30px', borderRadius: '12px', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🎨</div>
+                        <h4 style={{ fontFamily: '"Poppins", sans-serif', fontSize: '1.2rem', color: 'var(--blue)', marginBottom: '10px' }}>Interior Design</h4>
+                        <p style={{ color: 'var(--gray-mid)', fontSize: '0.9rem', lineHeight: '1.6' }}>Transforming spaces with bespoke interior solutions that reflect your personality and enhance your lifestyle.</p>
+                    </div>
+                </div>
+            </section>
+
             {/* ===== FOOTER ===== */}
             <footer>
                 <div className="footer-main">
@@ -111,9 +155,9 @@ const Dashboard = () => {
                 <div className="footer-links-col">
                     <h5>Navigation</h5>
                     <Link to="/">Home</Link>
-                    <Link to="/#about">About Us</Link>
-                    <Link to="/#projects">Projects</Link>
-                    <Link to="/#services">Services</Link>
+                    <a href="/#about">About Us</a>
+                    <a href="/#projects">Projects</a>
+                    <a href="/#services">Services</a>
                     <Link to="/contact">Contact</Link>
                 </div>
                 <div className="footer-contact-col">
