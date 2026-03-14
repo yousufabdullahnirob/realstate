@@ -5,7 +5,7 @@ import logo from './assets/mahim_logo.png'; // Updated to restored logo
 
 const Login = () => {
     const navigate = useNavigate();
-    const [role, setRole] = useState('client');
+    const [role, setRole] = useState('customer');
     const [email, setEmail] = useState(localStorage.getItem('savedEmail') || '');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);

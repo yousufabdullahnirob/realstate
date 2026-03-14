@@ -46,7 +46,7 @@ const Register = () => {
 
             if (response.ok) {
                 setSuccess("Registration successful! Redirecting to login...");
-                setTimeout(() => navigate('/dashboard'), 2000);
+                setTimeout(() => navigate('/login'), 2000);
             } else {
                 // Handle field-specific errors from Django
                 const errorMsg = data.detail || (data.password ? data.password[0] : null) || (data.email ? data.email[0] : null) || "Registration failed";
@@ -161,7 +161,7 @@ const Register = () => {
 
                         <div className="row" style={{ marginTop: '15px' }}>
                             <span style={{ color: 'rgba(234, 240, 255, 0.7)', fontSize: '13px' }}>Already have an account?</span>
-                            <span className="link" onClick={() => navigate('/dashboard')}>Log In</span>
+                            <span className="link" onClick={() => navigate('/login')}>Log In</span>
                         </div>
                     </form>
                 </section>
