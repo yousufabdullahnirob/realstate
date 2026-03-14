@@ -5,6 +5,7 @@ import hero_img from "./assets/photo-1486406146926-c627a92ad1ab.avif";
 
 function Landing() {
   const navigate = useNavigate();
+
   return (
     <>
       {/* ===== NAVBAR ===== */}
@@ -47,28 +48,32 @@ function Landing() {
           <div className="filter-dropdown">
             <span className="filter-icon">⊿</span>
             <select>
-              <option value="">Location</option>
-              <option>Downtown</option>
-              <option>Suburbs</option>
-              <option>Countryside</option>
+              <option value="" disabled>Location</option>
+              <option value="Urban">Urban</option>
+              <option value="Coastal">Coastal</option>
+              <option value="Garden">Garden</option>
+              <option value="Suburban">Suburban</option>
             </select>
           </div>
           <div className="filter-dropdown">
             <span className="filter-icon">⊿</span>
             <select>
-              <option value="">Price Range</option>
-              <option>Under $500k</option>
-              <option>$500k – $1M</option>
-              <option>$1M+</option>
+              <option value="" disabled>Price Range</option>
+              <option value="Under $500k">Under $500k</option>
+              <option value="$500k - $1M">$500k - $1M</option>
+              <option value="$1M - $1.5M">$1M - $1.5M</option>
+              <option value="$1.5M - $2M">$1.5M - $2M</option>
+              <option value="$2M+">$2M+</option>
             </select>
           </div>
           <div className="filter-dropdown">
             <span className="filter-icon">⊿</span>
             <select>
-              <option value="">Size</option>
-              <option>Small</option>
-              <option>Medium</option>
-              <option>Large</option>
+              <option value="" disabled>Size</option>
+              <option value="Up to 1,200 sq ft">Up to 1,200 sq ft</option>
+              <option value="1,200 - 2,500 sq ft">1,200 - 2,500 sq ft</option>
+              <option value="2,500 - 4,000 sq ft">2,500 - 4,000 sq ft</option>
+              <option value="4,000+ sq ft">4,000+ sq ft</option>
             </select>
           </div>
           <button className="search-btn" onClick={() => navigate('/projects')}>Search</button>

@@ -1,9 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from "./assets/mahim_logo.png";
 import mahim_bg from "./assets/mahim_bg.png";
 import hero_img from "./assets/photo-1486406146926-c627a92ad1ab.avif";
+import { STATIC_PROJECTS } from "./projectData";
 
 function ProjectDetails() {
+  const location = useLocation();
+  const selectedProject = location.state?.project ?? STATIC_PROJECTS[0];
+
   return (
     <>
       {/* ===== NAVBAR ===== */}
@@ -36,13 +40,13 @@ function ProjectDetails() {
             <div className="breadcrumb">
               <Link to="/">Home</Link><span>›</span>
               <Link to="/projects">Projects</Link><span>›</span>
-              <span className="current">Skyline Residence</span>
+              <span className="current">{selectedProject.name}</span>
             </div>
-            <h1>Skyline <span>Residence</span></h1>
+            <h1>{selectedProject.name.split(' ')[0]} <span>{selectedProject.name.split(' ').slice(1).join(' ')}</span></h1>
             <div className="hero-badges">
-              <span className="hero-badge badge-status">✓ Completed</span>
+              <span className="hero-badge badge-status">✓ {selectedProject.status}</span>
               <span className="hero-badge badge-type">Residential Villa</span>
-              <span className="hero-badge badge-year">📅 2024</span>
+              <span className="hero-badge badge-year">📅 {selectedProject.createdDate?.slice(0, 4)}</span>
             </div>
           </div>
           <div className="hero-content-right">
@@ -88,14 +92,14 @@ function ProjectDetails() {
           <div className="info-icon">🏗️</div>
           <div className="info-text">
             <div className="info-label">Status</div>
-            <div className="info-value" style={{color:"#22c55e"}}>Completed</div>
+            <div className="info-value" style={{color:"#22c55e"}}>{selectedProject.status}</div>
           </div>
         </div>
         <div className="info-item">
           <div className="info-icon">📅</div>
           <div className="info-text">
             <div className="info-label">Year Built</div>
-            <div className="info-value">2024</div>
+            <div className="info-value">{selectedProject.createdDate?.slice(0, 4)}</div>
           </div>
         </div>
       </div>
@@ -145,7 +149,8 @@ function ProjectDetails() {
           {/* DESCRIPTION */}
           <div className="description-section">
             <div className="section-title">Project Description</div>
-            <p>Skyline Residence is a landmark family villa perched in the heart of Dubai, offering breathtaking panoramic views of the city skyline. Designed with a seamless blend of modern architecture and timeless elegance, every detail of this home speaks to refined living.</p>
+            <p>{selectedProject.name} is a landmark family villa perched in the heart of Dubai, offering breathtaking panoramic views of the city skyline. Designed with a seamless blend of modern architecture and timeless elegance, every detail of this home speaks to refined living.</p>
+            <p>{selectedProject.shortDescription}</p>
             <div className="highlight-box">
               <p>"Our vision was to create a home that feels both grand and intimate — where every room tells a story of light, space, and connection to the landscape beyond."</p>
             </div>

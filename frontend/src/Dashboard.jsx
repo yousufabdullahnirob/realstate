@@ -1,51 +1,71 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { loadProjects, saveProjects } from './projectData';
 
 const Dashboard = () => {
-    const [apartments, setApartments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const [projects, setProjects] = useState(loadProjects);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/apartments/')
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch apartments');
-                return res.json();
-            })
-            .then(data => {
-                setApartments(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Error fetching apartments:", err);
-                setError("Failed to load apartments. Please try again later.");
-                setLoading(false);
-            });
-    }, []);
+        saveProjects(projects);
+    }, [projects]);
 
-    if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading apartments...</div>;
-    if (error) return <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>{error}</div>;
+    const handleViewDetails = (project) => {
+        navigate('/project-details', { state: { project } });
+    };
+
+    const handleEditProject = (projectId) => {
+        setProjects(current =>
+            current.map(project =>
+                project.id === projectId
+                    ? {
+                        ...project,
+                        name: project.name.includes('(Edited)') ? project.name : `${project.name} (Edited)`
+                    }
+                    : project
+            )
+        );
+    };
+
+    const handleDeleteProject = (projectId) => {
+        setProjects(current => current.filter(project => project.id !== projectId));
+    };
 
     return (
         <div style={{ padding: '20px', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', background: '#f9f9f9', minHeight: '100vh' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', background: '#fff', padding: '15px 30px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', background: '#fff', padding: '15px 30px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flexWrap: 'wrap', gap: '12px' }}>
                 <h1 style={{ margin: 0, color: '#333', fontSize: '24px' }}>Mahim Builders</h1>
+                <Link to="/projects" style={{ textDecoration: 'none', border: '1px solid #d1d5db', borderRadius: '8px', padding: '8px 12px', fontSize: '14px', fontWeight: '600', color: '#374151', background: '#fff' }}>
+                    Open Project Listing
+                </Link>
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
-                {apartments.map(apt => (
-                    <div key={apt.id} style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', transition: 'transform 0.3s ease', cursor: 'pointer' }}
+                {projects.map(project => (
+                    <div key={project.id} style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', transition: 'transform 0.3s ease' }}
                          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'}
                          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                        <img src={apt.image} alt={apt.title} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
+                        <img src={project.image} alt={project.name} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
                         <div style={{ padding: '20px' }}>
-                            <h3 style={{ margin: '0 0 5px', color: '#2c3e50', fontSize: '20px' }}>{apt.title}</h3>
-                            <p style={{ fontWeight: '700', color: '#27ae60', margin: '0 0 15px', fontSize: '18px' }}>${parseFloat(apt.price).toLocaleString()}/mo</p>
-                            <p style={{ color: '#7f8c8d', fontSize: '15px', lineHeight: '1.5', margin: '0 0 20px' }}>{apt.description}</p>
-                            <button style={{ width: '100%', padding: '12px', background: '#3498db', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s' }}
-                                    onMouseOver={e => e.target.style.background = '#2980b9'}
-                                    onMouseOut={e => e.target.style.background = '#3498db'}>
-                                View Details
-                            </button>
+                            <h3 style={{ margin: '0 0 6px', color: '#2c3e50', fontSize: '20px' }}>{project.name}</h3>
+                            <p style={{ color: '#7f8c8d', fontSize: '15px', lineHeight: '1.5', margin: '0 0 12px' }}>{project.shortDescription}</p>
+                            <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#4b5563' }}><strong>Status:</strong> {project.status}</p>
+                            <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#4b5563' }}><strong>Created:</strong> {project.createdDate}</p>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '8px' }}>
+                                <button style={{ padding: '10px', background: '#3498db', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}
+                                        onClick={() => handleViewDetails(project)}>
+                                    View Details
+                                </button>
+                                <button style={{ padding: '10px', background: '#f3f4f6', color: '#111827', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}
+                                        onClick={() => handleEditProject(project.id)}>
+                                    Edit
+                                </button>
+                                <button style={{ padding: '10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}
+                                        onClick={() => handleDeleteProject(project.id)}>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ))}
