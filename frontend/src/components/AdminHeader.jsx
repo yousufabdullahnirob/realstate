@@ -1,18 +1,18 @@
 import React from "react";
+import "./admin.css"; // make sure this file has styles for .admin-header, etc.
 
 const AdminHeader = ({ title }) => {
   return (
-    <header className="admin-header">
+    <header className="admin-header" aria-label="Admin Header">
       <div className="header-left">
         <h3>{title}</h3>
       </div>
 
       <div className="header-right">
-        <span>Admin</span>
-        <div className="admin-avatar"></div>
+        <span className="admin-label">Admin</span>
+        <div className="admin-avatar" aria-label="Admin Avatar"></div>
       </div>
     </header>
   );
 };
-
 export default AdminHeader;
