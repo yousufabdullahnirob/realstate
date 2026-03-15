@@ -1,41 +1,18 @@
 import React from "react";
-import "./admin.css";
-import logo from "../../images/logo.svg"; // Adjust path based on your folder structure
+import "../admin.css";
+
+import Sidebar from "../components/Sidebar";
+import AdminHeader from "../components/AdminHeader";
 
 const AdminDashboard = () => {
   return (
     <div className="admin-container">
 
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="logo">
-          <img src={logo} alt="Company Logo" />
-          <div className="logo-text">Mahim Builders</div>
-        </div>
+      <Sidebar />
 
-        <nav className="sidebar-nav">
-          <a className="active" href="/admin-dashboard">📊 Dashboard</a>
-          <a href="/project-admin">🏗 Projects</a>
-          <a href="/apartment-admin">🏢 Apartments</a>
-          <a href="#">📅 Bookings</a>
-          <a href="#">👤 Users</a>
-        </nav>
-      </aside>
-
-      {/* MAIN AREA */}
       <div className="main">
 
-        {/* HEADER */}
-        <header className="admin-header">
-          <div className="header-left">
-            <h3>Dashboard Overview</h3>
-          </div>
-
-          <div className="header-right">
-            <span>Admin</span>
-            <div className="admin-avatar"></div>
-          </div>
-        </header>
+        <AdminHeader title="Dashboard Overview" />
 
         <div className="dashboard-container">
 
@@ -70,12 +47,12 @@ const AdminDashboard = () => {
             </div>
 
             <div className="preview-gallery">
-              {["Green Valley Residence", "Lake View Towers", "Skyline Heights"].map((project, index) => (
+              {["Green Valley Residence","Lake View Towers","Skyline Heights"].map((project,index)=>(
                 <div className="gallery-tile" key={index}>
                   <div className="gallery-img"></div>
                   <div className="gallery-info">
                     <h4>{project}</h4>
-                    <p>{["Dhaka", "Gulshan", "Banani"][index]}</p>
+                    <p>{["Dhaka","Gulshan","Banani"][index]}</p>
                   </div>
                 </div>
               ))}
@@ -91,10 +68,10 @@ const AdminDashboard = () => {
 
             <div className="preview-gallery">
               {[
-                { name: "Apartment A1", project: "Green Valley Residence" },
-                { name: "Apartment B3", project: "Lake View Towers" },
-                { name: "Apartment C2", project: "Skyline Heights" },
-              ].map((apt, index) => (
+                { name:"Apartment A1", project:"Green Valley Residence" },
+                { name:"Apartment B3", project:"Lake View Towers" },
+                { name:"Apartment C2", project:"Skyline Heights" }
+              ].map((apt,index)=>(
                 <div className="gallery-tile" key={index}>
                   <div className="gallery-img"></div>
                   <div className="gallery-info">
@@ -108,6 +85,7 @@ const AdminDashboard = () => {
 
         </div>
       </div>
+
     </div>
   );
 };
