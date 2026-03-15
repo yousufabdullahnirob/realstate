@@ -1,5 +1,7 @@
-import React from "react";
-import logo from "../images/logo.svg"; // adjust path if needed
+import { Link } from "react-router-dom";
+import logo from "../assets/logo.svg"; // adjust path if needed
+import "../admin.css";
+
 
 const Sidebar = () => {
   return (
@@ -10,11 +12,11 @@ const Sidebar = () => {
       </div>
 
       <nav className="sidebar-nav">
-        <a className="active" href="/admin-dashboard">📊 Dashboard</a>
-        <a href="/project-admin">🏗 Projects</a>
-        <a href="/apartment-admin">🏢 Apartments</a>
-        <a href="#">📅 Bookings</a>
-        <a href="#">👤 Users</a>
+        <Link className="active" to="/">📊 Dashboard</Link>
+        <Link to="/projects">🏗 Projects</Link>
+        <Link to="/apartments">🏢 Apartments</Link>
+        <Link to="/bookings">📅 Bookings</Link>
+        <Link to="/users">👤 Users</Link>
       </nav>
     </aside>
   );

@@ -4,8 +4,8 @@ import "../admin.css";
 import Sidebar from "../components/Sidebar";
 import AdminHeader from "../components/AdminHeader";
 
-import apartment1 from "../images/apartment1.jpg";
-import apartment2 from "../images/apartment2.jpg";
+import apartment1 from "../assets/apartment1.jpg";
+import apartment2 from "../assets/apartment2.jpg";
 
 const ApartmentAdmin = () => {
   const [apartments, setApartments] = useState([
@@ -19,27 +19,18 @@ const ApartmentAdmin = () => {
   const [formData, setFormData] = useState({
     name: "",
     project: "Green Valley Residence",
-    status: "Completed"
+    status: "Completed",
   });
 
   const openAddModal = () => {
     setModalType("add");
-    setFormData({
-      name: "",
-      project: "Green Valley Residence",
-      status: "Completed"
-    });
+    setFormData({ name: "", project: "Green Valley Residence", status: "Completed" });
   };
 
   const openEditModal = (apartment) => {
     setModalType("edit");
     setCurrentApartment(apartment);
-
-    setFormData({
-      name: apartment.name,
-      project: apartment.project,
-      status: apartment.status
-    });
+    setFormData({ name: apartment.name, project: apartment.project, status: apartment.status });
   };
 
   const openDeleteModal = (apartment) => {
@@ -50,46 +41,28 @@ const ApartmentAdmin = () => {
   const closeModal = () => setModalType("");
 
   const saveApartment = () => {
-
     if (modalType === "add") {
-      const newApartment = {
-        id: apartments.length + 1,
-        ...formData,
-        img: ""
-      };
-
+      const newApartment = { id: apartments.length + 1, ...formData, img: "/assets/default-apartment.jpg" };
       setApartments([...apartments, newApartment]);
     }
-
     if (modalType === "edit") {
-      setApartments(
-        apartments.map((a) =>
-          a.id === currentApartment.id ? { ...a, ...formData } : a
-        )
-      );
+      setApartments(apartments.map((a) => (a.id === currentApartment.id ? { ...a, ...formData } : a)));
     }
-
     closeModal();
   };
 
   const deleteApartment = () => {
-    setApartments(
-      apartments.filter((a) => a.id !== currentApartment.id)
-    );
+    setApartments(apartments.filter((a) => a.id !== currentApartment.id));
     closeModal();
   };
 
   return (
     <div className="admin-container">
-
       <Sidebar />
-
       <div className="main">
-
         <AdminHeader title="Manage Apartments" />
 
         <div className="dashboard-container">
-
           <table className="admin-table">
             <thead>
               <tr>
@@ -101,113 +74,54 @@ const ApartmentAdmin = () => {
                 <th>Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {apartments.map((a) => (
                 <tr key={a.id}>
-
                   <td>{a.id}</td>
-
-                  <td>
-                    <img
-                      className="table-img"
-                      src={a.img}
-                      alt={a.name}
-                    />
-                  </td>
-
+                  <td><img className="table-img" src={a.img} alt={a.name} /></td>
                   <td>{a.name}</td>
                   <td>{a.project}</td>
-
+                  <td><span className={`status ${a.status.toLowerCase()}`}>{a.status}</span></td>
                   <td>
-                    <span className={`status ${a.status.toLowerCase()}`}>
-                      {a.status}
-                    </span>
+                    <button className="edit-btn" onClick={() => openEditModal(a)}>Edit</button>
+                    <button className="delete-btn" onClick={() => openDeleteModal(a)}>Delete</button>
                   </td>
-
-                  <td>
-
-                    <button
-                      className="edit-btn"
-                      onClick={() => openEditModal(a)}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="delete-btn"
-                      onClick={() => openDeleteModal(a)}
-                    >
-                      Delete
-                    </button>
-
-                  </td>
-
                 </tr>
               ))}
             </tbody>
           </table>
-
         </div>
 
         {/* Floating Add Button */}
-        <button
-          className="floating-add-btn"
-          onClick={openAddModal}
-        >
-          +
-        </button>
+        <button className="floating-add-btn" aria-label="Add Apartment" onClick={openAddModal}>+</button>
 
         {/* ADD / EDIT MODAL */}
         {(modalType === "add" || modalType === "edit") && (
           <div className="modal-overlay active">
             <div className="modal-box">
-
-              <h3>
-                {modalType === "add" ? "Add Apartment" : "Edit Apartment"}
-              </h3>
+              <h3>{modalType === "add" ? "Add Apartment" : "Edit Apartment"}</h3>
 
               <input
                 type="text"
                 className="form-input"
                 placeholder="Apartment Name"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    name: e.target.value
-                  })
-                }
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
 
               <select
                 className="form-select"
                 value={formData.project}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    project: e.target.value
-                  })
-                }
+                onChange={(e) => setFormData({ ...formData, project: e.target.value })}
               >
-                <option value="Green Valley Residence">
-                  Green Valley Residence
-                </option>
-
-                <option value="Lake View Towers">
-                  Lake View Towers
-                </option>
+                <option value="Green Valley Residence">Green Valley Residence</option>
+                <option value="Lake View Towers">Lake View Towers</option>
               </select>
 
               <select
                 className="form-select"
                 value={formData.status}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    status: e.target.value
-                  })
-                }
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
                 <option value="Completed">Completed</option>
                 <option value="Ongoing">Ongoing</option>
@@ -215,23 +129,9 @@ const ApartmentAdmin = () => {
               </select>
 
               <div className="modal-actions">
-
-                <button
-                  className="cancel-btn"
-                  onClick={closeModal}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  className="confirm-delete-btn"
-                  onClick={saveApartment}
-                >
-                  Save
-                </button>
-
+                <button className="cancel-btn" onClick={closeModal}>Cancel</button>
+                <button className="save-btn" onClick={saveApartment}>Save</button>
               </div>
-
             </div>
           </div>
         )}
@@ -240,32 +140,15 @@ const ApartmentAdmin = () => {
         {modalType === "delete" && (
           <div className="modal-overlay active">
             <div className="modal-box">
-
               <h3>Confirm Deletion</h3>
               <p>Are you sure you want to delete this apartment?</p>
-
               <div className="modal-actions">
-
-                <button
-                  className="cancel-btn"
-                  onClick={closeModal}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  className="confirm-delete-btn"
-                  onClick={deleteApartment}
-                >
-                  Delete
-                </button>
-
+                <button className="cancel-btn" onClick={closeModal}>Cancel</button>
+                <button className="confirm-delete-btn" onClick={deleteApartment}>Delete</button>
               </div>
-
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
