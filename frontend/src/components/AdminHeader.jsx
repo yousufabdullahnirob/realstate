@@ -1,5 +1,4 @@
 import React from "react";
-import "./admin.css"; // make sure this file has styles for .admin-header, etc.
 
 const AdminHeader = ({ title }) => {
   return (
@@ -7,7 +6,6 @@ const AdminHeader = ({ title }) => {
       <div className="header-left">
         <h3>{title}</h3>
       </div>
-
       <div className="header-right">
         <span className="admin-label">Admin</span>
         <div className="admin-avatar" aria-label="Admin Avatar"></div>
@@ -15,4 +13,5 @@ const AdminHeader = ({ title }) => {
     </header>
   );
 };
+
 export default AdminHeader;
