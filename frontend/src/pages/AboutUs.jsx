@@ -1,11 +1,8 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const AboutUs = () => {
   return (
     <div>
-      <Header />
       <section className="about-hero">
         <div className="about-hero-box">
           <h1>About Our Company</h1>
@@ -65,31 +62,10 @@ const AboutUs = () => {
           </div>
         </div>
       </section>
-      <section className="about-team">
-        <h2>Our Team</h2>
-        <div className="about-team-grid">
-          <div className="about-member">
-            <div className="about-member-img"></div>
-            <h4>John Smith</h4>
-            <p>Project Director</p>
-          </div>
-          <div className="about-member">
-            <div className="about-member-img"></div>
-            <h4>Sarah Ahmed</h4>
-            <p>Lead Architect</p>
-          </div>
-          <div className="about-member">
-            <div className="about-member-img"></div>
-            <h4>David Lee</h4>
-            <p>Construction Manager</p>
-          </div>
-        </div>
-      </section>
       <section className="about-cta">
         <h2>Looking for Your Dream Home?</h2>
         <a href="/projects" className="about-cta-btn">Explore Our Projects</a>
       </section>
-      <Footer />
     </div>
   );
 };

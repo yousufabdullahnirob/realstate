@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const apartments = [
   { id: 1, title: '3 Bedroom Apartment', size: '1450 sqft', floor: 'Floor 5', price: '$120,000' },
@@ -11,7 +9,6 @@ const apartments = [
 const ApartmentListing = () => {
   return (
     <div>
-      <Header />
       <section className="apt-hero">
         <h1>Available Apartments</h1>
         <p>Find the perfect apartment within this project.</p>
@@ -66,7 +63,6 @@ const ApartmentListing = () => {
           ))}
         </div>
       </section>
-      <Footer />
     </div>
   );
 };

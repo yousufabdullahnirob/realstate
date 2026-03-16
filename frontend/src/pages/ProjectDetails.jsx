@@ -1,101 +1,86 @@
-import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { projectsData } from '../data/projectsData';
 
 const ProjectDetails = () => {
-  const amenities = [
-    'Rooftop Garden', 'Parking Area', '24/7 Security', 'Elevator',
-    'Children Play Area', 'Community Hall'
-  ];
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const project = projectsData.find(p => p.id === id);
 
-  return (
-    <div>
-      <Header />
-      <section className="project-hero">
-        <div className="project-hero-overlay">
-          <h1>Skyline Residency</h1>
-          <p className="project-location">Kaliganj, Dhaka</p>
-        </div>
-      </section>
-      <div className="project-info-bar">
-        <div className="info-item">
-          <h4>Floors</h4>
-          <p>10</p>
-        </div>
-        <div className="info-item">
-          <h4>Units</h4>
-          <p>40</p>
-        </div>
-        <div className="info-item">
-          <h4>Apartment Size</h4>
-          <p>1200–1800 sqft</p>
-        </div>
-        <div className="info-item">
-          <h4>Completion</h4>
-          <p>2027</p>
+  useEffect(() => {
+    // If project not found in our data, we could redirect or show 404
+    // For now, if it's one of the legacy ones not in data, just handle it gracefully
+    if (!project && (id === 'mahim-tower-1' || id === 'mahim-tower-2')) {
+       // This shouldn't happen with the data file present
+    }
+    window.scrollTo(0, 0);
+  }, [project, id]);
+
+  if (!project) {
+    return (
+      <div style={{ padding: '150px 0', textAlign: 'center' }}>
+        <div className="container">
+          <h1>Project Not Found</h1>
+          <p>The project you are looking for does not exist in our featured list.</p>
+          <button className="about-btn" onClick={() => navigate('/')}>Back to Home</button>
         </div>
       </div>
-      <section className="project-overview">
-        <div className="overview-text">
-          <h2>Project Overview</h2>
-          <p>
-            Skyline Residency is a thoughtfully designed residential project
-            combining modern architecture with comfortable living spaces.
-            Located in a peaceful yet well-connected neighborhood, the
-            development offers spacious apartments, natural lighting,
-            and high-quality finishes.
-          </p>
-        </div>
-        <div className="overview-info">
-          <div className="catalog-grid">
-            <a href="/project-skyline" className="catalog-card">
-              <div className="catalog-image"></div>
-              <div className="catalog-overlay">
-                <h3>Skyline Residency</h3>
-                <p>Kaliganj, Dhaka</p>
-                <span className="catalog-link">View Project →</span>
+    );
+  }
+
+  return (
+    <div className="project-detail-wrapper">
+      <section className="project-detail-hero" style={{ paddingTop: '120px', backgroundColor: '#fff' }}>
+        <div className="container">
+          
+          <div className="featured-project-spotlight">
+            <div className="spotlight-image-wrap">
+              <img src={project.image} alt={project.name} className="spotlight-img" />
+              <span className="spotlight-badge">{project.status}</span>
+            </div>
+            <div className="spotlight-content">
+              <h3 className="spotlight-title">{project.name}</h3>
+              <p className="spotlight-location">📍 {project.location}</p>
+              {project.description.map((para, idx) => (
+                <p key={idx} className="spotlight-desc">{para}</p>
+              ))}
+
+              <div className="project-highlights-box">
+                <h4 className="highlights-title">Project Highlights</h4>
+                <div className="highlights-grid">
+                  {Object.entries(project.highlights).map(([label, value]) => (
+                    <div key={label} className="highlight-item">
+                      <span className="highlight-label">{label}</span>
+                      <span className="highlight-value">{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </a>
-            <a href="/project-mahim" className="catalog-card">
-              <div className="catalog-image"></div>
-              <div className="catalog-overlay">
-                <h3>Mahim Heights</h3>
-                <p>Dhaka</p>
-                <span className="catalog-link">View Project →</span>
-              </div>
-            </a>
+
+              {project.features && project.features.length > 0 && (
+                <div className="project-features-box">
+                  <h4 className="features-title">Project Features</h4>
+                  <ul className="features-list">
+                    {project.features.map((feature, idx) => (
+                      <li key={idx}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
+
+          {project.incredibleResult && (
+            <div className="incredible-result-box">
+              <h3 className="incredible-title">Incredible Result</h3>
+              <p className="incredible-desc">{project.incredibleResult}</p>
+            </div>
+          )}
+
         </div>
       </section>
-      <section className="project-gallery">
-        <h2 className="gallery-title">Project Gallery</h2>
-        <div className="gallery-premium">
-          <div className="gallery-main"></div>
-          <div className="gallery-small"></div>
-          <div className="gallery-small"></div>
-          <div className="gallery-small"></div>
-          <div className="gallery-small"></div>
-        </div>
-      </section>
-      <section className="project-amenities">
-        <h2>Amenities</h2>
-        <div className="amenities-grid">
-          {amenities.map((amenity, index) => (
-            <div key={index} className="amenity">{amenity}</div>
-          ))}
-        </div>
-      </section>
-      <section className="project-inquiry">
-        <div className="inquiry-box">
-          <h2>Interested in this project?</h2>
-          <p>Contact us to learn more or schedule a visit.</p>
-          <button className="btn-primary">Make Inquiry</button>
-        </div>
-      </section>
-      <Footer />
     </div>
   );
 };
 
 export default ProjectDetails;
-

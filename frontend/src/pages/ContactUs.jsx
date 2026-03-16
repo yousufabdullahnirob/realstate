@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
@@ -20,8 +18,6 @@ const ContactUs = () => {
 
   return (
     <div>
-      <Header />
-      
       {/* Hero */}
       <section className="contact-hero">
         <div className="container">
@@ -127,8 +123,6 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <Footer />
-      
       <style jsx>{`
         .contact-hero {
           background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
