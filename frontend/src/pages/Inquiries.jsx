@@ -5,14 +5,14 @@ const API_BASE = 'http://localhost:8000';
 const ENABLE_BACKEND_SYNC = true;
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('access') || localStorage.getItem('access_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 const demoInquiries = [
-  { id: 1, name: 'Rahim Khan', email: 'rahim@email.com', project: 'Skyline Residency', apartment: 'Apt 5A', date: '2024-10-15', status: 'new' },
-  { id: 2, name: 'Fatema Begum', email: 'fatema@email.com', project: 'Mahim Heights', apartment: 'Apt 3B', date: '2024-10-16', status: 'contacted' },
-  { id: 3, name: 'Karim Ahmed', email: 'karim@email.com', project: 'Green Valley', apartment: 'Apt-None', date: '2024-10-17', status: 'new' },
+  { id: 1, user_email: 'rahim@email.com', apartment_title: 'Apt 5A', message: 'Interested in the payment plan details.', created_at: '2024-10-15T00:00:00Z', status: 'new' },
+  { id: 2, user_email: 'fatema@email.com', apartment_title: 'Apt 3B', message: 'Can I schedule a site visit this week?', created_at: '2024-10-16T00:00:00Z', status: 'contacted' },
+  { id: 3, user_email: 'karim@email.com', apartment_title: 'Apt 9C', message: 'Please share floor plan and booking steps.', created_at: '2024-10-17T00:00:00Z', status: 'new' },
 ];
 
 const Inquiries = () => {
@@ -27,23 +27,24 @@ const Inquiries = () => {
 
     const loadInquiries = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/api/admin/inquiries/`, { headers: getAuthHeader() });
+        const response = await axios.get(`${API_BASE}/api/inquiries/`, { headers: getAuthHeader() });
         if (!isMounted) {
           return;
         }
 
         const mapped = (Array.isArray(response.data) ? response.data : []).map((inquiry) => ({
           id: inquiry.id,
-          name: inquiry.user_name,
-          email: inquiry.user_email,
-          project: inquiry.project_name || 'N/A',
-          apartment: inquiry.apartment_title || 'N/A',
-          date: new Date(inquiry.created_at).toLocaleDateString(),
-          status: inquiry.status,
+          user_email: inquiry.user_email || 'N/A',
+          apartment_title: inquiry.apartment_title || 'N/A',
+          message: inquiry.message || '—',
+          created_at: inquiry.created_at,
+          status: inquiry.status || 'new',
         }));
-        setInquiries(mapped);
+        setInquiries(mapped.length > 0 ? mapped : demoInquiries);
       } catch {
-        // keep demo fallback
+        if (isMounted) {
+          setInquiries(demoInquiries);
+        }
       }
     };
 
@@ -55,14 +56,13 @@ const Inquiries = () => {
   }, []);
 
   const handleExportCsv = () => {
-    const header = ['ID', 'Name', 'Email', 'Project', 'Apartment', 'Date', 'Status'];
+    const header = ['ID', 'User Email', 'Apartment', 'Message', 'Date', 'Status'];
     const rows = inquiries.map((inquiry) => [
       inquiry.id,
-      inquiry.name,
-      inquiry.email,
-      inquiry.project,
-      inquiry.apartment,
-      inquiry.date,
+      inquiry.user_email,
+      inquiry.apartment_title,
+      inquiry.message,
+      new Date(inquiry.created_at).toLocaleDateString(),
       inquiry.status.toUpperCase(),
     ]);
 
@@ -83,9 +83,9 @@ const Inquiries = () => {
   };
 
   const handleReply = (inquiry) => {
-    const subject = encodeURIComponent(`Regarding your inquiry (${inquiry.project})`);
-    const body = encodeURIComponent(`Hello ${inquiry.name},\n\nThank you for your inquiry about ${inquiry.project}.`);
-    window.location.href = `mailto:${inquiry.email}?subject=${subject}&body=${body}`;
+    const subject = encodeURIComponent(`Regarding your inquiry (${inquiry.apartment_title})`);
+    const body = encodeURIComponent(`Hello,\n\nThank you for your inquiry about ${inquiry.apartment_title}.`);
+    window.location.href = `mailto:${inquiry.user_email}?subject=${subject}&body=${body}`;
   };
 
   const handleArchive = async (inquiry) => {

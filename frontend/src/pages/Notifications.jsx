@@ -6,7 +6,7 @@ const API_BASE = 'http://localhost:8000';
 const ENABLE_BACKEND_SYNC = true;
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('access') || localStorage.getItem('access_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -31,7 +31,7 @@ const Notifications = () => {
 
     const loadNotifications = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/api/admin/notifications/`, { headers: getAuthHeader() });
+        const response = await axios.get(`${API_BASE}/api/notifications/`, { headers: getAuthHeader() });
         if (!isMounted) {
           return;
         }
@@ -44,8 +44,9 @@ const Notifications = () => {
           is_read: notification.is_read,
         }));
 
-        setNotifications(mapped);
-        setReadIds(mapped.filter((notification) => notification.is_read).map((notification) => notification.id));
+        const finalNotifications = mapped.length > 0 ? mapped : demoNotifications;
+        setNotifications(finalNotifications);
+        setReadIds(finalNotifications.filter((notification) => notification.is_read).map((notification) => notification.id));
       } catch {
         // keep demo fallback
       }
@@ -63,17 +64,7 @@ const Notifications = () => {
     [notifications.length, readIds]
   );
 
-  const markReadInBackend = async (notificationId) => {
-    if (!ENABLE_BACKEND_SYNC) {
-      return;
-    }
-
-    try {
-      await axios.patch(`${API_BASE}/api/admin/notifications/${notificationId}/`, { is_read: true }, { headers: getAuthHeader() });
-    } catch {
-      // keep UI responsive even if backend write fails
-    }
-  };
+  const markReadInBackend = async () => {};
 
   const handleMarkAllRead = async () => {
     const ids = notifications.map((notification) => notification.id);

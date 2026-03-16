@@ -5,7 +5,7 @@ import "../admin.css";
 const API_BASE = "http://localhost:8000";
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("access") || localStorage.getItem("access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -145,49 +145,10 @@ const AdminDashboard = () => {
         ))}
       </section>
 
-      <div className="dashboard-grid">
-        {/* APPROVAL WORKFLOW */}
-        <section className="preview-section">
-          <div className="section-header">
-            <h3>Property Approval Needed ({unapprovedApts.length})</h3>
-          </div>
-          <div className="approval-list">
-            {unapprovedApts.length > 0 ? unapprovedApts.map(apt => (
-              <div key={apt.id} className="approval-item">
-                <div className="approval-info">
-                  <strong>{apt.title}</strong>
-                  <span>{apt.project_name} - {parseInt(apt.price).toLocaleString()} BDT</span>
-                </div>
-                <button className="approve-btn" onClick={() => handleApprove(apt.id)}>Approve</button>
-              </div>
-            )) : <p>No properties pending approval.</p>}
-          </div>
-        </section>
-
-        {/* ANALYTICS PREVIEW */}
-        <section className="preview-section">
-          <div className="section-header">
-            <h3>Top Viewed Properties</h3>
-          </div>
-          <div className="analytics-list">
-            {analytics.top_apartments.map(apt => (
-              <div key={apt.id} className="analytics-item">
-                <div className="analytics-bar" style={{ width: `${(apt.total_views / analytics.total_overall_views) * 100}%` }}></div>
-                <div className="analytics-label">
-                  <span>{apt.title}</span>
-                  <strong>{apt.total_views} views</strong>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      {/* RECENT PAYMENTS */}
       <section className="preview-section">
         <div className="section-header">
-          <h3>Pending Payment Verifications</h3>
-          <a href="/admin/payments" className="manage-btn">View All</a>
+          <h3>Recent Projects</h3>
+          <a href="/admin/projects" className="manage-btn">Manage</a>
         </div>
 
         <div className="preview-gallery">

@@ -16,7 +16,12 @@ import Notifications from "./pages/Notifications";
 import AdminDashboard from "./pages/AdminDashboard";
 import ApartmentAdmin from "./pages/ApartmentAdmin";
 import ProjectAdmin from "./pages/ProjectAdmin";
+import ClientDashboard from "./pages/ClientDashboard";
+import SubmitPayment from "./pages/SubmitPayment";
+import PaymentAdmin from "./pages/PaymentAdmin";
+import UserManagement from "./pages/UserManagement";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import "./admin.css";
 import "./styles.css"; // Public site styles
 
@@ -34,6 +39,9 @@ export default function App() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<ClientDashboard />} />
+          <Route path="/payments/submit" element={<SubmitPayment />} />
         </Route>
         {/* Admin routes */}
         <Route element={<AdminLayout />}>
@@ -44,7 +52,7 @@ export default function App() {
           <Route path="/admin/apartments" element={<ApartmentAdmin />} />
           <Route path="/admin/apartments/new" element={<ApartmentForm />} />
           <Route path="/admin/apartments/edit/:id" element={<ApartmentForm />} />
-          <Route path="/admin/payments" element={<PaymentManagement />} />
+          <Route path="/admin/payments" element={<PaymentAdmin />} />
           <Route path="/admin/users" element={<UserManagement />} />
           <Route path="/admin/bookings" element={<Bookings />} />
           <Route path="/admin/inquiries" element={<Inquiries />} />
