@@ -44,6 +44,8 @@ export default function App() {
           <Route path="/admin/apartments" element={<ApartmentAdmin />} />
           <Route path="/admin/apartments/new" element={<ApartmentForm />} />
           <Route path="/admin/apartments/edit/:id" element={<ApartmentForm />} />
+          <Route path="/admin/payments" element={<PaymentManagement />} />
+          <Route path="/admin/users" element={<UserManagement />} />
           <Route path="/admin/bookings" element={<Bookings />} />
           <Route path="/admin/inquiries" element={<Inquiries />} />
           <Route path="/admin/notifications" element={<Notifications />} />

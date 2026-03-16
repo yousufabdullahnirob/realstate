@@ -8,6 +8,25 @@ const mockNotifications = [
 ];
 
 const Notifications = () => {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const data = await apiProxy.get("/notifications/");
+        setNotifications(data);
+      } catch (error) {
+        console.error("Notifications fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading Notifications...</div>;
+
   return (
     <div className="admin-content">
       <div className="page-header">

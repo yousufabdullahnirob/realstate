@@ -1,12 +1,26 @@
-import React from 'react';
-
-const mockInquiries = [
-  { id: 1, name: 'Rahim Khan', email: 'rahim@email.com', project: 'Skyline Residency', apartment: 'Apt 5A', date: '2024-10-15', status: 'new' },
-  { id: 2, name: 'Fatema Begum', email: 'fatema@email.com', project: 'Mahim Heights', apartment: 'Apt 3B', date: '2024-10-16', status: 'contacted' },
-  { id: 3, name: 'Karim Ahmed', email: 'karim@email.com', project: 'Green Valley', apartment: 'Apt-None', date: '2024-10-17', status: 'new' },
-];
+import React, { useEffect, useState } from 'react';
+import apiProxy from '../utils/proxyClient';
 
 const Inquiries = () => {
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInquiries = async () => {
+      try {
+        const data = await apiProxy.get("/admin/inquiries/");
+        setInquiries(data);
+      } catch (error) {
+        console.error("Inquiries fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInquiries();
+  }, []);
+
+  if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading Inquiries...</div>;
+
   return (
     <div className="page-content">
       <div className="container">
@@ -19,24 +33,24 @@ const Inquiries = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Project</th>
+                <th>User Email</th>
                 <th>Apartment</th>
+                <th>Message</th>
                 <th>Date</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {mockInquiries.map(inquiry => (
+              {inquiries.map(inquiry => (
                 <tr key={inquiry.id}>
                   <td>{inquiry.id}</td>
-                  <td>{inquiry.name}</td>
-                  <td>{inquiry.email}</td>
-                  <td>{inquiry.project}</td>
-                  <td>{inquiry.apartment}</td>
-                  <td>{inquiry.date}</td>
+                  <td>{inquiry.user_email}</td>
+                  <td>{inquiry.apartment_title}</td>
+                  <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {inquiry.message}
+                  </td>
+                  <td>{new Date(inquiry.created_at).toLocaleDateString()}</td>
                   <td><span className={`status ${inquiry.status}`}>{inquiry.status.toUpperCase()}</span></td>
                   <td>
                     <button className="edit-btn">Reply</button>
@@ -44,6 +58,11 @@ const Inquiries = () => {
                   </td>
                 </tr>
               ))}
+              {inquiries.length === 0 && (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>No inquiries found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -17,16 +17,24 @@ const ProjectForm = () => {
 
   useEffect(() => {
     if (id === 'new') return;
-    // Load project data
-    setFormData({
-      name: 'Skyline Residency',
-      location: 'Kaliganj, Dhaka',
-      floors: '10',
-      units: '40',
-      sizeRange: '1200–1800 sqft',
-      completion: '2027',
-      status: 'progress'
-    });
+    const fetchProject = async () => {
+      try {
+        const data = await apiProxy.get(`/projects/${id}/`);
+        setFormData({
+          name: data.name,
+          location: data.location,
+          total_floors: data.total_floors,
+          total_units: data.total_units,
+          launch_date: data.launch_date,
+          status: data.status,
+          description: data.description,
+          image_url: data.image || ''
+        });
+      } catch (error) {
+        console.error("Fetch project failed:", error);
+      }
+    };
+    fetchProject();
   }, [id]);
 
   const handleChange = (e) => {
@@ -36,10 +44,19 @@ const ProjectForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 1500));
-    setLoading(false);
-    navigate('/admin/projects');
+    try {
+      const payload = { ...formData };
+      if (id === 'new') {
+        await apiProxy.post('/admin/projects/', payload);
+      } else {
+        await apiProxy.post(`/admin/projects/${id}/`, payload);
+      }
+      navigate('/admin/projects');
+    } catch (error) {
+      console.error("Save project failed:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,33 +79,35 @@ const ProjectForm = () => {
               <input type="text" name="location" value={formData.location} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>Floors</label>
-              <input type="number" name="floors" value={formData.floors} onChange={handleChange} required />
+              <label>Total Floors</label>
+              <input type="number" name="total_floors" value={formData.total_floors} onChange={handleChange} required />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Units</label>
-              <input type="number" name="units" value={formData.units} onChange={handleChange} required />
+              <label>Total Units</label>
+              <input type="number" name="total_units" value={formData.total_units} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>Size Range</label>
-              <input type="text" name="sizeRange" value={formData.sizeRange} onChange={handleChange} required />
+              <label>Launch Date</label>
+              <input type="date" name="launch_date" value={formData.launch_date} onChange={handleChange} required />
             </div>
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Completion Year</label>
-              <input type="text" name="completion" value={formData.completion} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label>Status</label>
-              <select name="status" value={formData.status} onChange={handleChange}>
-                <option value="progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="future">Future</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label>Project Status</label>
+            <select name="status" value={formData.status} onChange={handleChange}>
+              <option value="upcoming">Upcoming</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Project Image URL</label>
+            <input type="text" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://unsplash.com/..." required />
+          </div>
+          <div className="form-group">
+            <label>Description</label>
+            <textarea name="description" value={formData.description} onChange={handleChange} rows="4" style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }} required />
           </div>
           <button type="submit" className="save-btn" disabled={loading}>
             {loading ? 'Saving...' : 'Save Project'}

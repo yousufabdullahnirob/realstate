@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { projectsData } from '../data/projectsData';
+import apiProxy from '../utils/proxyClient';
+import { DataAdapter } from '../utils/dataAdapter';
 import approvedModel from '../assets/about/approved_model.png';
 import communityVibe from '../assets/about/community_vibe.png';
 
@@ -119,10 +120,29 @@ const processSteps = [
 
 const Home = () => {
   const [current, setCurrent] = useState(0);
-  const [activeOffer, setActiveOffer] = useState(null); // All white initially
+  const [activeOffer, setActiveOffer] = useState(null); 
   const [activeProcess, setActiveProcess] = useState(null);
+  const [featuredProjects, setFeaturedProjects] = useState([]);
+  const [featuredApartments, setFeaturedApartments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [projects, apartments] = await Promise.all([
+          apiProxy.get('/projects/'),
+          apiProxy.get('/apartments/')
+        ]);
+        setFeaturedProjects(projects.slice(0, 3).map(DataAdapter.adaptProject));
+        setFeaturedApartments(apartments.slice(0, 3).map(DataAdapter.adaptApartment));
+      } catch (error) {
+        console.error("Home data fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 10000);
@@ -167,11 +187,11 @@ const Home = () => {
             </select>
           </div>
           <div className="filter">
-            <span className="icon">💰</span>
+            <span className="icon">৳</span>
             <select>
-              <option>Price</option>
-              <option>$500 - $1000</option>
-              <option>$1000 - $2000</option>
+              <option>Price (BDT)</option>
+              <option>5,000,000 - 10,000,000</option>
+              <option>10,000,000 - 20,000,000</option>
             </select>
           </div>
           <div className="filter">
@@ -214,7 +234,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Our Process Section */}
       <section id="our-process" className="process-section">
         <div className="container">
           <div className="section-header-centered">
@@ -249,7 +268,7 @@ const Home = () => {
           </div>
 
           <div className="projects-card-system">
-             {projectsData.map((project) => (
+             {loading ? <p>Loading projects...</p> : featuredProjects.map((project) => (
                 <div key={project.id} className="project-main-card">
                    <div className="project-card-image-wrap">
                      <img src={project.image} alt={project.name} />
@@ -263,8 +282,6 @@ const Home = () => {
                 </div>
              ))}
           </div>
-
-
         </div>
       </section>
 
@@ -292,30 +309,16 @@ const Home = () => {
         <div className="container">
           <h2>Most Viewed Apartments</h2>
           <div className="apartment-grid">
-            <div className="apartment-card">
-              <div className="apartment-img"></div>
-              <div className="apartment-body">
-                <h3>$1200 / Month</h3>
-                <p>2 Bed • 2 Bath • 1200 sqft</p>
-                <span className="location">📍 Dhaka</span>
+            {loading ? <p>Loading apartments...</p> : featuredApartments.map((apt) => (
+              <div key={apt.id} className="apartment-card">
+                <div className="apartment-img" style={{ backgroundImage: `url(${apt.image})`, backgroundSize: 'cover' }}></div>
+                <div className="apartment-body">
+                  <h3>{apt.price}</h3>
+                  <p>{apt.bedrooms} Bed • {apt.bathrooms} Bath • {apt.size}</p>
+                  <span className="location">📍 {apt.location}</span>
+                </div>
               </div>
-            </div>
-            <div className="apartment-card">
-              <div className="apartment-img"></div>
-              <div className="apartment-body">
-                <h3>$950 / Month</h3>
-                <p>1 Bed • 1 Bath • 800 sqft</p>
-                <span className="location">📍 Chittagong</span>
-              </div>
-            </div>
-            <div className="apartment-card">
-              <div className="apartment-img"></div>
-              <div className="apartment-body">
-                <h3>$1500 / Month</h3>
-                <p>3 Bed • 2 Bath • 1500 sqft</p>
-                <span className="location">📍 Sylhet</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>

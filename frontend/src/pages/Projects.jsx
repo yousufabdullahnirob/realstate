@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import apiProxy from '../utils/proxyClient';
+import { DataAdapter } from '../utils/dataAdapter';
 
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const projects = [
-    { name: 'Skyline Residency', status: 'completed' },
-    { name: 'Mahim Heights', status: 'progress' },
-    { name: 'Green Valley Homes', status: 'future' },
-    { name: 'Ocean View Apartments', status: 'completed' },
-    { name: 'Urban Nest', status: 'progress' },
-    { name: 'City Garden Towers', status: 'future' },
-    { name: 'Riverfront Residences', status: 'completed' },
-    { name: 'Modern Habitat', status: 'progress' },
-    { name: 'Future Living Complex', status: 'future' }
-  ];
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await apiProxy.get('/projects/');
+        setProjects(data.map(DataAdapter.adaptProject));
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
 
-  const filteredProjects = projects.filter(project => 
-    activeFilter === 'all' || project.status === activeFilter
+  const filteredProjects = projects.filter(project =>
+    activeFilter === 'all' || project.status.toLowerCase() === activeFilter.toLowerCase()
   );
 
   return (
@@ -38,19 +44,19 @@ const Projects = () => {
             </select>
           </div>
           <div className="filter">
-            <span className="icon">💰</span>
+            <span className="icon">৳</span>
             <select>
-              <option>Price</option>
-              <option>$500 - $1000</option>
-              <option>$1000 - $2000</option>
+              <option>Price (BDT)</option>
+              <option>5,000,000 - 10,000,000</option>
+              <option>10,000,000 - 20,000,000</option>
             </select>
           </div>
           <div className="filter">
             <span className="icon">📐</span>
             <select>
               <option>Size</option>
-              <option>1 BHK</option>
-              <option>2 BHK</option>
+              <option>1000 - 1500 sqft</option>
+              <option>1500 - 2500 sqft</option>
             </select>
           </div>
           <button className="search-btn">Search</button>
@@ -67,28 +73,28 @@ const Projects = () => {
       </section>
 
       <section className="project-filter">
-        <button 
+        <button
           className={activeFilter === 'all' ? 'filter-btn active' : 'filter-btn'}
           data-filter="all"
           onClick={() => setActiveFilter('all')}
         >
           All
         </button>
-        <button 
+        <button
           className={activeFilter === 'completed' ? 'filter-btn active' : 'filter-btn'}
           data-filter="completed"
           onClick={() => setActiveFilter('completed')}
         >
           Completed
         </button>
-        <button 
+        <button
           className={activeFilter === 'progress' ? 'filter-btn active' : 'filter-btn'}
           data-filter="progress"
           onClick={() => setActiveFilter('progress')}
         >
           Under Progress
         </button>
-        <button 
+        <button
           className={activeFilter === 'future' ? 'filter-btn active' : 'filter-btn'}
           data-filter="future"
           onClick={() => setActiveFilter('future')}
@@ -98,9 +104,9 @@ const Projects = () => {
       </section>
 
       <section className="projects-gallery">
-        {filteredProjects.map((project, index) => (
+        {loading ? <p>Loading projects...</p> : filteredProjects.map((project, index) => (
           <div key={index} className={`project-tile ${project.status}`}>
-            <div className="project-img"></div>
+            <div className="project-img" style={{ backgroundImage: `url(${project.image})`, backgroundSize: 'cover' }}></div>
             <h3>{project.name}</h3>
           </div>
         ))}
@@ -110,4 +116,3 @@ const Projects = () => {
 };
 
 export default Projects;
-
