@@ -1,115 +1,32 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
-
-const API_BASE = 'http://localhost:8000';
-const ENABLE_BACKEND_SYNC = true;
-
-const getAuthHeader = () => {
-  const token = localStorage.getItem('access') || localStorage.getItem('access_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
-const demoInquiries = [
-  { id: 1, user_email: 'rahim@email.com', apartment_title: 'Apt 5A', message: 'Interested in the payment plan details.', created_at: '2024-10-15T00:00:00Z', status: 'new' },
-  { id: 2, user_email: 'fatema@email.com', apartment_title: 'Apt 3B', message: 'Can I schedule a site visit this week?', created_at: '2024-10-16T00:00:00Z', status: 'contacted' },
-  { id: 3, user_email: 'karim@email.com', apartment_title: 'Apt 9C', message: 'Please share floor plan and booking steps.', created_at: '2024-10-17T00:00:00Z', status: 'new' },
-];
+import React, { useEffect, useState } from 'react';
+import apiProxy from '../utils/proxyClient';
 
 const Inquiries = () => {
-  const [inquiries, setInquiries] = useState(demoInquiries);
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!ENABLE_BACKEND_SYNC) {
-      return;
-    }
-
-    let isMounted = true;
-
-    const loadInquiries = async () => {
+    const fetchInquiries = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/api/inquiries/`, { headers: getAuthHeader() });
-        if (!isMounted) {
-          return;
-        }
-
-        const mapped = (Array.isArray(response.data) ? response.data : []).map((inquiry) => ({
-          id: inquiry.id,
-          user_email: inquiry.user_email || 'N/A',
-          apartment_title: inquiry.apartment_title || 'N/A',
-          message: inquiry.message || '—',
-          created_at: inquiry.created_at,
-          status: inquiry.status || 'new',
-        }));
-        setInquiries(mapped.length > 0 ? mapped : demoInquiries);
-      } catch {
-        if (isMounted) {
-          setInquiries(demoInquiries);
-        }
+        const data = await apiProxy.get("/admin/inquiries/");
+        setInquiries(data);
+      } catch (error) {
+        console.error("Inquiries fetch failed:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    loadInquiries();
-
-    return () => {
-      isMounted = false;
-    };
+    fetchInquiries();
   }, []);
 
-  const handleExportCsv = () => {
-    const header = ['ID', 'User Email', 'Apartment', 'Message', 'Date', 'Status'];
-    const rows = inquiries.map((inquiry) => [
-      inquiry.id,
-      inquiry.user_email,
-      inquiry.apartment_title,
-      inquiry.message,
-      new Date(inquiry.created_at).toLocaleDateString(),
-      inquiry.status.toUpperCase(),
-    ]);
-
-    const csvContent = [header, ...rows]
-      .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(','))
-      .join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'inquiries.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    window.alert('CSV export completed.');
-  };
-
-  const handleReply = (inquiry) => {
-    const subject = encodeURIComponent(`Regarding your inquiry (${inquiry.apartment_title})`);
-    const body = encodeURIComponent(`Hello,\n\nThank you for your inquiry about ${inquiry.apartment_title}.`);
-    window.location.href = `mailto:${inquiry.user_email}?subject=${subject}&body=${body}`;
-  };
-
-  const handleArchive = async (inquiry) => {
-    if (ENABLE_BACKEND_SYNC) {
-      try {
-        await axios.patch(`${API_BASE}/api/admin/inquiries/${inquiry.id}/`, { status: 'closed' }, { headers: getAuthHeader() });
-      } catch {
-        // ignore and still update UI
-      }
-    }
-
-    setInquiries((previous) => previous.map((item) => (
-      item.id === inquiry.id ? { ...item, status: 'closed' } : item
-    )));
-  };
-
-  const rows = useMemo(() => inquiries, [inquiries]);
+  if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading Inquiries...</div>;
 
   return (
     <div className="page-content">
-      <div className="admin-page-shell">
+      <div className="container">
         <div className="page-header">
           <h2>Customer Inquiries</h2>
-          <button className="add-btn" onClick={handleExportCsv}>Export CSV</button>
+          <button className="add-btn">Export CSV</button>
         </div>
         <div className="table-container">
           <table className="admin-table">
@@ -125,7 +42,7 @@ const Inquiries = () => {
               </tr>
             </thead>
             <tbody>
-              {rows.map(inquiry => (
+              {inquiries.map(inquiry => (
                 <tr key={inquiry.id}>
                   <td>{inquiry.id}</td>
                   <td>{inquiry.user_email}</td>
@@ -136,10 +53,8 @@ const Inquiries = () => {
                   <td>{new Date(inquiry.created_at).toLocaleDateString()}</td>
                   <td><span className={`status ${inquiry.status}`}>{inquiry.status.toUpperCase()}</span></td>
                   <td>
-                    <div className="row-actions">
-                      <button className="edit-btn" onClick={() => handleReply(inquiry)}>Reply</button>
-                      <button className="delete-btn" onClick={() => handleArchive(inquiry)}>Archive</button>
-                    </div>
+                    <button className="edit-btn">Reply</button>
+                    <button className="delete-btn">Archive</button>
                   </td>
                 </tr>
               ))}
@@ -157,3 +72,4 @@ const Inquiries = () => {
 };
 
 export default Inquiries;
+

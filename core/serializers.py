@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.models import (
     Apartment, ApartmentImage, User, Project, ProjectImage, 
-    Inquiry, Notification, Installment, Payment, PropertyView, Booking
+    Inquiry, Notification, Installment, Payment, PropertyView
 )
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -175,25 +175,6 @@ class PaymentSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'verification_status': {'read_only': True}
         }
-
-class BookingSerializer(serializers.ModelSerializer):
-    apartment_title = serializers.ReadOnlyField(source='apartment.title')
-    tenant_name = serializers.ReadOnlyField(source='user.full_name')
-    tenant_email = serializers.ReadOnlyField(source='user.email')
-
-    class Meta:
-        model = Booking
-        fields = [
-            'id', 'booking_reference', 'user', 'apartment', 'apartment_title',
-            'tenant_name', 'tenant_email', 'booking_date', 'status', 'advance_amount'
-        ]
-        read_only_fields = ['booking_reference', 'booking_date', 'apartment_title', 'tenant_name', 'tenant_email']
-
-    def create(self, validated_data):
-        import uuid
-
-        validated_data['booking_reference'] = f"BK-{uuid.uuid4().hex[:8].upper()}"
-        return super().create(validated_data)
 
 class PropertyViewSerializer(serializers.ModelSerializer):
     class Meta:

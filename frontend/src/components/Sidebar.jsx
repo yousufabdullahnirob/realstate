@@ -13,7 +13,6 @@ const Sidebar = () => {
         <Link className="active" to="/admin/"><span>📊</span> Dashboard</Link>
         <Link to="/admin/projects"><span>🏗</span> Manage Projects</Link>
         <Link to="/admin/apartments"><span>🏢</span> Manage Apartments</Link>
-        <Link to="/admin/payments"><span>💳</span> Payments</Link>
         <Link to="/admin/bookings"><span>📅</span> Bookings</Link>
         <Link to="/admin/inquiries"><span>💬</span> Inquiries</Link>
         <Link to="/admin/notifications"><span>🔔</span> Notifications</Link>
