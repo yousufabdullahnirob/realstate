@@ -26,6 +26,11 @@ class ApartmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated(), IsAdminOrAgentRole()]
 
+    def get_authenticators(self):
+        if self.request.method == 'GET':
+            return []
+        return super().get_authenticators()
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         # Analytics: Record view
@@ -161,14 +166,20 @@ class ProjectDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class ApartmentListAPIView(generics.ListAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
 class ProjectPublicListAPIView(generics.ListAPIView):
     queryset = Project.objects.filter(is_active=True)
     serializer_class = ProjectSerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
 class ProjectPublicDetailAPIView(generics.RetrieveAPIView):
     queryset = Project.objects.filter(is_active=True)
     serializer_class = ProjectSerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
 class DBHealthCheckView(APIView):
     def get(self, request):

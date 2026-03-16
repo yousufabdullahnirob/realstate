@@ -72,8 +72,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'id', 'name', 'location', 'description', 'total_floors', 
-            'total_units', 'launch_date', 'status', 'is_active',
+            'id', 'name', 'location', 'description', 
+            'land_area', 'orientation', 'parking', 'handover_date',
+            'features', 'extra_description',
+            'total_floors', 'total_units', 'launch_date', 'status', 'is_active',
             'apartment_count', 'available_units_count', 'sold_units_count',
             'image', 'images', 'image_url', 'created_at', 'updated_at'
         ]

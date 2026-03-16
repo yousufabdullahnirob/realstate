@@ -59,25 +59,78 @@ const ProjectDetails = () => {
             <div className="spotlight-content">
               <h3 className="spotlight-title">{project.name}</h3>
               <p className="spotlight-location">📍 {project.location}</p>
-              {project.description && project.description.map((para, idx) => (
-                <p key={idx} className="spotlight-desc">{para}</p>
-              ))}
+              
+              <div className="description-section">
+                {project.description && project.description.map((para, idx) => (
+                  <p key={idx} className="spotlight-desc">{para}</p>
+                ))}
+              </div>
 
               <div className="project-highlights-box">
                 <h4 className="highlights-title">Project Highlights</h4>
                 <div className="highlights-grid">
                   <div className="highlight-item">
-                    <span className="highlight-label">Floors</span>
-                    <span className="highlight-value">{project.total_floors || 'N/A'}</span>
+                    <span className="highlight-label">Project Name</span>
+                    <span className="highlight-value" style={{ textTransform: 'uppercase' }}>{project.name.split(':')[0]}</span>
                   </div>
                   <div className="highlight-item">
-                    <span className="highlight-label">Units</span>
-                    <span className="highlight-value">{project.total_units || 'N/A'}</span>
+                    <span className="highlight-label">Land Area</span>
+                    <span className="highlight-value">{project.land_area || 'N/A'}</span>
                   </div>
+                  <div className="highlight-item">
+                    <span className="highlight-label">Building Height</span>
+                    <span className="highlight-value">G + {project.total_floors - 1} ({project.total_floors}-storied)</span>
+                  </div>
+                  <div className="highlight-item">
+                    <span className="highlight-label">Total Apartments</span>
+                    <span className="highlight-value">{project.total_units} Units</span>
+                  </div>
+                  {project.orientation && (
+                    <div className="highlight-item">
+                      <span className="highlight-label">Orientation</span>
+                      <span className="highlight-value">{project.orientation}</span>
+                    </div>
+                  )}
+                  {project.parking && (
+                    <div className="highlight-item">
+                      <span className="highlight-label">Parking</span>
+                      <span className="highlight-value">{project.parking}</span>
+                    </div>
+                  )}
+                  {project.handover_date && (
+                    <div className="highlight-item">
+                      <span className="highlight-label">Handover</span>
+                      <span className="highlight-value">{project.handover_date}</span>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {project.features && project.features.length > 0 && (
+                <div className="project-features-box" style={{ marginTop: '30px' }}>
+                  <h4 className="highlights-title">Project Features</h4>
+                  <ul className="features-list" style={{ columns: 2, listStyle: 'none', padding: 0 }}>
+                    {project.features.map((feature, idx) => (
+                      <li key={idx} className="feature-item" style={{ marginBottom: '10px', color: '#555', fontSize: '0.95rem' }}>
+                        ✅ {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
+
+          {project.extra_description && project.extra_description.length > 0 && (
+            <div className="incredible-result-section" style={{ marginTop: '80px', padding: '60px', borderRadius: '30px', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)' }}>
+              <h2 style={{ fontSize: '2.5rem', marginBottom: '30px', fontWeight: '800', color: '#1a1a1a' }}>Incredible Result</h2>
+              <div className="extra-desc-content">
+                {project.extra_description.map((para, idx) => (
+                  <p key={idx} style={{ fontSize: '1.2rem', lineHeight: '1.8', color: '#444', marginBottom: '20px' }}>{para}</p>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="apartments-under-project" style={{ marginTop: '60px' }}>
             <h2 style={{ marginBottom: '30px', fontSize: '2rem' }}>Available Apartments in this Project</h2>

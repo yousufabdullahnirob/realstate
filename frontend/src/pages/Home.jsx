@@ -133,7 +133,7 @@ const Home = () => {
           apiProxy.get('/projects/'),
           apiProxy.get('/apartments/')
         ]);
-        setFeaturedProjects(projects.slice(0, 3).map(DataAdapter.adaptProject));
+        setFeaturedProjects(projects.map(DataAdapter.adaptProject));
         setFeaturedApartments(apartments.slice(0, 3).map(DataAdapter.adaptApartment));
       } catch (error) {
         console.error("Home data fetch error:", error);

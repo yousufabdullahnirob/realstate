@@ -17,6 +17,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ApartmentAdmin from "./pages/ApartmentAdmin";
 import ProjectAdmin from "./pages/ProjectAdmin";
 import Login from "./pages/Login";
+import PaymentManagement from "./pages/PaymentManagement";
+import UserManagement from "./pages/UserManagement";
 import "./admin.css";
 import "./styles.css"; // Public site styles
 
