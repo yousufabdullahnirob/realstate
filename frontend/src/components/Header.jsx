@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Logo from '../Logo';
 
 const Header = () => {
@@ -20,12 +20,12 @@ const Header = () => {
         </div>
         <nav className="nav">
           <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/apartments">Apartments</a></li>
-            <li><a href="/about">About Us</a></li>
-            <li><a href="/projects">Projects</a></li>
-            <li><a href="/contact">Contact</a></li>
-            <li><a href="/login">Login</a></li>
+            <li><NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Home</NavLink></li>
+            <li><NavLink to="/apartments" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Apartments</NavLink></li>
+            <li><NavLink to="/about" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>About Us</NavLink></li>
+            <li><NavLink to="/projects" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Projects</NavLink></li>
+            <li><NavLink to="/contact" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Contact</NavLink></li>
+            <li><NavLink to="/login" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Login</NavLink></li>
           </ul>
         </nav>
         <div className="header-auth">
