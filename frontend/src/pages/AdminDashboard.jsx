@@ -4,12 +4,6 @@ import "../admin.css";
 
 const API_BASE = "http://localhost:8000";
 
-const fallbackProjectImages = [
-  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
-];
-
 const getAuthHeader = () => {
   const token = localStorage.getItem("access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -19,7 +13,6 @@ const AdminDashboard = () => {
   const [projects, setProjects] = useState([]);
   const [apartments, setApartments] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [usedFallback, setUsedFallback] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -41,7 +34,6 @@ const AdminDashboard = () => {
         setProjects(Array.isArray(projectsRes.data) ? projectsRes.data : []);
         setApartments(Array.isArray(apartmentsRes.data) ? apartmentsRes.data : []);
         setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
-        setUsedFallback(false);
       } catch {
         if (!isMounted) {
           return;
@@ -60,7 +52,6 @@ const AdminDashboard = () => {
           { id: 1, apartment_title: "Apt 5A", status: "confirmed", tenant_name: "Rahim Khan" },
           { id: 2, apartment_title: "Apt 9C", status: "pending", tenant_name: "Nusrat Jahan" },
         ]);
-        setUsedFallback(true);
       }
     };
 
@@ -72,15 +63,6 @@ const AdminDashboard = () => {
   }, []);
 
   const stats = useMemo(() => {
-    if (usedFallback) {
-      return [
-        { label: "Total Projects", value: "12" },
-        { label: "Total Apartments", value: "84" },
-        { label: "Available Units", value: "36" },
-        { label: "Booked Units", value: "48" },
-      ];
-    }
-
     const bookedCount = bookings.filter((booking) => booking.status !== "cancelled").length;
     const availableCount = Math.max(apartments.length - bookedCount, 0);
 
@@ -90,27 +72,19 @@ const AdminDashboard = () => {
       { label: "Available Units", value: String(availableCount) },
       { label: "Booked Units", value: String(bookedCount) },
     ];
-  }, [apartments.length, bookings, projects.length, usedFallback]);
+  }, [apartments.length, bookings, projects.length]);
 
   const recentProjects = useMemo(() => {
-    const fallbackProjects = [
-      { id: 1, name: "Green Valley Residence", location: "Dhaka" },
-      { id: 2, name: "Lake View Towers", location: "Gulshan" },
-      { id: 3, name: "Skyline Heights", location: "Banani" },
+    const fallbackImages = [
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     ];
 
-    const items = projects.length > 0 ? projects.slice(0, 3) : fallbackProjects;
-
-    return items.map((project) => ({
-      id: project.id,
-      name: project.name || "Project",
-      location: project.location || "Dhaka",
-      image:
-        project.image ||
-        project.image_url ||
-        project.thumbnail ||
-        project.photo ||
-        fallbackProjectImages[(Number(project.id || 1) - 1) % fallbackProjectImages.length],
+    return projects.slice(0, 3).map((project, index) => ({
+      name: project.name,
+      location: project.location,
+      img: fallbackImages[index % fallbackImages.length],
     }));
   }, [projects]);
 
@@ -123,10 +97,10 @@ const AdminDashboard = () => {
   ), [bookings]);
 
   const apartmentPreviewItems = useMemo(() => (
-    apartments.slice(0, 2).map((apartment, index) => ({
-      name: apartment.title || apartment.name || "Apartment",
-      status: index === 0 ? "COMPLETED" : "ONGOING",
-      statusClass: index === 0 ? "completed" : "ongoing",
+    apartments.slice(0, 2).map((apartment) => ({
+      name: apartment.title,
+      status: "AVAILABLE",
+      statusClass: "available",
     }))
   ), [apartments]);
 
@@ -160,6 +134,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* KPI STATS */}
       <section className="stats">
         {stats.map((item, index) => (
           <div className={`stat-card stat-card-${index + 1}`} key={item.label}>
@@ -170,16 +145,55 @@ const AdminDashboard = () => {
         ))}
       </section>
 
+      <div className="dashboard-grid">
+        {/* APPROVAL WORKFLOW */}
+        <section className="preview-section">
+          <div className="section-header">
+            <h3>Property Approval Needed ({unapprovedApts.length})</h3>
+          </div>
+          <div className="approval-list">
+            {unapprovedApts.length > 0 ? unapprovedApts.map(apt => (
+              <div key={apt.id} className="approval-item">
+                <div className="approval-info">
+                  <strong>{apt.title}</strong>
+                  <span>{apt.project_name} - {parseInt(apt.price).toLocaleString()} BDT</span>
+                </div>
+                <button className="approve-btn" onClick={() => handleApprove(apt.id)}>Approve</button>
+              </div>
+            )) : <p>No properties pending approval.</p>}
+          </div>
+        </section>
+
+        {/* ANALYTICS PREVIEW */}
+        <section className="preview-section">
+          <div className="section-header">
+            <h3>Top Viewed Properties</h3>
+          </div>
+          <div className="analytics-list">
+            {analytics.top_apartments.map(apt => (
+              <div key={apt.id} className="analytics-item">
+                <div className="analytics-bar" style={{ width: `${(apt.total_views / analytics.total_overall_views) * 100}%` }}></div>
+                <div className="analytics-label">
+                  <span>{apt.title}</span>
+                  <strong>{apt.total_views} views</strong>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* RECENT PAYMENTS */}
       <section className="preview-section">
         <div className="section-header">
-          <h3>Recent Projects</h3>
-          <a href="/admin/projects" className="manage-btn">Manage</a>
+          <h3>Pending Payment Verifications</h3>
+          <a href="/admin/payments" className="manage-btn">View All</a>
         </div>
 
         <div className="preview-gallery">
-          {recentProjects.map((project) => (
-            <div className="gallery-tile" key={project.id}>
-              <div className="gallery-img" style={{ backgroundImage: `url(${project.image})` }}></div>
+          {recentProjects.map((project, index) => (
+            <div className="gallery-tile" key={index}>
+              <div className="gallery-img" style={{ backgroundImage: `url(${project.img})` }}></div>
               <div className="gallery-info">
                 <h4>{project.name}</h4>
                 <p>{project.location}</p>

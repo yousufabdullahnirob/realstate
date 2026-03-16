@@ -15,12 +15,6 @@ const demoInquiries = [
   { id: 3, name: 'Karim Ahmed', email: 'karim@email.com', project: 'Green Valley', apartment: 'Apt-None', date: '2024-10-17', status: 'new' },
 ];
 
-const toSafeDate = (value) => {
-  if (!value) return 'N/A';
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? 'N/A' : parsed.toLocaleDateString();
-};
-
 const Inquiries = () => {
   const [inquiries, setInquiries] = useState(demoInquiries);
 
@@ -40,13 +34,12 @@ const Inquiries = () => {
 
         const mapped = (Array.isArray(response.data) ? response.data : []).map((inquiry) => ({
           id: inquiry.id,
-          name: inquiry.user_name || 'N/A',
-          email: inquiry.user_email || 'N/A',
+          name: inquiry.user_name,
+          email: inquiry.user_email,
           project: inquiry.project_name || 'N/A',
           apartment: inquiry.apartment_title || 'N/A',
-          message: inquiry.message || 'N/A',
-          date: toSafeDate(inquiry.created_at),
-          status: inquiry.status || 'new',
+          date: new Date(inquiry.created_at).toLocaleDateString(),
+          status: inquiry.status,
         }));
         setInquiries(mapped);
       } catch {
@@ -135,12 +128,12 @@ const Inquiries = () => {
               {rows.map(inquiry => (
                 <tr key={inquiry.id}>
                   <td>{inquiry.id}</td>
-                  <td>{inquiry.email}</td>
-                  <td>{inquiry.apartment}</td>
+                  <td>{inquiry.user_email}</td>
+                  <td>{inquiry.apartment_title}</td>
                   <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {inquiry.message}
                   </td>
-                  <td>{inquiry.date}</td>
+                  <td>{new Date(inquiry.created_at).toLocaleDateString()}</td>
                   <td><span className={`status ${inquiry.status}`}>{inquiry.status.toUpperCase()}</span></td>
                   <td>
                     <div className="row-actions">
