@@ -16,6 +16,7 @@ import Notifications from "./pages/Notifications";
 import AdminDashboard from "./pages/AdminDashboard";
 import ApartmentAdmin from "./pages/ApartmentAdmin";
 import ProjectAdmin from "./pages/ProjectAdmin";
+import Login from "./pages/Login";
 import "./admin.css";
 import "./styles.css"; // Public site styles
 
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/apartments/:id" element={<ApartmentDetails />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
+          <Route path="/login" element={<Login />} />
         </Route>
         {/* Admin routes */}
         <Route element={<AdminLayout />}>
