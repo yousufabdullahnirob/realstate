@@ -1,34 +1,35 @@
 import React from 'react';
 
 const mockNotifications = [
-  { id: 1, message: 'New inquiry from Rahim Khan - Skyline Residency', time: '2min ago', type: 'inquiry' },
-  { id: 2, message: 'New booking request - Apt 5A', time: '1hr ago', type: 'booking' },
-  { id: 3, message: 'Project Skyline Residency - 95% complete', time: '3hrs ago', type: 'project' },
-  { id: 4, message: 'Maintenance request - Apt 3B', time: '1day ago', type: 'maintenance' },
+  { id: 1, message: 'New inquiry from Rahim Khan', time: '2min ago', type: 'inquiry', icon: '💬', project: 'Skyline Residency' },
+  { id: 2, message: 'New booking request', time: '1hr ago', type: 'booking', icon: '📅', project: 'Apt 5A' },
+  { id: 3, message: 'Project update complete', time: '3hrs ago', type: 'project', icon: '🏗', project: 'Skyline Residency - 95% complete' },
+  { id: 4, message: 'Maintenance request needed', time: '1day ago', type: 'maintenance', icon: '🛠', project: 'Apt 3B' },
 ];
 
 const Notifications = () => {
   return (
-    <div className="page-content">
-      <div className="container">
-        <div className="page-header">
-          <h2>Notifications</h2>
-          <button className="add-btn">Mark All Read</button>
-        </div>
-        <div className="notifications-list">
-          {mockNotifications.map(notif => (
-            <div key={notif.id} className={`notification-item ${notif.type}`}>
-              <div className="notif-icon">●</div>
-              <div className="notif-content">
-                <p>{notif.message}</p>
-                <span className="notif-time">{notif.time}</span>
-              </div>
-              <div className="notif-actions">
-                <button className="view-btn">View</button>
-              </div>
+    <div className="admin-content">
+      <div className="page-header">
+        <h2>Notifications</h2>
+        <button className="add-btn">Mark All Read</button>
+      </div>
+      
+      <div className="notifications-list">
+        {mockNotifications.map(notif => (
+          <div key={notif.id} className={`notification-item ${notif.type}`}>
+            <div className="notif-icon">
+              {notif.icon}
             </div>
-          ))}
-        </div>
+            <div className="notif-content">
+              <p>{notif.message} <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>• {notif.project}</span></p>
+              <span className="notif-time">{notif.time}</span>
+            </div>
+            <div className="notif-actions">
+              <button className="view-btn">View Details</button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
