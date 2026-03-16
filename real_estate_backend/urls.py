@@ -15,16 +15,9 @@ urlpatterns = [
     path('api/projects/', views.ProjectPublicListAPIView.as_view(), name='api_project_list'),
     path('api/projects/<int:pk>/', views.ProjectPublicDetailAPIView.as_view(), name='api_project_detail'),
     path('api/apartments/', views.ApartmentListAPIView.as_view(), name='api_apartments'),
-    path('api/admin/apartments/', views.AdminApartmentListCreateAPIView.as_view(), name='admin_apartment_list'),
-    path('api/admin/apartments/<int:pk>/', views.AdminApartmentDetailAPIView.as_view(), name='admin_apartment_detail'),
-    path('api/admin/bookings/', views.AdminBookingListCreateAPIView.as_view(), name='admin_booking_list'),
-    path('api/admin/bookings/<int:pk>/', views.AdminBookingDetailAPIView.as_view(), name='admin_booking_detail'),
     path('api/admin/stats/', views.AdminStatsView.as_view(), name='admin_stats'),
     path('api/inquiries/', views.InquiryListAPIView.as_view(), name='inquiry-list'),
-    path('api/admin/inquiries/<int:pk>/', views.AdminInquiryDetailAPIView.as_view(), name='admin-inquiry-detail'),
     path('api/notifications/', views.NotificationListAPIView.as_view(), name='notification-list'),
-    path('api/users/', views.AdminUserListAPIView.as_view(), name='admin-users-list'),
-    path('api/users/<int:pk>/', views.AdminUserDetailAPIView.as_view(), name='admin-users-detail'),
     
     # New Payment & Analytics Routes
     path('api/payments/submit/', views.PaymentSubmitView.as_view(), name='payment-submit'),

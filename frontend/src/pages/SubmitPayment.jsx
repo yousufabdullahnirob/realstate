@@ -1,116 +1,76 @@
 import React, { useState } from "react";
+import apiProxy from "../utils/proxyClient";
+import { useNavigate } from "react-router-dom";
 
-const allowedGateways = ["SSLCommerz", "bKash", "Nagad"];
+const SubmitPayment = () => {
+    const [formData, setFormData] = useState({
+        amount: "",
+        transaction_id: "",
+        payment_date: new Date().toISOString().split('T')[0],
+        installment: "",
+        payment_proof_image: null
+    });
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-const SubmitPayment = ({ bookingId, bookingReference, maxAmount, onSuccess, disabled = false, onDemoSubmit }) => {
-  const [amount, setAmount] = useState("");
-  const [transactionId, setTransactionId] = useState("");
-  const [gateway, setGateway] = useState("SSLCommerz");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleTransactionChange = (event) => {
-    const nextValue = event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 100);
-    setTransactionId(nextValue);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess(false);
-
-    if (!bookingId || disabled) {
-      setError("Select one of your valid bookings before submitting payment.");
-      return;
-    }
-
-    const numericAmount = Number(amount);
-    const cleanedTransactionId = transactionId.trim().toUpperCase();
-
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      setError("Enter a valid amount greater than zero.");
-      return;
-    }
-
-    if (maxAmount && numericAmount > Number(maxAmount)) {
-      setError(`Amount cannot exceed the required advance amount of ৳ ${Number(maxAmount).toLocaleString()}.`);
-      return;
-    }
-
-    if (!/^[A-Z0-9-]{6,100}$/.test(cleanedTransactionId)) {
-      setError("Transaction ID must be 6-100 characters and use only letters, numbers, and hyphens.");
-      return;
-    }
-
-    if (!allowedGateways.includes(gateway)) {
-      setError("Choose a supported payment gateway.");
-      return;
-    }
-
-    setSubmitting(true);
-
-    const demoPayment = {
-      id: Date.now(),
-      booking_reference: bookingReference || `BK-${bookingId}`,
-      amount: numericAmount.toFixed(2),
-      payment_status: "pending",
-      payment_date: new Date().toISOString(),
-      payment_gateway: gateway,
-      transaction_id: cleanedTransactionId,
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const data = new FormData();
+            Object.keys(formData).forEach(key => {
+                data.append(key, formData[key]);
+            });
+            await apiProxy.post("/payments/submit/", data);
+            alert("Payment proof submitted successfully! Pending verification.");
+            navigate("/dashboard");
+        } catch (error) {
+            console.error("Submission failed:", error);
+            alert("Failed to submit payment proof.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    if (onDemoSubmit) {
-      onDemoSubmit(demoPayment);
-    }
-
-    setSuccess(true);
-    setAmount("");
-    setTransactionId("");
-    setSubmitting(false);
-
-    if (onSuccess) {
-      onSuccess();
-    }
-  };
-
-  return (
-    <form className="payment-form" onSubmit={handleSubmit}>
-      <h3>Submit Payment</h3>
-      <p className="payment-form-note">
-        Submit your payment details. Admin will review and update verification status.
-      </p>
-      <label>Amount</label>
-      <input
-        type="number"
-        min="0"
-        step="0.01"
-        value={amount}
-        onChange={e => setAmount(e.target.value)}
-        required
-        disabled={submitting || disabled}
-      />
-      <label>Transaction ID</label>
-      <input
-        type="text"
-        value={transactionId}
-        onChange={handleTransactionChange}
-        required
-        autoComplete="off"
-        spellCheck="false"
-        disabled={submitting || disabled}
-      />
-      <label>Gateway</label>
-      <select value={gateway} onChange={e => setGateway(e.target.value)} disabled={submitting || disabled}>
-        <option value="SSLCommerz">SSLCommerz</option>
-        <option value="bKash">bKash</option>
-        <option value="Nagad">Nagad</option>
-      </select>
-      <button type="submit" disabled={submitting || disabled}>{submitting ? "Submitting..." : "Submit"}</button>
-      {success && <div className="success-msg">Payment submitted successfully. It now requires admin verification.</div>}
-      {error && <div className="error-msg">{error}</div>}
-    </form>
-  );
+    return (
+        <div className="container" style={{ paddingTop: '140px', maxWidth: '600px' }}>
+            <div className="form-card">
+                <h2>Submit Payment Proof</h2>
+                <p>Upload your transaction details for verification.</p>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Amount (BDT)</label>
+                        <input 
+                            type="number" 
+                            required 
+                            value={formData.amount}
+                            onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Transaction ID (TrxID)</label>
+                        <input 
+                            type="text" 
+                            required 
+                            value={formData.transaction_id}
+                            onChange={(e) => setFormData({...formData, transaction_id: e.target.value})}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Payment Proof Image</label>
+                        <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={(e) => setFormData({...formData, payment_proof_image: e.target.files[0]})}
+                        />
+                    </div>
+                    <button type="submit" className="contact-btn" disabled={loading}>
+                        {loading ? "Submitting..." : "Submit Verification"}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
 };
 
 export default SubmitPayment;
