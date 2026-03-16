@@ -4,6 +4,8 @@ import mahimMallImg from '../assets/mahim_mall.png';
 import mahimPalace2Img from '../assets/mahim_palace2.jpg';
 import mahimSheikhViewImg from '../assets/mahim_sheikh_view.png';
 import mahimRose1Img from '../assets/mahim_rose1.png';
+import mahimRose2Img from '../assets/mahim_rose2.png';
+import mahimPalace1Img from '../assets/mahim_palace1.png';
 
 export const projectsData = [
   {
@@ -182,5 +184,65 @@ export const projectsData = [
       "Modern Architectural Design"
     ],
     incredibleResult: "As a company rooted in design innovation, we approach each project as a union of architecture and interior artistry. The exterior defines presence; the interior defines experience. Our designs capture both—modern façades that stand out in the urban fabric, and interiors that nurture human connection and well-being. We balance structural intelligence with aesthetic warmth, ensuring each development becomes more than a building—it becomes a lasting lifestyle statement, where design and functionality coexist effortlessly."
+  },
+  {
+    id: 'mahim-rose-2',
+    name: 'Mahim Rose 2: The Metropolitan Rose',
+    location: '129/B, 129/C R.K. Mission Road, 4th Lane, Gopibagh, Motijheel, Dhaka',
+    status: 'COMPLETED',
+    image: mahimRose2Img,
+    description: [
+      "Located at 129/B, 129/C R.K. Mission Road, 4th Lane, Gopibagh, Motijheel, Dhaka, Mahim Rose 2 offers a harmonious blend of modern comfort and practical living in one of the city’s most well-connected areas. Designed with attention to detail, the project ensures an elevated lifestyle with spacious interiors, natural light, and thoughtful planning that enhances everyday comfort.",
+      "Its central location provides residents with easy access to schools, hospitals, shopping centers, and major business hubs—making it an ideal choice for families seeking both convenience and quality. Mahim Rose 2 stands as a testament to modern urban living, where functionality and aesthetics come together seamlessly."
+    ],
+    highlights: {
+      "Project Name": "MAHIM ROSE 2",
+      "Building Height": "G + 6",
+      "Total Apartments": "12 Units"
+    },
+    features: [
+      "Elevator Facility",
+      "Ground Floor Parking",
+      "Rooftop Green Zone",
+      "Children’s Play Area",
+      "Prayer Room",
+      "Well-Ventilated Rooms",
+      "Functional Kitchen",
+      "Modern Architectural Design"
+    ],
+    incredibleResult: "We specialize in creating complete environments that inspire from every angle. From bold architectural silhouettes to serene and stylish interiors, our projects embody design excellence at every scale. Our strength lies in seeing buildings as living ecosystems, where the exterior and interior complement each other naturally. Each space we craft reflects a sense of place, balance, and purpose. With a deep respect for nature, materials, and human emotion, we build environments that enhance how people live, work, and connect."
+  },
+  {
+    id: 'mahim-palace-1',
+    name: 'Mahim Palace 1: Bashundhara Elite Manor',
+    location: 'Plot 2008, Road 44, Block I-Extension, Bashundhara R/A, Dhaka',
+    status: 'ONGOING',
+    image: mahimPalace1Img,
+    description: [
+      "Situated at Plot 2008, Road 44, Block I-Extension, Bashundhara R/A, Dhaka, Mahim Palace 1 offers an elegant residential experience designed for comfort, functionality, and modern living. The project features spacious layouts, abundant natural light, and a serene environment that enhances the sense of home and community.",
+      "With its prime location in Bashundhara R/A, residents enjoy convenient access to leading universities, hospitals, shopping centers, and key city routes. Mahim Palace 1 reflects a refined yet practical approach to urban living—crafted for families seeking peace, connectivity, and contemporary design in one of Dhaka’s most desirable neighborhoods."
+    ],
+    highlights: {
+      "Project Name": "MAHIM PALACE 1",
+      "Land Area": "6 Katha",
+      "Building Height": "G + 8 (9 storied building)",
+      "Total Apartments": "8 Units"
+    },
+    features: [
+      "Welcoming Entrance & Reception Area",
+      "Convenient Access Roads",
+      "Reliable Elevator Service",
+      "Ground Floor Car Parking Facility",
+      "Rooftop Green Space & Community Zone",
+      "Fitness Corner / Mini Gym",
+      "Children’s Play Area",
+      "Dedicated Prayer Room",
+      "Well-Ventilated Bedrooms with Natural Light",
+      "Open Living and Dining Spaces",
+      "Functional Kitchen with Standard Fixtures",
+      "Neat and Comfortable Bathrooms",
+      "Simple & Modern Architectural Design"
+    ],
+    incredibleResult: "We see architecture and interior design as two parts of one living story. Our exterior designs command attention with their form and detail, while our interiors reveal a deeper layer of comfort, style, and experience. This dual expertise allows us to create spaces that not only look extraordinary but also feel personal and enriching. Guided by innovation and respect for the environment, we aim to shape communities where every corner—from façade to finish—reflects harmony, craftsmanship, and purpose."
   }
 ];
