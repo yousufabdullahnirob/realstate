@@ -19,6 +19,11 @@ const apiProxy = {
         headers: getHeaders(),
       });
       if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('access');
+          localStorage.removeItem('refresh');
+          localStorage.removeItem('user');
+        }
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }
