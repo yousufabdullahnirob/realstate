@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const apartments = [
-  { id: 1, title: '3 Bedroom Apartment', size: '1450 sqft', floor: 'Floor 5', price: '$120,000' },
-  { id: 2, title: '2 Bedroom Apartment', size: '1100 sqft', floor: 'Floor 3', price: '$95,000' }
-];
+import apiProxy from '../utils/proxyClient';
+import { DataAdapter } from '../utils/dataAdapter';
 
 const ApartmentListing = () => {
+  const [apartments, setApartments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchApartments = async () => {
+      try {
+        const data = await apiProxy.get('/apartments/');
+        setApartments(data.map(DataAdapter.adaptApartment));
+      } catch (error) {
+        console.error("Error fetching apartments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchApartments();
+  }, []);
+
   return (
     <div>
       <section className="apt-hero">
@@ -35,24 +49,24 @@ const ApartmentListing = () => {
             <option>1400+ sqft</option>
           </select>
           <select>
-            <option>Price Range</option>
-            <option>$50k - $80k</option>
-            <option>$80k - $120k</option>
-            <option>$120k+</option>
+            <option>Price Range (BDT)</option>
+            <option>5,000,000 - 10,000,000</option>
+            <option>10,000,000 - 15,000,000</option>
+            <option>15,000,000+</option>
           </select>
           <button className="apt-search-btn">Search</button>
         </div>
       </section>
       <section className="apt-gallery">
         <div className="apt-grid">
-          {apartments.map(apt => (
+          {loading ? <p>Loading apartments...</p> : apartments.map(apt => (
             <div key={apt.id} className="apt-card">
-              <div className="apt-img"></div>
+              <div className="apt-img" style={{ backgroundImage: `url(${apt.image})`, backgroundSize: 'cover' }}></div>
               <div className="apt-card-body">
                 <h3>{apt.title}</h3>
                 <div className="apt-meta">
                   <span>{apt.size}</span>
-                  <span>{apt.floor}</span>
+                  <span>{apt.bedrooms} Bed</span>
                 </div>
                 <div className="apt-card-footer">
                   <span className="apt-price">{apt.price}</span>
@@ -68,4 +82,3 @@ const ApartmentListing = () => {
 };
 
 export default ApartmentListing;
-

@@ -13,6 +13,8 @@ const Sidebar = () => {
         <Link className="active" to="/admin/">📊 Dashboard</Link>
         <Link to="/admin/projects">🏗 Manage Projects</Link>
         <Link to="/admin/apartments">🏢 Manage Apartments</Link>
+        <Link to="/admin/payments">💳 Payment Verification</Link>
+        <Link to="/admin/users">👥 User Management</Link>
         <Link to="/admin/bookings">📅 Bookings</Link>
         <Link to="/admin/inquiries">💬 Inquiries</Link>
         <Link to="/admin/notifications">🔔 Notifications</Link>

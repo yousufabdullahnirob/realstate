@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 class User(AbstractUser):
     class Role(models.TextChoices):
         ADMIN = 'admin', 'Admin'
+        AGENT = 'agent', 'Agent'
         CUSTOMER = 'customer', 'Customer'
 
     full_name = models.CharField(max_length=255)
@@ -39,6 +40,13 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+class ProjectImage(models.Model):
+    project = models.ForeignKey(Project, related_name='images', on_delete=models.CASCADE)
+    image_url = models.URLField(max_length=500)
+    
+    def __str__(self):
+        return f"Image for {self.project.name}"
+
 class Apartment(models.Model):
     class Status(models.TextChoices):
         AVAILABLE = 'available', 'Available'
@@ -54,6 +62,8 @@ class Apartment(models.Model):
     bedrooms = models.IntegerField()
     bathrooms = models.IntegerField()
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.AVAILABLE)
+    is_approved = models.BooleanField(default=False)
+    total_views = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -98,20 +108,39 @@ class Booking(models.Model):
     def __str__(self):
         return f"Booking {self.booking_reference}"
 
+class Installment(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='installments')
+    due_date = models.DateField()
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    is_paid = models.BooleanField(default=False)
+    paid_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Installment for {self.booking.booking_reference} - Due: {self.due_date}"
+
 class Payment(models.Model):
     class PaymentStatus(models.TextChoices):
         SUCCESS = 'success', 'Success'
         FAILED = 'failed', 'Failed'
+    
+    class VerificationStatus(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        VERIFIED = 'verified', 'Verified'
+        REJECTED = 'rejected', 'Rejected'
 
-    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
-    transaction_id = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_status = models.CharField(max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.FAILED)
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
+    installment = models.ForeignKey(Installment, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
+    transaction_id = models.CharField(max_length=100, unique=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    payment_status = models.CharField(max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.SUCCESS)
+    verification_status = models.CharField(max_length=10, choices=VerificationStatus.choices, default=VerificationStatus.PENDING)
     payment_date = models.DateTimeField(auto_now_add=True)
-    payment_gateway = models.CharField(max_length=50, default='SSLCommerz')
+    payment_gateway = models.CharField(max_length=50, default='Manual/Proof')
+    payment_proof_image = models.URLField(max_length=500, null=True, blank=True)
 
     def __str__(self):
-        return f"Payment for {self.booking.booking_reference}"
+        return f"Payment {self.transaction_id} - {self.verification_status}"
 
 class Sale(models.Model):
     apartment = models.OneToOneField(Apartment, on_delete=models.CASCADE, related_name='sale')
@@ -127,6 +156,7 @@ class Notification(models.Model):
         BOOKING = 'booking', 'Booking'
         INQUIRY = 'inquiry', 'Inquiry'
         PAYMENT = 'payment', 'Payment'
+        APPROVAL = 'approval', 'Approval'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
@@ -136,3 +166,12 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.email}"
+
+class PropertyView(models.Model):
+    apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE, related_name='views')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    def __str__(self):
+        return f"View of {self.apartment.title} at {self.viewed_at}"

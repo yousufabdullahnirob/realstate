@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -10,10 +10,10 @@ const Footer = () => {
             Premium properties with integrated interior and architectural design.
           </p>
           <div className="social-links">
-            <a href="#">Facebook</a>
-            <a href="#">Instagram</a>
-            <a href="#">X</a>
-            <a href="#">LinkedIn</a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">X</a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
           </div>
         </div>
         <div className="footer-col">
@@ -30,9 +30,9 @@ const Footer = () => {
         <div className="footer-col">
           <h4>Ongoing Projects</h4>
           <ul className="footer-links">
-            <li>Mahim Palace 2: Bashundhara Royal Ascent</li>
-            <li>Mahim Tower 2: Wari Signature Residence</li>
-            <li>Mahim Shopping Mall: The Mugda Galleria</li>
+            <li><Link to="/projects">Mahim Palace 2: Bashundhara Royal Ascent</Link></li>
+            <li><Link to="/projects">Mahim Tower 2: Wari Signature Residence</Link></li>
+            <li><Link to="/projects">Mahim Shopping Mall: The Mugda Galleria</Link></li>
           </ul>
         </div>
       </div>
