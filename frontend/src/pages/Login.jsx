@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -140,14 +140,14 @@ const Login = () => {
 
         <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '14px' }}>
           <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Don't have an account? </span>
-          <a href="/contact" style={{ 
+          <Link to="/register" style={{ 
             color: '#fff', 
             textDecoration: 'none', 
             fontWeight: '600',
             borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
             paddingBottom: '2px',
             transition: 'all 0.3s ease'
-          }}>Contact Support</a>
+          }}>Register Now</Link>
         </div>
       </div>
     </div>

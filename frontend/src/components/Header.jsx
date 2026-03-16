@@ -25,7 +25,6 @@ const Header = () => {
             <li><a href="/about">About Us</a></li>
             <li><a href="/projects">Projects</a></li>
             <li><a href="/contact">Contact</a></li>
-            <li><a href="/login">Login</a></li>
           </ul>
         </nav>
         <div className="header-auth">
@@ -37,10 +36,7 @@ const Header = () => {
               <button onClick={handleLogout} className="contact-btn" style={{ padding: '8px 15px' }}>Logout</button>
             </div>
           ) : (
-            <>
-              <Link to="/login" className="auth-link">Login</Link>
-              <Link to="/register" className="contact-btn">Register</Link>
-            </>
+            <Link to="/login" className="auth-link">Login</Link>
           )}
         </div>
       </div>
