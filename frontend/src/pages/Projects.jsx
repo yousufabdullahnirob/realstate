@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -23,7 +21,6 @@ const Projects = () => {
 
   return (
     <div>
-      <Header />
       <section className="projects-hero">
         <div className="projects-hero-tile">
           <h1>Projects</h1>
@@ -108,8 +105,6 @@ const Projects = () => {
           </div>
         ))}
       </section>
-
-      <Footer />
     </div>
   );
 };

@@ -1,13 +1,10 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const ApartmentDetails = () => {
   const thumbnails = [1,2,3,4]; // Placeholder for 4 thumbs
 
   return (
     <div>
-      <Header />
       <section className="apt-detail-main">
         <div className="apt-detail-container">
           <div className="apt-detail-left">
@@ -47,7 +44,6 @@ const ApartmentDetails = () => {
           </div>
         </div>
       </section>
-      <Footer />
     </div>
   );
 };

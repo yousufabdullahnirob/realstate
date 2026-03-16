@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { projectsData } from '../data/projectsData';
+import approvedModel from '../assets/about/approved_model.png';
+import communityVibe from '../assets/about/community_vibe.png';
 
 const slides = [
   {
@@ -17,8 +21,106 @@ const slides = [
   }
 ];
 
+const offers = [
+  {
+    id: 'design',
+    title: 'Design & Planning',
+    text: 'We will help you to get the result you dreamed of.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 5L10 28.5V71.5L50 95L90 71.5V28.5L50 5Z" stroke="currentColor" strokeWidth="2.5"/>
+        <path d="M50 5V95M10 28.5L90 71.5M90 28.5L10 71.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2"/>
+        <path d="M30 40L50 28L70 40V60L50 72L30 60V40Z" stroke="currentColor" strokeWidth="2.5"/>
+      </svg>
+    )
+  },
+  {
+    id: 'solutions',
+    title: 'Custom Solutions',
+    text: 'Individual, aesthetically stunning solutions for customers.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 15L85 75H15L50 15Z" stroke="currentColor" strokeWidth="2.5"/>
+        <path d="M35 45H65M42 58H58M50 15V35" stroke="currentColor" strokeWidth="1.5"/>
+        <rect x="42" y="65" width="16" height="5" stroke="currentColor" strokeWidth="2"/>
+      </svg>
+    )
+  },
+  {
+    id: 'furniture',
+    title: 'Furniture & Decor',
+    text: 'We create and produce our product design lines.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="60" height="60" stroke="currentColor" strokeWidth="2.5"/>
+        <path d="M20 50H80M50 20V80" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3"/>
+        <path d="M35 35L65 65M65 35L35 65" stroke="currentColor" strokeWidth="1.5"/>
+      </svg>
+    )
+  },
+  {
+    id: 'exterior',
+    title: 'Exterior Design',
+    text: 'We will help you to get the result you dreamed of.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25 25H75L25 75H75" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M25 25V75M75 25V75" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4"/>
+      </svg>
+    )
+  },
+  {
+    id: 'concept',
+    title: 'Creating a Concept',
+    text: 'Individual, aesthetically stunning solutions for customers.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 10L62 38L90 38L68 56L76 84L50 66L24 84L32 56L10 38L38 38L50 10Z" stroke="currentColor" strokeWidth="2.5"/>
+        <circle cx="50" cy="50" r="15" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2"/>
+      </svg>
+    )
+  },
+  {
+    id: 'control',
+    title: "Author's Control",
+    text: 'We create and produce our product design lines.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 10L85 30V70L50 90L15 70V30L50 10Z" stroke="currentColor" strokeWidth="2.5"/>
+        <path d="M35 35L65 65M65 35L35 65" stroke="currentColor" strokeWidth="2.5"/>
+        <circle cx="50" cy="50" r="10" stroke="currentColor" strokeWidth="1.5"/>
+      </svg>
+    )
+  }
+];
+
+const processSteps = [
+  {
+    id: '01',
+    title: 'Strategic Planning',
+    text: 'We begin with rigorous location scouting, feasibility studies, and a clear architectural vision for the project.'
+  },
+  {
+    id: '02',
+    title: 'Modern Design',
+    text: 'Our team crafts detailed 3D visualizations and functional layouts tailored for contemporary urban living.'
+  },
+  {
+    id: '03',
+    title: 'Quality Construction',
+    text: 'Using premium materials and engineering excellence, we build structures that stand the test of time and safety.'
+  },
+  {
+    id: '04',
+    title: 'Final Handover',
+    text: 'After thorough quality checks, we welcome you to your new home with a seamless keys delivery experience.'
+  }
+];
+
 const Home = () => {
   const [current, setCurrent] = useState(0);
+  const [activeOffer, setActiveOffer] = useState(null); // All white initially
+  const [activeProcess, setActiveProcess] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -33,7 +135,6 @@ const Home = () => {
 
   return (
     <div>
-      <Header />
       <section className="hero">
         <div className="container">
           <div className="hero-content">
@@ -97,52 +198,45 @@ const Home = () => {
             </p>
             <div className="about-buttons">
               <button className="about-btn">Our Team</button>
-              <button className="about-btn secondary">Our Process</button>
+              <button className="about-btn secondary" onClick={() => document.getElementById('our-process').scrollIntoView({ behavior: 'smooth' })}>
+                Our Process
+              </button>
             </div>
           </div>
           <div className="about-right">
-            <div className="about-card"></div>
-            <div className="about-card small"></div>
+            <div className="about-card">
+              <img src={approvedModel} alt="Architectural Model" />
+            </div>
+            <div className="about-card small">
+              <img src={communityVibe} alt="Community Living" />
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="connect">
-        <div className="container connect-wrapper">
-          <div className="connect-left">
-            <h2>Connect With Us</h2>
-            <p>
-              Stay updated with our latest projects, news, and property insights.
-              Follow us on social media or reach out directly.
-            </p>
+      {/* Our Process Section */}
+      <section id="our-process" className="process-section">
+        <div className="container">
+          <div className="section-header-centered">
+            <h2>Our Process</h2>
+            <p>Follow our journey from visionary concepts to the moment we hand over the keys to your dream home.</p>
           </div>
-          <div className="connect-right">
-            <div className="social-item">🌐 Website</div>
-            <div className="social-item">📘 Facebook</div>
-            <div className="social-item">🐦 Twitter</div>
-            <div className="social-item">💼 LinkedIn</div>
-            <div className="social-item">📸 Instagram</div>
-          </div>
-        </div>
-      </section>
-
-      <section className="stats">
-        <div className="container stats-row">
-          <div className="stat-box">
-            <h2>120+</h2>
-            <p>Projects Completed</p>
-          </div>
-          <div className="stat-box">
-            <h2>350+</h2>
-            <p>Clients Served</p>
-          </div>
-          <div className="stat-box">
-            <h2>12</h2>
-            <p>Years of Experience</p>
-          </div>
-          <div className="stat-box">
-            <h2>8</h2>
-            <p>Locations Served</p>
+          
+          <div className="process-grid">
+            {processSteps.map((step) => (
+              <div 
+                key={step.id} 
+                className={`process-item ${activeProcess === step.id ? 'active' : ''}`}
+                onClick={() => setActiveProcess(activeProcess === step.id ? null : step.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="process-number">{step.id}</div>
+                <h3>{step.title}</h3>
+                {activeProcess === step.id && (
+                  <p className="process-text-active animate-fade-in">{step.text}</p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -151,31 +245,26 @@ const Home = () => {
         <div className="container">
           <div className="section-header">
             <h2>Featured Projects</h2>
-            <button className="view-all-btn">View All</button>
+            <Link to="/projects" className="view-all-btn">View All</Link>
           </div>
-          <div className="project-grid">
-            <div className="project-card">
-              <div className="project-info">
-                <h3>Skyline Residency</h3>
-                <p>Dhaka • Luxury Apartments</p>
-                <a href="/projects/skyline">Explore</a>
-              </div>
-            </div>
-            <div className="project-card">
-              <div className="project-info">
-                <h3>Green Valley Homes</h3>
-                <p>Chittagong • Eco Living</p>
-                <a href="/projects/green-valley">Explore</a>
-              </div>
-            </div>
-            <div className="project-card">
-              <div className="project-info">
-                <h3>Urban Heights</h3>
-                <p>Sylhet • Modern Flats</p>
-                <a href="/projects/urban">Explore</a>
-              </div>
-            </div>
+
+          <div className="projects-card-system">
+             {projectsData.map((project) => (
+                <div key={project.id} className="project-main-card">
+                   <div className="project-card-image-wrap">
+                     <img src={project.image} alt={project.name} />
+                   </div>
+                   <div className="project-card-info">
+                     <Link to={`/projects/${project.id}`} className="project-card-name">
+                       {project.name}
+                     </Link>
+                     <p className="project-card-status">[ {project.status} ]</p>
+                   </div>
+                </div>
+             ))}
           </div>
+
+
         </div>
       </section>
 
@@ -231,33 +320,34 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="services">
+      <section className="offer-section">
         <div className="container">
-          <h2>Our Services</h2>
-          <div className="services-grid">
-            <div className="service-card">
-              <div className="service-icon">🏢</div>
-              <h3>Property Management</h3>
-              <p>End-to-end apartment and building management solutions.</p>
-            </div>
-            <div className="service-card">
-              <div className="service-icon">📊</div>
-              <h3>Investment Advisory</h3>
-              <p>Helping clients make informed real estate decisions.</p>
-            </div>
-            <div className="service-card">
-              <div className="service-icon">🛠</div>
-              <h3>Maintenance Support</h3>
-              <p>Reliable repair and maintenance services.</p>
-            </div>
+          <div className="offer-header">
+            <h2>What Can We Offer</h2>
+            <div className="dots-divider">............</div>
+          </div>
+          
+          <div className="offer-grid">
+            {offers.map((offer) => (
+              <div 
+                key={offer.id} 
+                className={`offer-card ${activeOffer === offer.id ? 'dark-blueprint' : ''}`}
+                onClick={() => setActiveOffer(offer.id === activeOffer ? null : offer.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={`offer-icon ${activeOffer === offer.id ? 'white' : ''}`}>
+                  {offer.icon}
+                </div>
+                <h3>{offer.title}</h3>
+                <p>{offer.text}</p>
+                <Link to="/services" className="offer-read-more">READ MORE</Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };
 
 export default Home;
-

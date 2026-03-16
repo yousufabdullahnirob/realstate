@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+env/
+venv/
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
