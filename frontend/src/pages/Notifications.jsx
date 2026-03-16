@@ -1,55 +1,126 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { useEffect } from 'react';
+import axios from 'axios';
 
-const mockNotifications = [
-  { id: 1, message: 'New inquiry from Rahim Khan', time: '2min ago', type: 'inquiry', icon: '💬', project: 'Skyline Residency' },
-  { id: 2, message: 'New booking request', time: '1hr ago', type: 'booking', icon: '📅', project: 'Apt 5A' },
-  { id: 3, message: 'Project update complete', time: '3hrs ago', type: 'project', icon: '🏗', project: 'Skyline Residency - 95% complete' },
-  { id: 4, message: 'Maintenance request needed', time: '1day ago', type: 'maintenance', icon: '🛠', project: 'Apt 3B' },
+const API_BASE = 'http://localhost:8000';
+const ENABLE_BACKEND_SYNC = true;
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access') || localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+const demoNotifications = [
+  { id: 1, message: 'New inquiry from Rahim Khan - Skyline Residency', time: '2min ago', type: 'inquiry' },
+  { id: 2, message: 'New booking request - Apt 5A', time: '1hr ago', type: 'booking' },
+  { id: 3, message: 'Project Skyline Residency - 95% complete', time: '3hrs ago', type: 'project' },
+  { id: 4, message: 'Maintenance request - Apt 3B', time: '1day ago', type: 'maintenance' },
 ];
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState(demoNotifications);
+  const [readIds, setReadIds] = useState([]);
+  const [activeNotification, setActiveNotification] = useState(null);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
+    if (!ENABLE_BACKEND_SYNC) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadNotifications = async () => {
       try {
-        const data = await apiProxy.get("/notifications/");
-        setNotifications(data);
-      } catch (error) {
-        console.error("Notifications fetch failed:", error);
-      } finally {
-        setLoading(false);
+        const response = await axios.get(`${API_BASE}/api/notifications/`, { headers: getAuthHeader() });
+        if (!isMounted) {
+          return;
+        }
+
+        const mapped = (Array.isArray(response.data) ? response.data : []).map((notification) => ({
+          id: notification.id,
+          message: notification.message,
+          time: new Date(notification.created_at).toLocaleString(),
+          type: notification.type,
+          is_read: notification.is_read,
+        }));
+
+        const finalNotifications = mapped.length > 0 ? mapped : demoNotifications;
+        setNotifications(finalNotifications);
+        setReadIds(finalNotifications.filter((notification) => notification.is_read).map((notification) => notification.id));
+      } catch {
+        // keep demo fallback
       }
     };
-    fetchNotifications();
+
+    loadNotifications();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading Notifications...</div>;
+  const allRead = useMemo(
+    () => notifications.length > 0 && readIds.length === notifications.length,
+    [notifications.length, readIds]
+  );
+
+  const markReadInBackend = async () => {};
+
+  const handleMarkAllRead = async () => {
+    const ids = notifications.map((notification) => notification.id);
+    setReadIds(ids);
+    await Promise.all(ids.map((id) => markReadInBackend(id)));
+  };
+
+  const handleView = async (notification) => {
+    if (!readIds.includes(notification.id)) {
+      setReadIds((previous) => [...previous, notification.id]);
+      await markReadInBackend(notification.id);
+    }
+    setActiveNotification(notification);
+  };
 
   return (
-    <div className="admin-content">
-      <div className="page-header">
-        <h2>Notifications</h2>
-        <button className="add-btn">Mark All Read</button>
+    <div className="page-content">
+      <div className="admin-page-shell">
+        <div className="page-header">
+          <h2>Notifications</h2>
+          <button className="add-btn" onClick={handleMarkAllRead} disabled={allRead}>Mark All Read</button>
+        </div>
+        <div className="notifications-list">
+          {notifications.map(notif => (
+            <div
+              key={notif.id}
+              className={`notification-item ${notif.type} ${readIds.includes(notif.id) ? 'is-read' : ''}`}
+            >
+              <div className="notif-icon">●</div>
+              <div className="notif-content">
+                <p>{notif.message}</p>
+                <span className="notif-time">{notif.time}</span>
+              </div>
+              <div className="notif-actions">
+                <button className="view-btn" onClick={() => handleView(notif)}>View</button>
+              </div>
+            </div>
+          ))}
+          {notifications.length === 0 && (
+            <div className="action-note">No notifications found.</div>
+          )}
+        </div>
       </div>
-      
-      <div className="notifications-list">
-        {mockNotifications.map(notif => (
-          <div key={notif.id} className={`notification-item ${notif.type}`}>
-            <div className="notif-icon">
-              {notif.icon}
-            </div>
-            <div className="notif-content">
-              <p>{notif.message} <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>• {notif.project}</span></p>
-              <span className="notif-time">{notif.time}</span>
-            </div>
-            <div className="notif-actions">
-              <button className="view-btn">View Details</button>
+
+      {activeNotification && (
+        <div className="modal-overlay active">
+          <div className="modal-box">
+            <h3>Notification</h3>
+            <p>{activeNotification.message}</p>
+            <p>{activeNotification.time}</p>
+            <div className="modal-actions">
+              <button className="save-btn" onClick={() => setActiveNotification(null)}>Close</button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

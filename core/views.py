@@ -6,12 +6,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import (
     Apartment, User, Project, Inquiry, Notification, 
-    ProjectImage, Payment, Installment, PropertyView
+    ProjectImage, Payment, Installment, PropertyView, Booking
 )
 from .serializers import (
     ApartmentSerializer, RegistrationSerializer, LoginSerializer, 
     UserSerializer, ProjectSerializer, InquirySerializer, 
-    NotificationSerializer, PaymentSerializer, InstallmentSerializer
+    NotificationSerializer, PaymentSerializer, InstallmentSerializer, BookingSerializer
 )
 from .permissions import IsAdminRole, IsAgentRole, IsAdminOrAgentRole
 
@@ -169,6 +169,16 @@ class ApartmentListAPIView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     authentication_classes = []
 
+class AdminApartmentListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Apartment.objects.all().order_by('-id')
+    serializer_class = ApartmentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class AdminApartmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Apartment.objects.all()
+    serializer_class = ApartmentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
 class ProjectPublicListAPIView(generics.ListAPIView):
     queryset = Project.objects.filter(is_active=True)
     serializer_class = ProjectSerializer
@@ -224,6 +234,31 @@ class NotificationListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+class AdminBookingListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Booking.objects.select_related('user', 'apartment').all().order_by('-booking_date')
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class AdminBookingDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Booking.objects.select_related('user', 'apartment').all()
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class AdminInquiryDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Inquiry.objects.select_related('user', 'apartment').all()
+    serializer_class = InquirySerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class AdminUserListAPIView(generics.ListAPIView):
+    queryset = User.objects.all().order_by('-id')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class AdminUserDetailAPIView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 class ClientStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

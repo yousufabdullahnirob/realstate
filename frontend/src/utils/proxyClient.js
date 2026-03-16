@@ -52,6 +52,25 @@ const apiProxy = {
       console.error(`[Proxy] POST Error:`, error);
       throw error;
     }
+  },
+
+  patch: async (endpoint, payload) => {
+    console.log(`[Proxy] PATCH Request to: ${endpoint}`);
+    try {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: 'PATCH',
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(`[Proxy] PATCH Error:`, error);
+      throw error;
+    }
   }
 };
 
