@@ -2,7 +2,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from core.models import Project, Apartment
+from core.models import Project, Apartment, Booking, Payment
 import datetime
 
 User = get_user_model()
@@ -204,3 +204,133 @@ class ApartmentPublicTests(TestCase):
         res = self.client.get("/api/apartments/")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIsInstance(res.data, list)
+
+
+class PaymentVerificationFlowTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username="payadmin@test.com", email="payadmin@test.com",
+            password="AdminPass1!", full_name="Pay Admin", role="admin"
+        )
+        self.customer = User.objects.create_user(
+            username="paycustomer@test.com", email="paycustomer@test.com",
+            password="CustPass1!", full_name="Pay Customer", role="customer"
+        )
+
+        self.project = Project.objects.create(
+            name="Payment Project", location="Dhaka", description="desc",
+            total_floors=8, total_units=30,
+            launch_date=datetime.date(2026, 5, 1), status="upcoming"
+        )
+        self.apartment = Apartment.objects.create(
+            project=self.project, title="Apt P1", description="desc",
+            location="Dhaka", floor_area_sqft="900.00", price="5000000.00",
+            bedrooms=3, bathrooms=2
+        )
+        self.booking = Booking.objects.create(
+            booking_reference="BK-PAY-001",
+            user=self.customer,
+            apartment=self.apartment,
+            status="pending",
+            advance_amount="100000.00"
+        )
+
+        admin_login = APIClient().post("/api/login/", {
+            "email": "payadmin@test.com", "password": "AdminPass1!", "role": "admin"
+        }, format="json")
+        self.admin_token = admin_login.data["access"]
+
+        customer_login = APIClient().post("/api/login/", {
+            "email": "paycustomer@test.com", "password": "CustPass1!", "role": "customer"
+        }, format="json")
+        self.customer_token = customer_login.data["access"]
+
+    def _admin_client(self):
+        c = APIClient()
+        c.credentials(HTTP_AUTHORIZATION=f"Bearer {self.admin_token}")
+        return c
+
+    def _customer_client(self):
+        c = APIClient()
+        c.credentials(HTTP_AUTHORIZATION=f"Bearer {self.customer_token}")
+        return c
+
+    def test_customer_cannot_mark_payment_success_on_submit(self):
+        res = self._customer_client().post("/api/payments/", {
+            "booking": self.booking.id,
+            "transaction_id": "TXN-CUST-1",
+            "amount": "100000.00",
+            "payment_gateway": "bKash",
+            "payment_status": "success"
+        }, format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_customer_submission_stays_unverified(self):
+        res = self._customer_client().post("/api/payments/", {
+            "booking": self.booking.id,
+            "transaction_id": "TXN-CUST-2",
+            "amount": "100000.00",
+            "payment_gateway": "bKash"
+        }, format="json")
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        payment = Payment.objects.get(id=res.data["id"])
+        self.assertEqual(payment.payment_status, "failed")
+
+    def test_admin_can_verify_payment(self):
+        payment = Payment.objects.create(
+            booking=self.booking,
+            transaction_id="TXN-ADMIN-1",
+            amount="100000.00",
+            payment_gateway="bKash",
+            payment_status="failed"
+        )
+        res = self._admin_client().patch(
+            f"/api/payments/{payment.pk}/",
+            {"payment_status": "success"},
+            format="json"
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        payment.refresh_from_db()
+        self.assertEqual(payment.payment_status, "success")
+
+    def test_customer_cannot_verify_payment_endpoint(self):
+        payment = Payment.objects.create(
+            booking=self.booking,
+            transaction_id="TXN-CUST-BLOCK",
+            amount="100000.00",
+            payment_gateway="bKash",
+            payment_status="failed"
+        )
+        res = self._customer_client().patch(
+            f"/api/payments/{payment.pk}/",
+            {"payment_status": "success"},
+            format="json"
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_customer_only_sees_own_bookings_for_payment_submission(self):
+        other_customer = User.objects.create_user(
+            username="othercustomer@test.com", email="othercustomer@test.com",
+            password="CustPass1!", full_name="Other Customer", role="customer"
+        )
+        Booking.objects.create(
+            booking_reference="BK-OTHER-001",
+            user=other_customer,
+            apartment=self.apartment,
+            status="pending",
+            advance_amount="50000.00"
+        )
+
+        res = self._customer_client().get("/api/bookings/my/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]["booking_reference"], self.booking.booking_reference)
+
+    def test_payment_rejects_invalid_transaction_id(self):
+        res = self._customer_client().post("/api/payments/", {
+            "booking": self.booking.id,
+            "transaction_id": "***",
+            "amount": "100000.00",
+            "payment_gateway": "bKash"
+        }, format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

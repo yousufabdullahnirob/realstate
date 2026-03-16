@@ -16,6 +16,8 @@ import Notifications from "./pages/Notifications";
 import AdminDashboard from "./pages/AdminDashboard";
 import ApartmentAdmin from "./pages/ApartmentAdmin";
 import ProjectAdmin from "./pages/ProjectAdmin";
+import PaymentAdmin from "./pages/PaymentAdmin";
+import PaymentDashboard from "./pages/PaymentDashboard";
 import "./admin.css";
 import "./styles.css"; // Public site styles
 
@@ -34,18 +36,22 @@ export default function App() {
           <Route path="/contact" element={<ContactUs />} />
         </Route>
         {/* Admin routes */}
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/projects" element={<ProjectAdmin />} />
-          <Route path="/admin/projects/new" element={<ProjectForm />} />
-          <Route path="/admin/projects/edit/:id" element={<ProjectForm />} />
-          <Route path="/admin/apartments" element={<ApartmentAdmin />} />
-          <Route path="/admin/apartments/new" element={<ApartmentForm />} />
-          <Route path="/admin/apartments/edit/:id" element={<ApartmentForm />} />
-          <Route path="/admin/bookings" element={<Bookings />} />
-          <Route path="/admin/inquiries" element={<Inquiries />} />
-          <Route path="/admin/notifications" element={<Notifications />} />
+        <Route path="/admin/payments" element={<AdminLayout><PaymentAdmin /></AdminLayout>} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="projects" element={<ProjectAdmin />} />
+          <Route path="projects/new" element={<ProjectForm />} />
+          <Route path="projects/edit/:id" element={<ProjectForm />} />
+          <Route path="apartments" element={<ApartmentAdmin />} />
+          <Route path="apartments/new" element={<ApartmentForm />} />
+          <Route path="apartments/edit/:id" element={<ApartmentForm />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="inquiries" element={<Inquiries />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="payments" element={<PaymentAdmin />} />
         </Route>
+        {/* User payment dashboard */}
+        <Route path="/payments" element={<PaymentDashboard />} />
       </Routes>
     </Router>
   );
