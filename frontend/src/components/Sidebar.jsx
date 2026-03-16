@@ -10,14 +10,12 @@ const Sidebar = () => {
       </div>
 
       <nav className="sidebar-nav">
-        <Link className="active" to="/admin/">📊 Dashboard</Link>
-        <Link to="/admin/projects">🏗 Manage Projects</Link>
-        <Link to="/admin/apartments">🏢 Manage Apartments</Link>
-        <Link to="/admin/payments">💳 Payment Verification</Link>
-        <Link to="/admin/users">👥 User Management</Link>
-        <Link to="/admin/bookings">📅 Bookings</Link>
-        <Link to="/admin/inquiries">💬 Inquiries</Link>
-        <Link to="/admin/notifications">🔔 Notifications</Link>
+        <Link className="active" to="/admin/"><span>📊</span> Dashboard</Link>
+        <Link to="/admin/projects"><span>🏗</span> Manage Projects</Link>
+        <Link to="/admin/apartments"><span>🏢</span> Manage Apartments</Link>
+        <Link to="/admin/bookings"><span>📅</span> Bookings</Link>
+        <Link to="/admin/inquiries"><span>💬</span> Inquiries</Link>
+        <Link to="/admin/notifications"><span>🔔</span> Notifications</Link>
       </nav>
     </aside>
   );

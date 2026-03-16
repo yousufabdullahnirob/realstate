@@ -22,7 +22,6 @@ const Topbar = () => {
         <div className="profile-menu">
           <div className="avatar"></div>
           <span>Admin</span>
-          <i className="dropdown-icon">▼</i>
         </div>
         <button className="logout-btn">Logout</button>
       </div>
