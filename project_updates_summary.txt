@@ -1,0 +1,30 @@
+Hey! Here is a breakdown of everything accomplished in the Real Estate project:
+
+1. Initial Backend Setup & Authentication (Sprint 4):
+   - Merged backend API for User Registration (Admin/Customer roles).
+   - Secure login system using JWT (JSON Web Tokens) with hashed passwords.
+   - Admin Project Management (CRUD) for creating, viewing, updating, and soft-deleting real estate projects.
+
+2. Frontend Initialization & Integration:
+   - Initialized React/Vite development environment.
+   - Connected the Login (`/login`) and Register (`/register`) pages to the backend REST API endpoints.
+   - Fixed payload mismatches to ensure seamless authentication flow.
+
+3. Premium Design Overhaul & Asset Integration:
+   - Completely redesigned the frontend (`Landing.jsx`, `Projects.jsx`, `ProjectDetails.jsx`) based on high-fidelity HTML wireframes.
+   - Replaced all SVG placeholders with high-resolution architectural assets (`mahim_bg.png`, AVIF background photos) to deliver a premium, modern aesthetic.
+   - Restored original typography (Poppins and Roboto) and high-quality copy.
+
+4. Mahim Builders Rebranding:
+   - Scoured the repository to eradicate all "ArchiSpace" branding.
+   - Successfully integrated the "Mahim Builders & Construction Ltd." logo and contact information across all headers, footers, and page metadata.
+
+5. Functional Bug Fixes & Navigation Wiring:
+   - Resolved a critical global CSS issue (`overflow: hidden` on body) that was preventing users from scrolling down the home page.
+   - Wired up the Navbar links and the Hero "Search" buttons to correctly navigate across the application (`/` to `/projects`, etc.).
+
+6. Workspace Cleanup:
+   - Deleted all unnecessary, conflicting local files (e.g., `landing.html`, `.idea/`, old `realstate` directory) to keep the repository optimized.
+
+7. Final Deployment:
+   - The entire front-to-back solution is verified locally and pushed to the `main` branch on GitHub!
