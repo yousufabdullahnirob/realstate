@@ -1,3 +1,5 @@
+import { formatBDT } from './formatters';
+
 export const DataAdapter = {
   adaptProject: (backendProject) => {
     return {
@@ -23,7 +25,7 @@ export const DataAdapter = {
     return {
       id: backendApt.id,
       title: backendApt.title,
-      price: `${parseInt(backendApt.price).toLocaleString()} BDT`,
+      price: formatBDT(backendApt.price),
       size: `${backendApt.floor_area_sqft || 'N/A'} sqft`,
       bedrooms: backendApt.bedrooms || '0',
       bathrooms: backendApt.bathrooms || '0',

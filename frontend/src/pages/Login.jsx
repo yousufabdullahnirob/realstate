@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import apiProxy from '../utils/proxyClient';
+import Logo from '../Logo';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -7,10 +9,23 @@ const Login = () => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    navigate('/admin');
+    try {
+      const data = await apiProxy.post('/login/', { email, password });
+      localStorage.setItem('access', data.access);
+      localStorage.setItem('refresh', data.refresh);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      if (data.user.role === 'admin' || data.user.role === 'agent') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert(error.message || 'Login failed. Please check your credentials.');
+    }
   };
 
   return (
@@ -20,21 +35,22 @@ const Login = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundImage: 'url("/images/login-bg.png")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
+      background: 'radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 100%)',
       position: 'relative',
-      fontFamily: '"Inter", sans-serif'
+      fontFamily: '"Outfit", sans-serif',
+      color: '#f8fafc'
     }}>
-      {/* Overlay for better readability */}
+      {/* Decorative Glow */}
       <div style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(3px)'
+        top: '20%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '600px',
+        height: '600px',
+        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)',
+        filter: 'blur(100px)',
+        pointerEvents: 'none'
       }} />
 
       <div className="login-card" style={{
@@ -42,58 +58,61 @@ const Login = () => {
         zIndex: 1,
         maxWidth: '450px',
         width: '90%',
-        padding: '50px',
-        borderRadius: '24px',
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(15px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(15px) saturate(180%)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
-        color: '#fff',
-        animation: 'fadeInUp 0.8s ease-out'
+        padding: '60px 50px',
+        borderRadius: '32px',
+        background: 'rgba(15, 23, 42, 0.4)',
+        backdropFilter: 'blur(40px)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 40px 100px -20px rgba(0, 0, 0, 0.8)',
+        animation: 'fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
         <style>
           {`
             @keyframes fadeInUp {
-              from { opacity: 0; transform: translateY(30px); }
+              from { opacity: 0; transform: translateY(40px); }
               to { opacity: 1; transform: translateY(0); }
             }
-            .login-input::placeholder { color: rgba(255, 255, 255, 0.6); }
-            .login-input:focus { border-color: #fff !important; background: rgba(255, 255, 255, 0.15) !important; }
+            .login-input::placeholder { color: rgba(148, 163, 184, 0.4); }
+            .login-input:focus { border-color: #3b82f6 !important; background: rgba(255, 255, 255, 0.05) !important; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+            .login-btn:hover { background: #60a5fa !important; transform: translateY(-3px) scale(1.02); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3) !important; }
           `}
         </style>
 
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: '700', letterSpacing: '-0.5px' }}>Welcome Back</h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginTop: '8px' }}>Login to manage your premium properties</p>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <div style={{ marginBottom: '24px', display: 'inline-block' }}>
+            <Logo className="login-logo" style={{ height: '50px' }} />
+          </div>
+          <h2 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-1px', color: '#fff' }}>Welcome back</h2>
+          <p style={{ color: '#94a3b8', marginTop: '12px', fontSize: '15px' }}>Access your administrative dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'rgba(255, 255, 255, 0.9)' }}>Email Address</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Email Address</label>
             <input 
               className="login-input"
               type="email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com" 
+              placeholder="admin@example.com" 
               required
               style={{ 
                 width: '100%', 
-                padding: '14px 18px', 
-                borderRadius: '12px', 
-                background: 'rgba(255, 255, 255, 0.1)', 
-                border: '1px solid rgba(255, 255, 255, 0.3)',
+                padding: '16px 20px', 
+                borderRadius: '16px', 
+                background: 'rgba(255, 255, 255, 0.03)', 
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 color: '#fff',
                 outline: 'none',
                 transition: 'all 0.3s ease',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                fontSize: '15px'
               }}
             />
           </div>
 
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'rgba(255, 255, 255, 0.9)' }}>Password</label>
+          <div style={{ marginBottom: '40px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Password</label>
             <input 
               className="login-input"
               type="password" 
@@ -103,49 +122,46 @@ const Login = () => {
               required
               style={{ 
                 width: '100%', 
-                padding: '14px 18px', 
-                borderRadius: '12px', 
-                background: 'rgba(255, 255, 255, 0.1)', 
-                border: '1px solid rgba(255, 255, 255, 0.3)',
+                padding: '16px 20px', 
+                borderRadius: '16px', 
+                background: 'rgba(255, 255, 255, 0.03)', 
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 color: '#fff',
                 outline: 'none',
                 transition: 'all 0.3s ease',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                fontSize: '15px'
               }}
             />
           </div>
 
           <button 
             type="submit" 
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            className="login-btn"
             style={{ 
               width: '100%', 
-              padding: '16px', 
-              borderRadius: '12px', 
+              padding: '18px', 
+              borderRadius: '16px', 
               border: 'none',
-              background: isHovered ? '#fff' : 'rgba(255, 255, 255, 0.95)',
-              color: '#1a1a1a',
+              background: '#3b82f6',
+              color: '#fff',
               fontSize: '16px',
-              fontWeight: '600',
+              fontWeight: '700',
               cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-              boxShadow: isHovered ? '0 10px 20px rgba(0,0,0,0.2)' : 'none'
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 10px 30px rgba(59, 130, 246, 0.2)'
             }}
           >
             Sign In
           </button>
         </form>
 
-        <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '14px' }}>
-          <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Don't have an account? </span>
+        <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px' }}>
+          <span style={{ color: '#64748b' }}>Don't have an account? </span>
           <Link to="/register" style={{ 
-            color: '#fff', 
+            color: '#60a5fa', 
             textDecoration: 'none', 
             fontWeight: '600',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
-            paddingBottom: '2px',
             transition: 'all 0.3s ease'
           }}>Register Now</Link>
         </div>

@@ -47,8 +47,8 @@ const Projects = () => {
             <span className="icon">৳</span>
             <select>
               <option>Price (BDT)</option>
-              <option>5,000,000 - 10,000,000</option>
-              <option>10,000,000 - 20,000,000</option>
+              <option>50,00,000 - 1,00,00,000</option>
+              <option>1,00,00,000 - 2,00,00,000</option>
             </select>
           </div>
           <div className="filter">

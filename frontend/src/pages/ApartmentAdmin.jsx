@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiProxy from "../utils/proxyClient";
+import { formatBDT } from "../utils/formatters";
 import "../admin.css";
 
 const ApartmentAdmin = () => {
@@ -34,12 +35,7 @@ const ApartmentAdmin = () => {
   const deleteApartment = async () => {
     try {
       // Assuming a DELETE request or a POST to delete
-      await fetch(`http://127.0.0.1:8000/api/apartments/${currentApartment.id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await apiProxy.delete(`/apartments/${currentApartment.id}/`);
       fetchApartments();
       closeModal();
     } catch (error) {
@@ -48,14 +44,14 @@ const ApartmentAdmin = () => {
   };
 
   return (
-    <div className="page-content">
-      <div className="page-header">
+    <div className="dashboard-container">
+      <div className="section-header" style={{ marginBottom: '32px' }}>
         <h2>Apartments Management</h2>
         <button className="add-btn">+ Add Apartment</button>
       </div>
 
-      <div className="dashboard-container">
-        {loading ? <p>Loading...</p> : (
+      <div className="admin-table-container">
+        {loading ? <p style={{ padding: '24px', color: 'var(--text-muted)' }}>Loading...</p> : (
           <table className="admin-table">
             <thead>
               <tr>
@@ -64,18 +60,18 @@ const ApartmentAdmin = () => {
                 <th>Project</th>
                 <th>Price</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {apartments.map((a) => (
                 <tr key={a.id}>
-                  <td>{a.id}</td>
-                  <td>{a.title}</td>
+                  <td style={{ color: 'var(--text-muted)' }}>#{a.id}</td>
+                  <td style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{a.title}</td>
                   <td>{a.project_name || a.project}</td>
-                  <td>{parseInt(a.price).toLocaleString()} BDT</td>
+                  <td>{formatBDT(a.price)}</td>
                   <td><span className={`status ${a.status ? a.status.toLowerCase() : 'active'}`}>{a.status || 'Active'}</span></td>
-                  <td>
+                  <td style={{ textAlign: 'right' }}>
                     <button className="edit-btn">Edit</button>
                     <button className="delete-btn" onClick={() => openDeleteModal(a)}>Delete</button>
                   </td>
