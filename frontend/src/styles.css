@@ -1,22 +1,41 @@
 :root {
-    --heading-color: #030F17;
-    --text-color: #1A2A33;
-
-    --bg-main: #FFFFFF;
-    --bg-alt: #DFE7E5;
-
-    --primary: #1D4153;
-    --secondary: #446F88;
-    --accent: #5F94B3;
+    /* Premium Palette - Deep Slate & Electric Accents */
+    --primary: #0f172a;       /* Deep Navy/Black */
+    --secondary: #1e293b;     /* Slate Blue */
+    --accent: #3b82f6;        /* Electric Blue */
+    --accent-glow: rgba(59, 130, 246, 0.5);
+    --gold: #f59e0b;          /* Professional Gold */
+    --white: #ffffff;
+    --glass: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    
+    /* Text */
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-dark: #1e293b;
+    
+    /* Defaults */
+    --heading-color: var(--primary);
+    --text-color: var(--text-dark);
+    --bg-main: var(--white);
+    --bg-alt: #f8fafc;
 }
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
-section {
-    padding: 80px 0;
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    overflow-x: hidden;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
 }
 
 /*h1 {
@@ -54,13 +73,22 @@ body {
 }
 /* Header */
 .header {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 20px 0;
-    background: transparent;
+    padding: 15px 0;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 1000;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header.scrolled {
+    background: rgba(15, 23, 42, 0.9);
+    padding: 10px 0;
 }
 
 .nav-container {
@@ -102,11 +130,25 @@ body {
     height: 100vh;
     display: flex;
     align-items: center;
-    background-image: url("images/hero image.avif");
-    background-size: cover;
-    background-position: center;
+    background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
     position: relative;
-    padding-left: 8%; 
+    overflow: hidden;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url("images/hero image.avif") center/cover no-repeat;
+    opacity: 0.4;
+    z-index: 1;
+}
+
+.hero .container {
+    position: relative;
+    z-index: 5;
+    width: 100%;
 }
 
 .hero h1 {
@@ -179,22 +221,29 @@ body {
     margin: 0; /* remove auto centering */
 }
 .hero-button {
-     position: absolute;
-    top: 60%;
-    right: 30%;   /* move inward from edge */
-    transform: translateY(-50%);
-    z-index: 3;
+    margin-top: 40px;
 }
 
 .hero-button button {
-    background-color: var(--secondary);
+    background: var(--accent);
     color: white;
     border: none;
-    padding: 22px 45px;
+    padding: 18px 40px;
     font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    border-radius: 40px;
+    border-radius: 50px;
+    box-shadow: 0 10px 20px var(--accent-glow);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hero-button button:hover {
+    background: var(--white);
+    color: var(--primary);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 /* Search */
 .search-box {
@@ -242,17 +291,19 @@ body {
 }
 
 .search-btn {
-    background: var(--primary);
+    background: var(--accent);
     color: white;
     border: none;
-    padding: 10px 30px;
-    border-radius: 20px;
+    padding: 12px 35px;
+    border-radius: 12px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .search-btn:hover {
-    background: var(--secondary);
+    background: var(--primary);
+    transform: scale(1.02);
 }
 .search-section {
     position: relative;
@@ -563,49 +614,116 @@ body {
     cursor: pointer;
 }
 
-.project-grid {
-    display: flex;
+/* Project Cards Modern */
+.projects-card-system {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 30px;
+    margin-top: 40px;
 }
 
-.project-card {
-    flex: 1;
-    height: 350px;
-    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent),
-                #ccc;
-    border-radius: 20px;
-    display: flex;
-    align-items: flex-end;
+.project-main-card {
+    background: var(--white);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    cursor: pointer;
+}
+
+.project-main-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.15);
+    border-color: var(--accent);
+}
+
+.project-card-image-wrap {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+}
+
+.project-card-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-main-card:hover .project-card-image-wrap img {
+    transform: scale(1.15);
+}
+
+.project-card-info {
     padding: 25px;
-    color: white;
-    transition: 0.4s;
+    background: var(--white);
 }
 
-.project-card:hover {
-    transform: translateY(-10px);
+.project-card-name {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    margin-bottom: 8px;
+    transition: color 0.3s;
 }
 
-.project-info h3 {
+.project-card-name:hover {
+    color: var(--accent);
+}
+
+.project-card-status {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Apartment Cards Modern */
+.apartment-card {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s ease;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.apartment-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.apartment-img {
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s ease;
+}
+
+.apartment-card:hover .apartment-img {
+    transform: scale(1.05);
+}
+
+.apartment-body h3 {
+    font-size: 24px;
+    color: var(--accent);
     margin-bottom: 5px;
 }
 
-.project-info button {
-    margin-top: 12px;
-    padding: 8px 18px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-}
-/*.project-tiles {
+.apartment-body .location {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 10px;
 }
-
-.tile {
-    width: 200px;
-    height: 200px;
-    background: #ddd;
-}*/
 /* Testimonials */
 .testimonial {
     padding: 100px 0;

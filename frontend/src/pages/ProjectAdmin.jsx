@@ -83,12 +83,7 @@ const ProjectAdmin = () => {
   const deleteProject = async () => {
     try {
       // Assuming a DELETE request or a POST to delete
-      await fetch(`http://127.0.0.1:8000/api/admin/projects/${currentProject.id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // This is a bit ad-hoc, but Proxy pattern should handle it.
-        }
-      });
+      await apiProxy.delete(`/admin/projects/${currentProject.id}/`);
       fetchProjects();
       closeModal();
     } catch (error) {
@@ -97,14 +92,14 @@ const ProjectAdmin = () => {
   };
 
   return (
-    <div className="page-content">
-      <div className="page-header">
+    <div className="dashboard-container">
+      <div className="section-header" style={{ marginBottom: '32px' }}>
         <h2>Projects Management</h2>
         <button className="add-btn" onClick={openAddModal}>+ Add Project</button>
       </div>
 
-      <div className="dashboard-container">
-        {loading ? <p>Loading projects...</p> : (
+      <div className="admin-table-container">
+        {loading ? <p style={{ padding: '24px', color: 'var(--text-muted)' }}>Loading projects...</p> : (
           <table className="admin-table">
             <thead>
               <tr>
@@ -112,17 +107,17 @@ const ProjectAdmin = () => {
                 <th>Project Name</th>
                 <th>Location</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {projects.map((p) => (
                 <tr key={p.id}>
-                  <td>{p.id}</td>
-                  <td>{p.name}</td>
+                  <td style={{ color: 'var(--text-muted)' }}>#{p.id}</td>
+                  <td style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{p.name}</td>
                   <td>{p.location}</td>
                   <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
-                  <td>
+                  <td style={{ textAlign: 'right' }}>
                     <button className="edit-btn" onClick={() => openEditModal(p)}>Edit</button>
                     <button className="delete-btn" onClick={() => openDeleteModal(p)}>Delete</button>
                   </td>

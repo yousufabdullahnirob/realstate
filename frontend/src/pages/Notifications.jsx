@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import apiProxy from '../utils/proxyClient';
 
 const mockNotifications = [
   { id: 1, message: 'New inquiry from Rahim Khan', time: '2min ago', type: 'inquiry', icon: '💬', project: 'Skyline Residency' },
@@ -28,8 +29,8 @@ const Notifications = () => {
   if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading Notifications...</div>;
 
   return (
-    <div className="admin-content">
-      <div className="page-header">
+    <div className="dashboard-container">
+      <div className="section-header" style={{ marginBottom: '32px' }}>
         <h2>Notifications</h2>
         <button className="add-btn">Mark All Read</button>
       </div>
