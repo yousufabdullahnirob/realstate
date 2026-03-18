@@ -46,6 +46,4 @@ python manage.py test
    npm run dev
    ```
 
-## Admin Credentials
-- **Email**: `admin@mahimbuilders.com`
-- **Password**: `admin123`
+
