@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
 import approvedModel from '../assets/about/approved_model.png';
@@ -29,9 +29,23 @@ const offers = [
     text: 'We will help you to get the result you dreamed of.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 5L10 28.5V71.5L50 95L90 71.5V28.5L50 5Z" stroke="currentColor" strokeWidth="2.5"/>
-        <path d="M50 5V95M10 28.5L90 71.5M90 28.5L10 71.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2"/>
-        <path d="M30 40L50 28L70 40V60L50 72L30 60V40Z" stroke="currentColor" strokeWidth="2.5"/>
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
+          d="M50 5L10 28.5V71.5L50 95L90 71.5V28.5L50 5Z" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        />
+        <path d="M50 5V95M10 28.5L90 71.5M90 28.5L10 71.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" opacity="0.3"/>
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          d="M30 40L50 28L70 40V60L50 72L30 60V40Z" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        />
       </svg>
     )
   },
@@ -41,8 +55,14 @@ const offers = [
     text: 'Individual, aesthetically stunning solutions for customers.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 15L85 75H15L50 15Z" stroke="currentColor" strokeWidth="2.5"/>
-        <path d="M35 45H65M42 58H58M50 15V35" stroke="currentColor" strokeWidth="1.5"/>
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          d="M50 15L85 75H15L50 15Z" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        />
+        <path d="M35 45H65M42 58H58M50 15V35" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/>
         <rect x="42" y="65" width="16" height="5" stroke="currentColor" strokeWidth="2"/>
       </svg>
     )
@@ -53,9 +73,21 @@ const offers = [
     text: 'We create and produce our product design lines.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="20" y="20" width="60" height="60" stroke="currentColor" strokeWidth="2.5"/>
-        <path d="M20 50H80M50 20V80" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3"/>
-        <path d="M35 35L65 65M65 35L35 65" stroke="currentColor" strokeWidth="1.5"/>
+        <motion.rect 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          x="20" y="20" width="60" height="60" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        />
+        <path d="M20 50H80M50 20V80" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" opacity="0.4"/>
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          d="M35 35L65 65M65 35L35 65" 
+          stroke="currentColor" 
+          strokeWidth="1.5"
+        />
       </svg>
     )
   },
@@ -65,8 +97,16 @@ const offers = [
     text: 'We will help you to get the result you dreamed of.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M25 25H75L25 75H75" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M25 25V75M75 25V75" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4"/>
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          d="M25 25H75L25 75H75" 
+          stroke="currentColor" 
+          strokeWidth="4" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+        <path d="M25 25V75M75 25V75" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" opacity="0.3"/>
       </svg>
     )
   },
@@ -76,8 +116,14 @@ const offers = [
     text: 'Individual, aesthetically stunning solutions for customers.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 10L62 38L90 38L68 56L76 84L50 66L24 84L32 56L10 38L38 38L50 10Z" stroke="currentColor" strokeWidth="2.5"/>
-        <circle cx="50" cy="50" r="15" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2"/>
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          d="M50 10L62 38L90 38L68 56L76 84L50 66L24 84L32 56L10 38L38 38L50 10Z" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        />
+        <circle cx="50" cy="50" r="15" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.4"/>
       </svg>
     )
   },
@@ -87,9 +133,21 @@ const offers = [
     text: 'We create and produce our product design lines.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 10L85 30V70L50 90L15 70V30L50 10Z" stroke="currentColor" strokeWidth="2.5"/>
-        <path d="M35 35L65 65M65 35L35 65" stroke="currentColor" strokeWidth="2.5"/>
-        <circle cx="50" cy="50" r="10" stroke="currentColor" strokeWidth="1.5"/>
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          d="M50 10L85 30V70L50 90L15 70V30L50 10Z" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        />
+        <motion.path 
+          initial={{ pathLength: 0 }}
+          whileHover={{ pathLength: 1 }}
+          d="M35 35L65 65M65 35L35 65" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        />
+        <circle cx="50" cy="50" r="10" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/>
       </svg>
     )
   }
@@ -157,27 +215,47 @@ const Home = () => {
     <div>
       <section className="hero">
         <div className="container">
-          <div className="hero-content">
-            <h1>{slides[current].title}</h1>
-            <p>{slides[current].text}</p>
-            <div className="hero-dots" id="heroDots">
-              {slides.map((_, index) => (
-                <span
-                  key={index}
-                  className={current === index ? 'active' : ''}
-                  onClick={() => goToSlide(index)}
-                />
-              ))}
-            </div>
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={current}
+              initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -20, filter: 'blur(5px)' }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="hero-content"
+            >
+              <h1>{slides[current].title}</h1>
+              <p>{slides[current].text}</p>
+              <div className="hero-dots" id="heroDots">
+                {slides.map((_, index) => (
+                  <span
+                    key={index}
+                    className={current === index ? 'active' : ''}
+                    onClick={() => goToSlide(index)}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
-        <div className="hero-button">
-          <button>Search Projects</button>
-        </div>
+        <motion.div 
+          className="hero-button"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <button className="animate-pulse-glow">Search Projects</button>
+        </motion.div>
       </section>
 
       <section className="search-section">
-        <div className="search-box">
+        <motion.div 
+          className="search-box glass-premium"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="filter">
             <span className="icon">📍</span>
             <select>
@@ -203,12 +281,18 @@ const Home = () => {
             </select>
           </div>
           <button className="search-btn">Search</button>
-        </div>
+        </motion.div>
       </section>
 
       <section className="about">
         <div className="container about-wrapper">
-          <div className="about-left">
+          <motion.div 
+            className="about-left"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
             <h2>Who We Are</h2>
             <p>
               We specialize in modern apartment management solutions designed to
@@ -222,14 +306,26 @@ const Home = () => {
                 Our Process
               </button>
             </div>
-          </div>
+          </motion.div>
           <div className="about-right">
-            <div className="about-card">
+            <motion.div 
+              className="about-card"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
               <img src={approvedModel} alt="Architectural Model" />
-            </div>
-            <div className="about-card small">
+            </motion.div>
+            <motion.div 
+              className="about-card small"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
               <img src={communityVibe} alt="Community Living" />
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -242,19 +338,32 @@ const Home = () => {
           </div>
           
           <div className="process-grid">
-            {processSteps.map((step) => (
-              <div 
+            {processSteps.map((step, index) => (
+              <motion.div 
                 key={step.id} 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`process-item ${activeProcess === step.id ? 'active' : ''}`}
                 onClick={() => setActiveProcess(activeProcess === step.id ? null : step.id)}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="process-number">{step.id}</div>
                 <h3>{step.title}</h3>
-                {activeProcess === step.id && (
-                  <p className="process-text-active animate-fade-in">{step.text}</p>
-                )}
-              </div>
+                <AnimatePresence>
+                  {activeProcess === step.id && (
+                    <motion.p 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="process-text-active"
+                    >
+                      {step.text}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -268,8 +377,15 @@ const Home = () => {
           </div>
 
           <div className="projects-card-system">
-             {loading ? <p>Loading projects...</p> : featuredProjects.map((project) => (
-                <div key={project.id} className="project-main-card">
+             {loading ? <p>Loading projects...</p> : featuredProjects.map((project, index) => (
+                <motion.div 
+                  key={project.id} 
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.15 }}
+                  className="project-main-card"
+                >
                    <div className="project-card-image-wrap">
                      <img src={project.image} alt={project.name} />
                    </div>
@@ -279,7 +395,7 @@ const Home = () => {
                      </Link>
                      <p className="project-card-status">[ {project.status} ]</p>
                    </div>
-                </div>
+                </motion.div>
              ))}
           </div>
         </div>
@@ -289,18 +405,23 @@ const Home = () => {
         <div className="container">
           <h2>What Our Clients Say</h2>
           <div className="testimonial-cards">
-            <div className="testimonial-card">
-              <p>"The professionalism and attention to detail exceeded our expectations. Our property management has never been smoother."</p>
-              <h4>— Sarah Rahman</h4>
-            </div>
-            <div className="testimonial-card">
-              <p>"From project consultation to execution, everything felt structured and transparent. Highly recommended."</p>
-              <h4>— Ahmed Karim</h4>
-            </div>
-            <div className="testimonial-card">
-              <p>"Modern design, efficient systems, and amazing support team. Truly reliable service."</p>
-              <h4>— Nusrat Jahan</h4>
-            </div>
+            {[
+              { text: "The professionalism and attention to detail exceeded our expectations. Our property management has never been smoother.", author: "Sarah Rahman" },
+              { text: "From project consultation to execution, everything felt structured and transparent. Highly recommended.", author: "Ahmed Karim" },
+              { text: "Modern design, efficient systems, and amazing support team. Truly reliable service.", author: "Nusrat Jahan" }
+            ].map((t, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.2 }}
+                className="testimonial-card"
+              >
+                <p>"{t.text}"</p>
+                <h4>— {t.author}</h4>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -309,15 +430,22 @@ const Home = () => {
         <div className="container">
           <h2>Most Viewed Apartments</h2>
           <div className="apartment-grid">
-            {loading ? <p>Loading apartments...</p> : featuredApartments.map((apt) => (
-              <div key={apt.id} className="apartment-card">
+            {loading ? <p>Loading apartments...</p> : featuredApartments.map((apt, index) => (
+              <motion.div 
+                key={apt.id} 
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                className="apartment-card"
+              >
                 <div className="apartment-img" style={{ backgroundImage: `url(${apt.image})`, backgroundSize: 'cover' }}></div>
                 <div className="apartment-body">
                   <h3>{apt.price}</h3>
                   <p>{apt.bedrooms} Bed • {apt.bathrooms} Bath • {apt.size}</p>
                   <span className="location">📍 {apt.location}</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -331,9 +459,14 @@ const Home = () => {
           </div>
           
           <div className="offer-grid">
-            {offers.map((offer) => (
-              <div 
+            {offers.map((offer, index) => (
+              <motion.div 
                 key={offer.id} 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ y: -10 }}
                 className={`offer-card ${activeOffer === offer.id ? 'dark-blueprint' : ''}`}
                 onClick={() => setActiveOffer(offer.id === activeOffer ? null : offer.id)}
                 style={{ cursor: 'pointer' }}
@@ -344,7 +477,7 @@ const Home = () => {
                 <h3>{offer.title}</h3>
                 <p>{offer.text}</p>
                 <Link to="/services" className="offer-read-more">READ MORE</Link>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

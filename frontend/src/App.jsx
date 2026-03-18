@@ -19,6 +19,7 @@ import ProjectAdmin from "./pages/ProjectAdmin";
 import Login from "./pages/Login";
 import PaymentManagement from "./pages/PaymentManagement";
 import UserManagement from "./pages/UserManagement";
+import DesignShowcase from "./pages/DesignShowcase";
 import "./admin.css";
 import "./styles.css"; // Public site styles
 
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/design-showcase" element={<DesignShowcase />} />
         </Route>
         {/* Admin routes */}
         <Route element={<AdminLayout />}>
