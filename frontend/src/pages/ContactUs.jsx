@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
@@ -17,99 +18,157 @@ const ContactUs = () => {
   };
 
   return (
-    <div>
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       {/* Hero */}
-      <section className="contact-hero">
+      <section className="contact-hero" style={{ 
+        background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+        color: 'white',
+        padding: '120px 0',
+        textAlign: 'center'
+      }}>
         <div className="container">
-          <h1>Get In Touch</h1>
-          <p>Ready to discuss your project or have questions? We're here to help.</p>
+          <motion.h1 
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            style={{ fontSize: '48px', marginBottom: '12px' }}
+          >Get In Touch</motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            style={{ fontSize: '20px', opacity: 0.9 }}
+          >Ready to discuss your project or have questions? We're here to help.</motion.p>
         </div>
       </section>
 
       {/* Contact Container */}
-      <section className="contact-container">
+      <section className="contact-container" style={{ padding: '100px 0', background: '#f8f9fa' }}>
         <div className="container">
-          <div className="contact-grid">
+          <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px' }}>
             
             {/* Contact Info */}
-            <div className="contact-info animate-slide-up">
-              <h2>Contact Information</h2>
-              <div className="contact-item">
-                <span className="contact-icon">📍</span>
-                <p>Mahim Shopping Mall, 4 East Maniknagor, Mugdapara Dhaka-1203, Bangladesh</p>
+            <motion.div 
+              className="contact-info"
+              initial={{ x: -30, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 style={{ fontSize: '32px', marginBottom: '30px', color: 'var(--primary)' }}>Contact Information</h2>
+              {[
+                { icon: '📍', text: 'Mahim Shopping Mall, 4 East Maniknagor, Mugdapara Dhaka-1203, Bangladesh' },
+                { icon: '📞', text: '+880 1778 117 118' },
+                { icon: '✉️', text: 'info@mahimbuilders.com' }
+              ].map((item, idx) => (
+                <motion.div 
+                  key={item.icon}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 + (idx * 0.1) }}
+                  className="contact-item"
+                  style={{ display: 'flex', gap: '16px', marginBottom: '20px', padding: '20px', background: 'white', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.05)' }}
+                >
+                  <span className="contact-icon" style={{ fontSize: '24px' }}>{item.icon}</span>
+                  <p>{item.text}</p>
+                </motion.div>
+              ))}
+              <div className="contact-social" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                <a href="#" className="social-link" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>Facebook</a>
+                <a href="#" className="social-link" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>Instagram</a>
+                <a href="#" className="social-link" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>LinkedIn</a>
               </div>
-              <div className="contact-item">
-                <span className="contact-icon">📞</span>
-                <p>+880 1778 117 118</p>
-              </div>
-              <div className="contact-item">
-                <span className="contact-icon">✉️</span>
-                <p>info@mahimbuilders.com</p>
-              </div>
-              <div className="contact-social">
-                <a href="#" className="social-link">Facebook</a>
-                <a href="#" className="social-link">Instagram</a>
-                <a href="#" className="social-link">LinkedIn</a>
-              </div>
-            </div>
+            </motion.div>
 
             {/* Form */}
-            <div className="contact-form-wrapper animate-slide-up">
-              <form className="contact-form" onSubmit={handleSubmit}>
-                <h2>Send Message</h2>
-                {status && <div className="form-status">{status}</div>}
-                <input 
-                  type="text" 
-                  name="name" 
-                  placeholder="Your Name" 
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="form-field animate-fade-in"
-                  required 
-                />
-                <input 
-                  type="email" 
-                  name="email" 
-                  placeholder="Your Email" 
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="form-field animate-fade-in"
-                  required 
-                />
-                <input 
-                  type="tel" 
-                  name="phone" 
-                  placeholder="Phone Number" 
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="form-field animate-fade-in"
-                  required 
-                />
-                <textarea 
+            <motion.div 
+              className="contact-form-wrapper"
+              initial={{ x: 30, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <form className="contact-form" onSubmit={handleSubmit} style={{ background: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+                <h2 style={{ marginBottom: '24px', color: 'var(--primary)' }}>Send Message</h2>
+                <AnimatePresence>
+                  {status && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="form-status" 
+                      style={{ padding: '12px', marginBottom: '20px', borderRadius: '8px', background: '#d4edda', color: '#155724', textAlign: 'center' }}
+                    >{status}</motion.div>
+                  )}
+                </AnimatePresence>
+                {['name', 'email', 'phone'].map((field, idx) => (
+                  <motion.input 
+                    key={field}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + (idx * 0.1) }}
+                    type={field === 'email' ? 'email' : (field === 'phone' ? 'tel' : 'text')} 
+                    name={field} 
+                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)} 
+                    value={formData[field]}
+                    onChange={handleChange}
+                    className="form-field"
+                    style={{ width: '100%', padding: '16px', marginBottom: '20px', border: '2px solid #eee', borderRadius: '10px', fontSize: '16px' }}
+                    required 
+                  />
+                ))}
+                <motion.textarea 
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.6 }}
                   name="message" 
                   placeholder="Your Message" 
                   rows="5"
                   value={formData.message}
                   onChange={handleChange}
-                  className="form-field animate-fade-in"
+                  className="form-field"
+                  style={{ width: '100%', padding: '16px', marginBottom: '20px', border: '2px solid #eee', borderRadius: '10px', fontSize: '16px' }}
                   required 
-                ></textarea>
-                <button type="submit" className="submit-btn animate-bounce-in">
+                ></motion.textarea>
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit" 
+                  className="submit-btn"
+                  style={{ width: '100%', padding: '18px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: '600', cursor: 'pointer' }}
+                >
                   Send Message
-                </button>
+                </motion.button>
               </form>
-            </div>
+            </motion.div>
 
           </div>
         </div>
       </section>
 
       {/* Map Placeholder */}
-      <section className="contact-map">
+      <section className="contact-map" style={{ padding: '100px 0' }}>
         <div className="container">
-          <h2>Our Location</h2>
-          <div className="map-placeholder animate-scale-in">
-            {/* Replace with Google Maps embed */}
+          <motion.h2 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{ textAlign: 'center', marginBottom: '40px' }}
+          >Our Location</motion.h2>
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            className="map-placeholder"
+            style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.1)' }}
+          >
             <iframe 
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.123456789!2d90.123456789!3d23.123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDA3JzI5LjIiTiA5MMKwMDcnMjkuMyJF!5e0!3m2!1sen!2sbd!4v1234567890" 
               width="100%" 
@@ -119,159 +178,10 @@ const ContactUs = () => {
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade">
             </iframe>
-          </div>
+          </motion.div>
         </div>
       </section>
-
-      <style jsx>{`
-        .contact-hero {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-          color: white;
-          padding: 80px 0;
-          text-align: center;
-        }
-        .contact-hero h1 {
-          font-size: 48px;
-          margin-bottom: 12px;
-          opacity: 0;
-          animation: fadeInUp 1s ease 0.2s forwards;
-        }
-        .contact-hero p {
-          font-size: 20px;
-          opacity: 0.95;
-          animation: fadeInUp 1s ease 0.4s forwards;
-        }
-        .contact-container {
-          padding: 100px 0;
-          background: var(--bg-alt);
-        }
-        .contact-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 60px;
-        }
-        .contact-info h2 {
-          font-size: 32px;
-          margin-bottom: 30px;
-          color: var(--primary);
-        }
-        .contact-item {
-          display: flex;
-          gap: 16px;
-          margin-bottom: 20px;
-          padding: 20px;
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-          transition: transform 0.3s ease;
-        }
-        .contact-item:hover {
-          transform: translateY(-4px);
-        }
-        .contact-icon {
-          font-size: 24px;
-        }
-        .contact-social {
-          display: flex;
-          gap: 12px;
-          margin-top: 20px;
-        }
-        .social-link {
-          color: var(--accent);
-          text-decoration: none;
-          font-weight: 500;
-          transition: color 0.3s;
-        }
-        .social-link:hover {
-          color: var(--primary);
-        }
-        .contact-form {
-          background: white;
-          padding: 40px;
-          border-radius: 16px;
-          box-shadow: 0 16px 40px rgba(0,0,0,0.1);
-        }
-        .contact-form h2 {
-          margin-bottom: 24px;
-          color: var(--primary);
-        }
-        .form-field {
-          width: 100%;
-          padding: 16px;
-          margin-bottom: 20px;
-          border: 2px solid #e8f0f4;
-          border-radius: 10px;
-          font-size: 16px;
-          transition: all 0.3s ease;
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        .form-field:focus {
-          outline: none;
-          border-color: var(--accent);
-          box-shadow: 0 0 0 3px rgba(95,148,179,0.1);
-        }
-        .form-field:hover {
-          transform: translateY(-2px);
-        }
-        .submit-btn {
-          width: 100%;
-          padding: 18px;
-          background: linear-gradient(135deg, var(--primary), var(--secondary));
-          color: white;
-          border: none;
-          border-radius: 12px;
-          font-size: 18px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.4s ease;
-        }
-        .submit-btn:hover {
-          transform: scale(1.02);
-          box-shadow: 0 12px 32px rgba(29,65,83,0.4);
-        }
-        .form-status {
-          padding: 12px;
-          margin-bottom: 20px;
-          border-radius: 8px;
-          background: #d4edda;
-          color: #155724;
-          text-align: center;
-        }
-        .contact-map {
-          padding: 100px 0;
-          background: var(--bg-main);
-        }
-        .map-placeholder {
-          border-radius: 16px;
-          overflow: hidden;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-        }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slide-up {
-          opacity: 0;
-          animation: fadeInUp 0.8s ease forwards;
-        }
-        .animate-slide-up:nth-child(1) { animation-delay: 0.2s; }
-        .animate-slide-up:nth-child(2) { animation-delay: 0.4s; }
-        .animate-fade-in { animation: fadeInUp 0.6s ease 0.6s forwards; }
-        @media (max-width: 768px) {
-          .contact-grid {
-            grid-template-columns: 1fr;
-            gap: 40px;
-          }
-        }
-      `}</style>
-    </div>
+    </motion.div>
   );
 };
 

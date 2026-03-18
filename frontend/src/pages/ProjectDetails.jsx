@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
 
@@ -37,7 +38,7 @@ const ProjectDetails = () => {
   if (!project) {
     return (
       <div style={{ padding: '150px 0', textAlign: 'center' }}>
-        <div className="container">
+        <div className="container" style={{ paddingTop: '100px' }}>
           <h1>Project Not Found</h1>
           <p>The project you are looking for does not exist.</p>
           <button className="about-btn" onClick={() => navigate('/')}>Back to Home</button>
@@ -47,17 +48,37 @@ const ProjectDetails = () => {
   }
 
   return (
-    <div className="project-detail-wrapper">
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      className="project-detail-wrapper"
+    >
       <section className="project-detail-hero" style={{ paddingTop: '120px', backgroundColor: '#fff' }}>
         <div className="container">
 
-          <div className="featured-project-spotlight">
+          <motion.div 
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="featured-project-spotlight"
+          >
             <div className="spotlight-image-wrap">
-              <img src={project.image} alt={project.name} className="spotlight-img" />
+              <motion.img 
+                src={project.image} 
+                alt={project.name} 
+                className="spotlight-img"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.6 }}
+              />
               <span className="spotlight-badge">{project.status}</span>
             </div>
             <div className="spotlight-content">
-              <h3 className="spotlight-title">{project.name}</h3>
+              <motion.h3 
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="spotlight-title"
+              >{project.name}</motion.h3>
               <p className="spotlight-location">📍 {project.location}</p>
               
               <div className="description-section">
@@ -66,87 +87,118 @@ const ProjectDetails = () => {
                 ))}
               </div>
 
-              <div className="project-highlights-box">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="project-highlights-box"
+              >
                 <h4 className="highlights-title">Project Highlights</h4>
                 <div className="highlights-grid">
-                  <div className="highlight-item">
-                    <span className="highlight-label">Project Name</span>
-                    <span className="highlight-value" style={{ textTransform: 'uppercase' }}>{project.name.split(':')[0]}</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span className="highlight-label">Land Area</span>
-                    <span className="highlight-value">{project.land_area || 'N/A'}</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span className="highlight-label">Building Height</span>
-                    <span className="highlight-value">G + {project.total_floors - 1} ({project.total_floors}-storied)</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span className="highlight-label">Total Apartments</span>
-                    <span className="highlight-value">{project.total_units} Units</span>
-                  </div>
-                  {project.orientation && (
-                    <div className="highlight-item">
-                      <span className="highlight-label">Orientation</span>
-                      <span className="highlight-value">{project.orientation}</span>
-                    </div>
-                  )}
-                  {project.parking && (
-                    <div className="highlight-item">
-                      <span className="highlight-label">Parking</span>
-                      <span className="highlight-value">{project.parking}</span>
-                    </div>
-                  )}
-                  {project.handover_date && (
-                    <div className="highlight-item">
-                      <span className="highlight-label">Handover</span>
-                      <span className="highlight-value">{project.handover_date}</span>
-                    </div>
-                  )}
+                  {[
+                    { label: 'Project Name', value: project.name.split(':')[0] },
+                    { label: 'Land Area', value: project.land_area || 'N/A' },
+                    { label: 'Building Height', value: `G + ${project.total_floors - 1} (${project.total_floors}-storied)` },
+                    { label: 'Total Apartments', value: `${project.total_units} Units` },
+                    { label: 'Orientation', value: project.orientation },
+                    { label: 'Parking', value: project.parking },
+                    { label: 'Handover', value: project.handover_date }
+                  ].filter(h => h.value).map((h, i) => (
+                    <motion.div 
+                      key={h.label}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + (i * 0.05) }}
+                      className="highlight-item"
+                    >
+                      <span className="highlight-label">{h.label}</span>
+                      <span className="highlight-value" style={{ textTransform: 'uppercase' }}>{h.value}</span>
+                    </motion.div>
+                  ))}
                 </div>
-              </div>
+              </motion.div>
 
               {project.features && project.features.length > 0 && (
-                <div className="project-features-box" style={{ marginTop: '30px' }}>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="project-features-box" 
+                  style={{ marginTop: '30px' }}
+                >
                   <h4 className="highlights-title">Project Features</h4>
                   <ul className="features-list" style={{ columns: 2, listStyle: 'none', padding: 0 }}>
                     {project.features.map((feature, idx) => (
-                      <li key={idx} className="feature-item" style={{ marginBottom: '10px', color: '#555', fontSize: '0.95rem' }}>
+                      <motion.li 
+                        key={idx} 
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 * idx }}
+                        className="feature-item" 
+                        style={{ marginBottom: '10px', color: '#555', fontSize: '0.95rem' }}
+                      >
                         ✅ {feature}
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {project.extra_description && project.extra_description.length > 0 && (
-            <div className="incredible-result-section" style={{ marginTop: '80px', padding: '60px', borderRadius: '30px', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)' }}>
+            <motion.div 
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="incredible-result-section" 
+              style={{ marginTop: '80px', padding: '60px', borderRadius: '30px', border: '1px solid rgba(0,0,0,0.05)', background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)' }}
+            >
               <h2 style={{ fontSize: '2.5rem', marginBottom: '30px', fontWeight: '800', color: '#1a1a1a' }}>Incredible Result</h2>
               <div className="extra-desc-content">
                 {project.extra_description.map((para, idx) => (
                   <p key={idx} style={{ fontSize: '1.2rem', lineHeight: '1.8', color: '#444', marginBottom: '20px' }}>{para}</p>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
           <div className="apartments-under-project" style={{ marginTop: '60px' }}>
             <h2 style={{ marginBottom: '30px', fontSize: '2rem' }}>Available Apartments in this Project</h2>
             {apartments.length > 0 ? (
-              <div className="apartment-grid">
+              <motion.div 
+                className="apartment-grid"
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.2 }
+                  }
+                }}
+              >
                 {apartments.map((apt) => (
-                  <div key={apt.id} className="apartment-card">
+                  <motion.div 
+                    key={apt.id} 
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      show: { opacity: 1, y: 0 }
+                    }}
+                    className="apartment-card"
+                  >
                     <div className="apartment-img" style={{ backgroundImage: `url(${apt.image})`, backgroundSize: 'cover' }}></div>
                     <div className="apartment-body">
                       <h3>{apt.price}</h3>
                       <p>{apt.bedrooms} Bed • {apt.bathrooms} Bath • {apt.size}</p>
                       <span className="location">📍 {apt.location}</span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             ) : (
               <p>No apartments currently listed for this project.</p>
             )}
@@ -154,7 +206,7 @@ const ProjectDetails = () => {
 
         </div>
       </section>
-    </div>
+    </motion.div>
   );
 };
 
