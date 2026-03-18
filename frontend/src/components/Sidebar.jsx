@@ -15,7 +15,7 @@ const Sidebar = () => {
     <aside className="sidebar">
       <div className="logo">
         <Logo />
-        <div className="logo-text">Mahim Builders</div>
+        
       </div>
 
       <nav className="sidebar-nav">
