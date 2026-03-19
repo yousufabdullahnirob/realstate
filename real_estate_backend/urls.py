@@ -1,6 +1,10 @@
 from django.contrib import admin
+
+from django.contrib import admin
 from django.urls import path
 from core import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 admin.site.site_header = "Administration"
 admin.site.site_title = "Administration"
@@ -18,7 +22,6 @@ urlpatterns = [
     path('api/admin/stats/', views.AdminStatsView.as_view(), name='admin_stats'),
     path('api/inquiries/', views.InquiryListAPIView.as_view(), name='inquiry-list'),
     path('api/notifications/', views.NotificationListAPIView.as_view(), name='notification-list'),
-    
     # New Payment & Analytics Routes
     path('api/payments/submit/', views.PaymentSubmitView.as_view(), name='payment-submit'),
     path('api/payments/<int:pk>/verify/', views.PaymentVerifyView.as_view(), name='payment-verify'),
@@ -28,3 +31,7 @@ urlpatterns = [
     path('api/payments/my/', views.MyPaymentsView.as_view(), name='my-payments'),
     path('api/health/', views.DBHealthCheckView.as_view(), name='db-health'),
 ]
+
+# Media file serving (development only)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

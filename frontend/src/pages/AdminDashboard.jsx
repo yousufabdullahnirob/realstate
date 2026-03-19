@@ -30,9 +30,9 @@ const AdminDashboard = () => {
         setAnalytics(analyticsData);
         setUnapprovedApts(apartmentsData.filter(a => !a.is_approved));
         
-        // Mock pending payments for now or fetch if endpoint ready
-        // const paymentsData = await apiProxy.get("/payments/pending/");
-        // setPendingPayments(paymentsData);
+        // Fetch pending payments
+        const paymentsData = await apiProxy.get("/api/payments/pending/");
+        setPendingPayments(paymentsData);
       } catch (error) {
         console.error("Dashboard fetch failed:", error);
       } finally {
@@ -143,9 +143,38 @@ const AdminDashboard = () => {
           <h3>Pending Payment Verifications</h3>
           <a href="/admin/payments" className="manage-btn">View All</a>
         </div>
-        <div className="payment-table">
-          <p style={{ color: 'var(--text-muted)' }}>Section under implementation. Active in Payment Management tab.</p>
-        </div>
+          <div className="payment-table">
+            {pendingPayments.length > 0 ? (
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Amount</th>
+                    <th>TrxID</th>
+                    <th>Date</th>
+                    <th>Proof</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingPayments.map(pay => (
+                    <tr key={pay.id}>
+                      <td>{pay.id}</td>
+                      <td>{pay.amount.toLocaleString()} BDT</td>
+                      <td>{pay.transaction_id}</td>
+                      <td>{pay.payment_date}</td>
+                      <td>
+                        {pay.payment_proof_image ? (
+                          <a href={pay.payment_proof_image} target="_blank" rel="noreferrer">View Image</a>
+                        ) : "No Proof"}
+                      </td>
+                      <td><span className={`status-${pay.verification_status}`}>{pay.verification_status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : <p style={{ color: 'var(--text-muted)' }}>No pending payments found.</p>}
+          </div>
       </section>
     </div>
   );
