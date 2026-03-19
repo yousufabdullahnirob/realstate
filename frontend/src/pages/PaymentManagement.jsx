@@ -3,13 +3,16 @@ import apiProxy from "../utils/proxyClient";
 
 const PaymentManagement = () => {
     const [payments, setPayments] = useState([]);
+    const [pendingPayments, setPendingPayments] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchPayments = async () => {
             try {
-                const data = await apiProxy.get("/payments/all/"); // Assuming admin endpoint
-                setPayments(data);
+                const allPayments = await apiProxy.get("/api/payments/all/");
+                setPayments(allPayments);
+                const pending = await apiProxy.get("/api/payments/pending/");
+                setPendingPayments(pending);
             } catch (error) {
                 console.error("Failed to fetch payments:", error);
             } finally {
@@ -34,6 +37,7 @@ const PaymentManagement = () => {
         <div className="page-content">
             <h2>Payment Verification</h2>
             <div className="table-container">
+                <h3>Pending Payments</h3>
                 <table className="admin-table">
                     <thead>
                         <tr>
@@ -47,7 +51,7 @@ const PaymentManagement = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {payments.map(pay => (
+                        {pendingPayments.map(pay => (
                             <tr key={pay.id}>
                                 <td>{pay.id}</td>
                                 <td>{pay.amount.toLocaleString()} BDT</td>
@@ -67,6 +71,37 @@ const PaymentManagement = () => {
                                         </>
                                     )}
                                 </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <div className="table-container" style={{ marginTop: '40px' }}>
+                <h3>All Payments</h3>
+                <table className="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Amount</th>
+                            <th>TrxID</th>
+                            <th>Date</th>
+                            <th>Proof</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {payments.map(pay => (
+                            <tr key={pay.id}>
+                                <td>{pay.id}</td>
+                                <td>{pay.amount.toLocaleString()} BDT</td>
+                                <td>{pay.transaction_id}</td>
+                                <td>{pay.payment_date}</td>
+                                <td>
+                                    {pay.payment_proof_image ? (
+                                        <a href={pay.payment_proof_image} target="_blank" rel="noreferrer">View Image</a>
+                                    ) : "No Proof"}
+                                </td>
+                                <td><span className={`status-${pay.verification_status}`}>{pay.verification_status}</span></td>
                             </tr>
                         ))}
                     </tbody>

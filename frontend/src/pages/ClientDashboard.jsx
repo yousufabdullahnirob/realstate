@@ -15,9 +15,9 @@ const ClientDashboard = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // Mock endpoints - adjust based on actual backend implementation
-                const resp = await apiProxy.get("/client/stats/");
-                setStats(resp);
+                    // Fetch stats from proper API endpoint
+                    const resp = await apiProxy.get("/api/client/stats/");
+                    setStats(resp);
                 
                 const props = await apiProxy.get("/apartments/my/");
                 setProperties(props);

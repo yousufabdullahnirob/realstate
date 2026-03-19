@@ -6,9 +6,7 @@ const SubmitPayment = () => {
     const [formData, setFormData] = useState({
         amount: "",
         transaction_id: "",
-        payment_date: new Date().toISOString().split('T')[0],
-        installment: "",
-        payment_proof_image: null
+        proof: null
     });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -17,13 +15,19 @@ const SubmitPayment = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const data = new FormData();
-            Object.keys(formData).forEach(key => {
-                data.append(key, formData[key]);
-            });
-            await apiProxy.post("/payments/submit/", data);
-            alert("Payment proof submitted successfully! Pending verification.");
-            navigate("/dashboard");
+                // Validate fields
+                if (!formData.amount || !formData.transaction_id || !formData.proof) {
+                    alert("All fields are required.");
+                    setLoading(false);
+                    return;
+                }
+                const data = new FormData();
+                data.append("transaction_id", formData.transaction_id);
+                data.append("amount", formData.amount);
+                data.append("proof", formData.proof);
+                await apiProxy.post("/api/payments/submit/", data);
+                alert("Payment proof submitted successfully! Pending verification.");
+                navigate("/dashboard");
         } catch (error) {
             console.error("Submission failed:", error);
             alert("Failed to submit payment proof.");
@@ -61,7 +65,7 @@ const SubmitPayment = () => {
                         <input 
                             type="file" 
                             accept="image/*"
-                            onChange={(e) => setFormData({...formData, payment_proof_image: e.target.files[0]})}
+                            onChange={(e) => setFormData({...formData, proof: e.target.files[0]})}
                         />
                     </div>
                     <button type="submit" className="contact-btn" disabled={loading}>
