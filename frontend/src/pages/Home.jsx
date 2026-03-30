@@ -10,15 +10,18 @@ import communityVibe from '../assets/about/community_vibe.png';
 const slides = [
   {
     title: "Building Dreams Into Reality",
-    text: "Discover architectural excellence designed for modern living."
+    text: "Discover architectural excellence designed for modern living.",
+    image: "/bd_centric_2.png"
   },
   {
     title: "Modern Living Redefined",
-    text: "Crafted spaces blending comfort, elegance, and innovation."
+    text: "Crafted spaces blending comfort, elegance, and innovation.",
+    image: "/bd_centric_3.png"
   },
   {
     title: "Spaces That Inspire Growth",
-    text: "Where design meets functionality for timeless experiences."
+    text: "Where design meets functionality for timeless experiences.",
+    image: "/bd_centric_1.png"
   }
 ];
 
@@ -27,6 +30,8 @@ const offers = [
     id: 'design',
     title: 'Design & Planning',
     text: 'We will help you to get the result you dreamed of.',
+    fullText: 'Our design and planning phase is where your vision begins to take shape. We collaborate closely with you to understand your lifestyle, aesthetic preferences, and practical needs. Using advanced architectural techniques and 3D modeling, we create comprehensive blueprints that meticulously plan every square foot. From spatial flow to structural integrity, our planning ensures a flawless execution process.',
+    image: '/service_1.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -53,6 +58,7 @@ const offers = [
     id: 'solutions',
     title: 'Custom Solutions',
     text: 'Individual, aesthetically stunning solutions for customers.',
+    fullText: 'No two projects are identical, and neither are our solutions. We specialize in bespoke architectural and interior solutions tailored strictly to your unique requirements. Whether you need specialized smart-home integrations, custom-built storage systems, or unique material sourcing, our team designs solutions that are as functional as they are visually striking.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -71,6 +77,7 @@ const offers = [
     id: 'furniture',
     title: 'Furniture & Decor',
     text: 'We create and produce our product design lines.',
+    fullText: 'A beautiful space is defined by what fills it. We offer complete interior furnishing services, sourcing premium global decor and crafting bespoke furniture pieces tailored to your exact floor plan. From selecting the perfect fabrics and luxury finishes to curating modern art pieces, our designers ensure your interior reflects absolute elegance and unparalleled comfort.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.rect 
@@ -95,6 +102,8 @@ const offers = [
     id: 'exterior',
     title: 'Exterior Design',
     text: 'We will help you to get the result you dreamed of.',
+    fullText: 'First impressions matter. Our exterior design services focus on creating stunning facades and harmonious outdoor spaces that blend perfectly with the surrounding environment. We expertly balance form and function, incorporating durable high-end materials, beautiful landscaping, and striking outdoor lighting to maximize your property\'s curb appeal and longevity.',
+    image: '/service_2.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -114,6 +123,7 @@ const offers = [
     id: 'concept',
     title: 'Creating a Concept',
     text: 'Individual, aesthetically stunning solutions for customers.',
+    fullText: 'At the heart of every iconic building is a powerful core concept. We dedicate time to establishing a unique theme—be it minimalist, modern, or neo-classical—that dictates the design language of your entire project. This cohesive creative direction ensures that every room, texture, and architectural element tells the same beautiful story.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -131,6 +141,7 @@ const offers = [
     id: 'control',
     title: "Author's Control",
     text: 'We create and produce our product design lines.',
+    fullText: 'A great design is only as good as its execution. Through our Author\'s Control service, the original architects who designed your project actively supervise the construction phase. We conduct rigorous site inspections to guarantee that contractors strictly follow the blueprints and use the specified premium materials, ensuring the final build is nothing short of a masterpiece.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -157,28 +168,29 @@ const processSteps = [
   {
     id: '01',
     title: 'Strategic Planning',
-    text: 'We begin with rigorous location scouting, feasibility studies, and a clear architectural vision for the project.'
+    text: 'Every masterpiece starts with a vision. Our experts conduct rigorous location analysis and feasibility studies to ensure your property is built on the best foundation. We define clear architectural blueprints perfectly aligned with your personal aspirations.'
   },
   {
     id: '02',
     title: 'Modern Design',
-    text: 'Our team crafts detailed 3D visualizations and functional layouts tailored for contemporary urban living.'
+    text: 'Step into the future with our state-of-the-art 3D visualizations and sustainable architecture. We blend aesthetics with functionality, creating living spaces that embrace natural light, smart layouts, and contemporary urban luxury.'
   },
   {
     id: '03',
     title: 'Quality Construction',
-    text: 'Using premium materials and engineering excellence, we build structures that stand the test of time and safety.'
+    text: 'Excellence lies in the details. We utilize the highest grade materials and cutting-edge engineering techniques to build resilient and safe structures. Uncompromising quality control ensures long-lasting perfection.'
   },
   {
     id: '04',
     title: 'Final Handover',
-    text: 'After thorough quality checks, we welcome you to your new home with a seamless keys delivery experience.'
+    text: 'The moment your dream becomes reality. Following a comprehensive multi-point quality check, we deliver your new home with complete documentation and a seamless key handover experience. Welcome to your redefined lifestyle.'
   }
 ];
 
 const Home = () => {
   const [current, setCurrent] = useState(0);
   const [activeOffer, setActiveOffer] = useState(null); 
+  const [selectedOffer, setSelectedOffer] = useState(null);
   const [activeProcess, setActiveProcess] = useState(null);
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [featuredApartments, setFeaturedApartments] = useState([]);
@@ -214,7 +226,26 @@ const Home = () => {
   return (
     <div>
       <section className="hero">
-        <div className="container">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: `url(${slides[current].image}) center/cover no-repeat`,
+              opacity: 0.4,
+              zIndex: 1
+            }}
+          />
+        </AnimatePresence>
+        <div className="container" style={{ position: 'relative', zIndex: 5 }}>
           <AnimatePresence mode="wait">
             <motion.div 
               key={current}
@@ -476,11 +507,56 @@ const Home = () => {
                 </div>
                 <h3>{offer.title}</h3>
                 <p>{offer.text}</p>
-                <Link to="/services" className="offer-read-more">READ MORE</Link>
+                <button 
+                  className="offer-read-more" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedOffer(offer);
+                  }}
+                  style={{ background: 'transparent', border: 'none', borderBottom: '1px solid currentColor', cursor: 'pointer', padding: 0 }}
+                >
+                  READ MORE
+                </button>
               </motion.div>
             ))}
           </div>
         </div>
+
+        <AnimatePresence>
+          {selectedOffer && (
+            <motion.div 
+              className="service-modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedOffer(null)}
+            >
+              <motion.div 
+                className="service-modal glass-premium"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="modal-close" onClick={() => setSelectedOffer(null)}>×</div>
+                <div className="modal-content">
+                  <div className="modal-icon">
+                    {selectedOffer.icon}
+                  </div>
+                  {selectedOffer.image && (
+                    <div className="modal-image-box">
+                      <img src={selectedOffer.image} alt={selectedOffer.title} />
+                    </div>
+                  )}
+                  <h2>{selectedOffer.title}</h2>
+                  <div className="modal-divider"></div>
+                  <p>{selectedOffer.fullText}</p>
+                  <button className="modal-btn" onClick={() => setSelectedOffer(null)}>Got It</button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
     </div>
   );
