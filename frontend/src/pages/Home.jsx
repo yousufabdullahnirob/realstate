@@ -6,6 +6,8 @@ import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
 import approvedModel from '../assets/about/approved_model.png';
 import communityVibe from '../assets/about/community_vibe.png';
+import MapSection from '../components/MapSection';
+import { useNavigate } from 'react-router-dom';
 
 const slides = [
   {
@@ -223,6 +225,21 @@ const Home = () => {
     setCurrent(index);
   };
 
+  const navigate = useNavigate();
+  const [searchFilters, setSearchFilters] = useState({
+    location: 'Location',
+    price: 'Price (BDT)',
+    size: 'Size'
+  });
+
+  const handleHeroSearch = () => {
+    const params = new URLSearchParams();
+    if (searchFilters.location !== 'Location') params.append('location', searchFilters.location);
+    if (searchFilters.price !== 'Price (BDT)') params.append('price', searchFilters.price);
+    if (searchFilters.size !== 'Size') params.append('size', searchFilters.size);
+    navigate(`/apartments?${params.toString()}`);
+  };
+
   return (
     <div>
       <section className="hero">
@@ -275,7 +292,7 @@ const Home = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <button className="animate-pulse-glow">Search Projects</button>
+          <button className="animate-pulse-glow" onClick={() => navigate('/apartments')}>Search Projects</button>
         </motion.div>
       </section>
 
@@ -289,7 +306,7 @@ const Home = () => {
         >
           <div className="filter">
             <span className="icon">📍</span>
-            <select>
+            <select value={searchFilters.location} onChange={(e) => setSearchFilters({...searchFilters, location: e.target.value})}>
               <option>Location</option>
               <option>Dhaka</option>
               <option>Chittagong</option>
@@ -297,21 +314,22 @@ const Home = () => {
           </div>
           <div className="filter">
             <span className="icon">৳</span>
-            <select>
+            <select value={searchFilters.price} onChange={(e) => setSearchFilters({...searchFilters, price: e.target.value})}>
               <option>Price (BDT)</option>
-              <option>50,00,000 - 1,00,00,000</option>
-              <option>1,00,00,000 - 2,00,00,000</option>
+              <option>5,000,000 - 10,000,000</option>
+              <option>10,00,000 - 15,00,000</option>
             </select>
           </div>
           <div className="filter">
             <span className="icon">📐</span>
-            <select>
-              <option>Size</option>
-              <option>1 BHK</option>
-              <option>2 BHK</option>
+            <select value={searchFilters.size} onChange={(e) => setSearchFilters({...searchFilters, size: e.target.value})}>
+              <option>BHK</option>
+              <option value="1">1 BHK</option>
+              <option value="2">2 BHK</option>
+              <option value="3">3 BHK</option>
             </select>
           </div>
-          <button className="search-btn">Search</button>
+          <button className="search-btn" onClick={handleHeroSearch}>Search</button>
         </motion.div>
       </section>
 
@@ -558,6 +576,8 @@ const Home = () => {
           )}
         </AnimatePresence>
       </section>
+
+      <MapSection />
     </div>
   );
 };

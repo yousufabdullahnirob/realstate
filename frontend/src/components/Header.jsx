@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../Logo';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const Header = () => {
           <Logo />
         </div>
         <nav className="nav">
-          <ul>
+          <ul style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
             <li><a href="/">Home</a></li>
             <li><a href="/apartments">Apartments</a></li>
             <li><a href="/about">About Us</a></li>
@@ -37,7 +38,8 @@ const Header = () => {
             <li><a href="/contact">Contact</a></li>
           </ul>
         </nav>
-        <div className="header-auth">
+        <div className="header-auth" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <ThemeToggle />
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
               <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} className="auth-link">

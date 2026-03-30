@@ -20,41 +20,44 @@ import Login from "./pages/Login";
 import PaymentManagement from "./pages/PaymentManagement";
 import UserManagement from "./pages/UserManagement";
 import DesignShowcase from "./pages/DesignShowcase";
+import { CompareProvider } from "./context/CompareContext";
 import "./admin.css";
 import "./styles.css"; // Public site styles
 
 export default function App() {
   return (
     <Router>
-      <Routes>
-        {/* Public pages */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:id" element={<ProjectDetails />} />
-          <Route path="/apartments" element={<ApartmentListing />} />
-          <Route path="/apartments/:id" element={<ApartmentDetails />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/design-showcase" element={<DesignShowcase />} />
-        </Route>
-        {/* Admin routes */}
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/projects" element={<ProjectAdmin />} />
-          <Route path="/admin/projects/new" element={<ProjectForm />} />
-          <Route path="/admin/projects/edit/:id" element={<ProjectForm />} />
-          <Route path="/admin/apartments" element={<ApartmentAdmin />} />
-          <Route path="/admin/apartments/new" element={<ApartmentForm />} />
-          <Route path="/admin/apartments/edit/:id" element={<ApartmentForm />} />
-          <Route path="/admin/payments" element={<PaymentManagement />} />
-          <Route path="/admin/users" element={<UserManagement />} />
-          <Route path="/admin/bookings" element={<Bookings />} />
-          <Route path="/admin/inquiries" element={<Inquiries />} />
-          <Route path="/admin/notifications" element={<Notifications />} />
-        </Route>
-      </Routes>
+      <CompareProvider>
+        <Routes>
+          {/* Public pages */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:id" element={<ProjectDetails />} />
+            <Route path="/apartments" element={<ApartmentListing />} />
+            <Route path="/apartments/:id" element={<ApartmentDetails />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/design-showcase" element={<DesignShowcase />} />
+          </Route>
+          {/* Admin routes */}
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/projects" element={<ProjectAdmin />} />
+            <Route path="/admin/projects/new" element={<ProjectForm />} />
+            <Route path="/admin/projects/edit/:id" element={<ProjectForm />} />
+            <Route path="/admin/apartments" element={<ApartmentAdmin />} />
+            <Route path="/admin/apartments/new" element={<ApartmentForm />} />
+            <Route path="/admin/apartments/edit/:id" element={<ApartmentForm />} />
+            <Route path="/admin/payments" element={<PaymentManagement />} />
+            <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/admin/bookings" element={<Bookings />} />
+            <Route path="/admin/inquiries" element={<Inquiries />} />
+            <Route path="/admin/notifications" element={<Notifications />} />
+          </Route>
+        </Routes>
+      </CompareProvider>
     </Router>
   );
 }
