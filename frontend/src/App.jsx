@@ -19,6 +19,8 @@ import ProjectAdmin from "./pages/ProjectAdmin";
 import Login from "./pages/Login";
 import PaymentManagement from "./pages/PaymentManagement";
 import UserManagement from "./pages/UserManagement";
+import Profile from "./pages/Profile";
+import ClientDashboard from "./pages/ClientDashboard";
 import DesignShowcase from "./pages/DesignShowcase";
 import { CompareProvider } from "./context/CompareContext";
 import "./admin.css";
@@ -39,6 +41,8 @@ export default function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard" element={<ClientDashboard />} />
             <Route path="/design-showcase" element={<DesignShowcase />} />
           </Route>
           {/* Admin routes */}

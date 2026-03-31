@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.models import (
     Apartment, ApartmentImage, User, Project, ProjectImage, 
-    Inquiry, Notification, Installment, Payment, PropertyView
+    Inquiry, Notification, Installment, Payment, PropertyView, Favorite
 )
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'full_name', 'email', 'phone', 'role']
+        fields = ['id', 'full_name', 'email', 'phone', 'role', 'profile_image']
 
 class RegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
@@ -180,3 +180,19 @@ class PropertyViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = PropertyView
         fields = '__all__'
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    apartment_details = ApartmentSerializer(source='apartment', read_only=True)
+    
+    class Meta:
+        model = Favorite
+        fields = ['id', 'user', 'apartment', 'apartment_details', 'created_at']
+        extra_kwargs = {'user': {'read_only': True}}
+
+class PasswordChangeSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value

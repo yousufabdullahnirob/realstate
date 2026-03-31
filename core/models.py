@@ -12,6 +12,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.CUSTOMER)
+    profile_image = models.URLField(max_length=500, blank=True, null=True)
     
     # We use email as the username for login
     USERNAME_FIELD = 'email'
@@ -181,3 +182,14 @@ class PropertyView(models.Model):
 
     def __str__(self):
         return f"View of {self.apartment.title} at {self.viewed_at}"
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
+    apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'apartment')
+
+    def __str__(self):
+        return f"{self.user.email} favorited {self.apartment.title}"

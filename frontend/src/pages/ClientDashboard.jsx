@@ -6,6 +6,7 @@ import "../styles.css";
 const ClientDashboard = () => {
     const [stats, setStats] = useState({ active_installments: 0, total_paid: 0, upcoming_due: "N/A" });
     const [properties, setProperties] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -24,6 +25,9 @@ const ClientDashboard = () => {
                 
                 const pays = await apiProxy.get("/payments/my/");
                 setPayments(pays);
+
+                const favs = await apiProxy.get("/favorites/");
+                setFavorites(favs);
             } catch (error) {
                 console.error("Failed to fetch client data:", error);
                 // Fallback for demo
@@ -76,6 +80,34 @@ const ClientDashboard = () => {
                     </div>
                 ))}
             </div>
+
+            <div className="section-title" style={{ marginTop: '40px' }}>
+                <h2>My Wishlist</h2>
+            </div>
+            {favorites.length > 0 ? (
+                <div className="property-grid-small">
+                    {favorites.map(fav => (
+                        <div key={fav.id} className="prop-card">
+                            <img src={fav.apartment_details.image} alt={fav.apartment_details.title} />
+                            <div className="prop-info">
+                                <h3>{fav.apartment_details.title}</h3>
+                                <p>{fav.apartment_details.location}</p>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span className="price-tag" style={{ color: 'var(--accent-primary)', fontWeight: 'bold' }}>
+                                        {parseFloat(fav.apartment_details.price).toLocaleString()} BDT
+                                    </span>
+                                    <a href={`/apartments/${fav.apartment_details.id}`} className="view-link">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="glass" style={{ padding: '30px', textAlign: 'center', borderRadius: '15px' }}>
+                    <p>You haven't favorited any apartments yet.</p>
+                    <a href="/apartments" className="contact-btn" style={{ marginTop: '10px', display: 'inline-block' }}>Browse Apartments</a>
+                </div>
+            )}
 
             <div className="section-title" style={{ marginTop: '40px' }}>
                 <h2>Payment History</h2>

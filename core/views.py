@@ -6,12 +6,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import (
     Apartment, User, Project, Inquiry, Notification, 
-    ProjectImage, Payment, Installment, PropertyView
+    ProjectImage, Payment, Installment, PropertyView, Favorite, Booking
 )
 from .serializers import (
     ApartmentSerializer, RegistrationSerializer, LoginSerializer, 
     UserSerializer, ProjectSerializer, InquirySerializer, 
-    NotificationSerializer, PaymentSerializer, InstallmentSerializer
+    NotificationSerializer, PaymentSerializer, InstallmentSerializer,
+    FavoriteSerializer, PasswordChangeSerializer
 )
 from .permissions import IsAdminRole, IsAgentRole, IsAdminOrAgentRole
 
@@ -66,6 +67,13 @@ class PaymentVerifyView(APIView):
                     payment.installment.is_paid = True
                     payment.installment.paid_date = payment.payment_date
                     payment.installment.save()
+
+                # Create notification for client
+                Notification.objects.create(
+                    user=payment.booking.user,
+                    message=f"Your payment with TrxID {payment.transaction_id} has been {status_val}.",
+                    type=Notification.Type.PAYMENT
+                )
 
                 return Response({"message": f"Payment {status_val} successfully"})
             return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
@@ -270,3 +278,72 @@ class MyPaymentsView(generics.ListAPIView):
 
     def get_queryset(self):
         return Payment.objects.filter(booking__user=self.request.user).order_by('-payment_date')
+
+class FavoriteToggleAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        apartment_id = request.data.get('apartment_id')
+        if not apartment_id:
+            return Response({"error": "apartment_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            apartment = Apartment.objects.get(id=apartment_id)
+        except Apartment.DoesNotExist:
+            return Response({"error": "Apartment not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        favorite, created = Favorite.objects.get_or_create(user=request.user, apartment=apartment)
+        
+        if not created:
+            favorite.delete()
+            return Response({"message": "Removed from favorites", "is_favorited": False})
+        
+        return Response({"message": "Added to favorites", "is_favorited": True}, status=status.HTTP_201_CREATED)
+
+class FavoriteListAPIView(generics.ListAPIView):
+    serializer_class = FavoriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user)
+
+class ProfileUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+class PasswordChangeAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = PasswordChangeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        user = request.user
+        if not user.check_password(serializer.validated_data['old_password']):
+            return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(serializer.validated_data['new_password'])
+        user.save()
+        return Response({"message": "Password updated successfully"})
+
+class CreatePropertyNotificationView(APIView):
+    # This could be called after creating an apartment
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrAgentRole]
+
+    def post(self, request):
+        apartment_name = request.data.get('apartment_name')
+        # Notify all users or specific ones? For now, let's notify all customers
+        customers = User.objects.filter(role=User.Role.CUSTOMER)
+        notifications = [
+            Notification(
+                user=customer,
+                message=f"New property added: {apartment_name}. Check it out!",
+                type=Notification.Type.APPROVAL # Or add a NEW_PROPERTY type
+            )
+            for customer in customers
+        ]
+        Notification.objects.bulk_create(notifications)
+        return Response({"message": f"Notifications sent to {len(notifications)} users"})

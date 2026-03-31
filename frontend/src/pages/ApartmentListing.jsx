@@ -9,6 +9,7 @@ import ComparisonModal from '../components/ComparisonModal';
 const ApartmentListing = () => {
   const [apartments, setApartments] = useState([]);
   const [filteredApartments, setFilteredApartments] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const location = useLocation();
@@ -43,6 +44,12 @@ const ApartmentListing = () => {
         // Apply initial filters logic
         applyFilters(adapted, initialFilters);
 
+        // Fetch favorites
+        if (localStorage.getItem('access')) {
+          const favs = await apiProxy.get("/favorites/");
+          setFavorites(favs.map(f => f.apartment));
+        }
+
       } catch (error) {
         console.error("Error fetching apartments:", error);
       } finally {
@@ -51,6 +58,21 @@ const ApartmentListing = () => {
     };
     fetchApartments();
   }, [location.search]);
+
+  const toggleFavorite = async (e, apartmentId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const resp = await apiProxy.post("/favorites/toggle/", { apartment_id: apartmentId });
+      if (resp.is_favorited) {
+        setFavorites([...favorites, apartmentId]);
+      } else {
+        setFavorites(favorites.filter(id => id !== apartmentId));
+      }
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+    }
+  };
 
   const handleFilterChange = (e, field) => {
     setFilters({ ...filters, [field]: e.target.value });
@@ -193,12 +215,37 @@ const ApartmentListing = () => {
                   whileHover={{ y: -10 }}
                   className="apt-card"
                 >
-                    <div className="apt-img" style={{ backgroundImage: `url(${apt.image})`, backgroundSize: 'cover' }}>
+                    <div className="apt-img" style={{ backgroundImage: `url(${apt.image})`, backgroundSize: 'cover', position: 'relative' }}>
                       <button 
                         className={`compare-btn ${compareList.find(i => i.id === apt.id) ? 'active' : ''}`}
                         onClick={() => addToCompare(apt)}
                       >
                         {compareList.find(i => i.id === apt.id) ? '✓ Added' : '+ Compare'}
+                      </button>
+                      <button 
+                        className="fav-toggle-btn"
+                        onClick={(e) => toggleFavorite(e, apt.id)}
+                        style={{
+                          position: 'absolute',
+                          top: '15px',
+                          right: '15px',
+                          background: 'rgba(0,0,0,0.3)',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '35px',
+                          height: '35px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: favorites.includes(apt.id) ? '#f44336' : 'white',
+                          cursor: 'pointer',
+                          zIndex: 5,
+                          backdropFilter: 'blur(5px)'
+                        }}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill={favorites.includes(apt.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
                       </button>
                     </div>
                     <div className="apt-card-body">
