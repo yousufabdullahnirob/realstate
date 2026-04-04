@@ -30,10 +30,13 @@ const Register = () => {
         confirm_password: formData.confirmPassword,
         role: formData.role
       });
-      alert('Registration successful! Please login.');
-      navigate('/login');
-    } catch (err) {
-      setError(err.message || 'Registration failed');
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (error) {
+      console.error('Registration failed:', error);
+      setError(error.response?.data?.message || error.message || 'Registration failed. Please check your details.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,6 +47,7 @@ const Register = () => {
         <p>Join Mahim Builders' community.</p>
         <form onSubmit={handleRegister}>
           {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+          {success && <div style={{ color: 'green', marginBottom: '15px' }}>Registration successful! Redirecting...</div>}
           <div className="form-group">
             <label>Full Name</label>
             <input type="text" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} required />

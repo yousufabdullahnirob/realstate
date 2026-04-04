@@ -30,9 +30,9 @@ const Footer = () => {
         <div className="footer-col">
           <h4>Ongoing Projects</h4>
           <ul className="footer-links">
-            <li><Link to="/projects">Mahim Palace 2: Bashundhara Royal Ascent</Link></li>
-            <li><Link to="/projects">Mahim Tower 2: Wari Signature Residence</Link></li>
-            <li><Link to="/projects">Mahim Shopping Mall: The Mugda Galleria</Link></li>
+            <li><Link to="/projects/4">Mahim Palace 2: Bashundhara Royal Ascent</Link></li>
+            <li><Link to="/projects/2">Mahim Tower 2: Wari Signature Residence</Link></li>
+            <li><Link to="/projects/3">Mahim Shopping Mall: The Mugda Galleria</Link></li>
           </ul>
         </div>
       </div>

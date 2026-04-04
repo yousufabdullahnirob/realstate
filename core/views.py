@@ -12,11 +12,23 @@ from .serializers import (
     ApartmentSerializer, RegistrationSerializer, LoginSerializer, 
     UserSerializer, ProjectSerializer, InquirySerializer, 
     NotificationSerializer, PaymentSerializer, InstallmentSerializer,
-    FavoriteSerializer, PasswordChangeSerializer
+    FavoriteSerializer, PasswordChangeSerializer, BookingSerializer
 )
 from .permissions import IsAdminRole, IsAgentRole, IsAdminOrAgentRole
 
-# ... existing code ...
+class AdminUserListAPIView(generics.ListAPIView):
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class AdminUserRoleUpdateAPIView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+    def perform_update(self, serializer):
+        # Additional business logic for role changes if necessary
+        serializer.save()# ... existing code ...
 
 class ApartmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Apartment.objects.all()
@@ -176,11 +188,24 @@ class ProjectDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         instance.is_active = False
         instance.save()
 
-class ApartmentListAPIView(generics.ListAPIView):
+class ApartmentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
-    permission_classes = [permissions.AllowAny]
-    authentication_classes = []
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsAdminRole()]
+
+    def get_authenticators(self):
+        if self.request.method == 'GET':
+            return []
+        return super().get_authenticators()
+
+class ApartmentUpdateAPIView(generics.UpdateAPIView):
+    queryset = Apartment.objects.all()
+    serializer_class = ApartmentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 
 class ProjectPublicListAPIView(generics.ListAPIView):
     queryset = Project.objects.filter(is_active=True)
@@ -230,6 +255,45 @@ class InquiryListAPIView(generics.ListAPIView):
     serializer_class = InquirySerializer
     permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 
+class AdminBookingListAPIView(generics.ListAPIView):
+    queryset = Booking.objects.all().order_by('-booking_date')
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class InquiryCreateAPIView(generics.CreateAPIView):
+    queryset = Inquiry.objects.all()
+    serializer_class = InquirySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class InquiryUpdateAPIView(generics.UpdateAPIView):
+    queryset = Inquiry.objects.all()
+    serializer_class = InquirySerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+class BookingCreateAPIView(generics.CreateAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        import uuid
+        from decimal import Decimal
+        # Generate random booking reference
+        ref = f"BKG-{uuid.uuid4().hex[:8].upper()}"
+        booking = serializer.save(user=self.request.user, booking_reference=ref)
+        
+        # Create an initial installment for the advance amount
+        import datetime
+        Installment.objects.create(
+            booking=booking,
+            due_date=datetime.date.today() + datetime.timedelta(days=7),
+            amount=booking.advance_amount,
+            is_paid=False
+        )
+
 class NotificationListAPIView(generics.ListAPIView):
     queryset = Notification.objects.all().order_by('-created_at')
     serializer_class = NotificationSerializer
@@ -272,12 +336,29 @@ class MyApartmentsView(generics.ListAPIView):
         # Return apartments associated with user's bookings or sales
         return Apartment.objects.filter(bookings__user=self.request.user).distinct()
 
+class MyBookingsView(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Booking.objects.filter(user=self.request.user).order_by('-booking_date')
+
 class MyPaymentsView(generics.ListAPIView):
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Payment.objects.filter(booking__user=self.request.user).order_by('-payment_date')
+
+class AdminPaymentListAPIView(generics.ListAPIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+    queryset = Payment.objects.all().order_by('-payment_date')
+
+class AdminPendingPaymentListAPIView(generics.ListAPIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+    queryset = Payment.objects.filter(verification_status='pending').order_by('-payment_date')
 
 class FavoriteToggleAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -307,12 +388,16 @@ class FavoriteListAPIView(generics.ListAPIView):
     def get_queryset(self):
         return Favorite.objects.filter(user=self.request.user)
 
-class ProfileUpdateAPIView(generics.UpdateAPIView):
+class ProfileUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+    
+    def post(self, request, *args, **kwargs):
+        # Handle POST as a partial update (PATCH) for frontend compatibility
+        return self.partial_update(request, *args, **kwargs)
 
 class PasswordChangeAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]

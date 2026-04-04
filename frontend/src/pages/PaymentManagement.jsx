@@ -9,9 +9,9 @@ const PaymentManagement = () => {
     useEffect(() => {
         const fetchPayments = async () => {
             try {
-                const allPayments = await apiProxy.get("/api/payments/all/");
+                const allPayments = await apiProxy.get("/payments/all/");
                 setPayments(allPayments);
-                const pending = await apiProxy.get("/api/payments/pending/");
+                const pending = await apiProxy.get("/payments/pending/");
                 setPendingPayments(pending);
             } catch (error) {
                 console.error("Failed to fetch payments:", error);

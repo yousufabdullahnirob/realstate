@@ -17,21 +17,25 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ApartmentAdmin from "./pages/ApartmentAdmin";
 import ProjectAdmin from "./pages/ProjectAdmin";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import PaymentManagement from "./pages/PaymentManagement";
 import UserManagement from "./pages/UserManagement";
 import Profile from "./pages/Profile";
 import ClientDashboard from "./pages/ClientDashboard";
 import DesignShowcase from "./pages/DesignShowcase";
+import SubmitPayment from "./pages/SubmitPayment";
 import { CompareProvider } from "./context/CompareContext";
 import "./admin.css";
 import "./styles.css"; // Public site styles
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
     <Router>
       <CompareProvider>
         <Routes>
-          {/* Public pages */}
+          {/* Public access routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/projects" element={<Projects />} />
@@ -41,24 +45,36 @@ export default function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/dashboard" element={<ClientDashboard />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/design-showcase" element={<DesignShowcase />} />
           </Route>
-          {/* Admin routes */}
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/projects" element={<ProjectAdmin />} />
-            <Route path="/admin/projects/new" element={<ProjectForm />} />
-            <Route path="/admin/projects/edit/:id" element={<ProjectForm />} />
-            <Route path="/admin/apartments" element={<ApartmentAdmin />} />
-            <Route path="/admin/apartments/new" element={<ApartmentForm />} />
-            <Route path="/admin/apartments/edit/:id" element={<ApartmentForm />} />
-            <Route path="/admin/payments" element={<PaymentManagement />} />
-            <Route path="/admin/users" element={<UserManagement />} />
-            <Route path="/admin/bookings" element={<Bookings />} />
-            <Route path="/admin/inquiries" element={<Inquiries />} />
-            <Route path="/admin/notifications" element={<Notifications />} />
+
+          {/* Protected Client routes */}
+          <Route element={<ProtectedRoute />}>
+             <Route element={<PublicLayout />}>
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<ClientDashboard />} />
+                <Route path="/payments/submit" element={<SubmitPayment />} />
+                <Route path="/notifications" element={<Notifications />} />
+             </Route>
+          </Route>
+
+          {/* Protected Admin routes */}
+          <Route element={<ProtectedRoute allowedRoles={['admin', 'agent']} />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/projects" element={<ProjectAdmin />} />
+              <Route path="/admin/projects/new" element={<ProjectForm />} />
+              <Route path="/admin/projects/edit/:id" element={<ProjectForm />} />
+              <Route path="/admin/apartments" element={<ApartmentAdmin />} />
+              <Route path="/admin/apartments/new" element={<ApartmentForm />} />
+              <Route path="/admin/apartments/edit/:id" element={<ApartmentForm />} />
+              <Route path="/admin/payments" element={<PaymentManagement />} />
+              <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/admin/bookings" element={<Bookings />} />
+              <Route path="/admin/inquiries" element={<Inquiries />} />
+              <Route path="/admin/notifications" element={<Notifications />} />
+            </Route>
           </Route>
         </Routes>
       </CompareProvider>

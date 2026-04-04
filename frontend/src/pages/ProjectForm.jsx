@@ -49,7 +49,7 @@ const ProjectForm = () => {
       if (id === 'new') {
         await apiProxy.post('/admin/projects/', payload);
       } else {
-        await apiProxy.post(`/admin/projects/${id}/`, payload);
+        await apiProxy.put(`/admin/projects/${id}/`, payload);
       }
       navigate('/admin/projects');
     } catch (error) {

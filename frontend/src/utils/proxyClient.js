@@ -23,6 +23,7 @@ const apiProxy = {
           localStorage.removeItem('access');
           localStorage.removeItem('refresh');
           localStorage.removeItem('user');
+          window.location.href = '/login';
         }
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
@@ -37,11 +38,20 @@ const apiProxy = {
 
   post: async (endpoint, payload) => {
     console.log(`[Proxy] POST Request to: ${endpoint}`);
+    const isFormData = payload instanceof FormData;
+    
+    // Create headers and handle FormData exclusion for Content-Type
+    let headers = getHeaders();
+    if (isFormData) {
+      const { 'Content-Type': _, ...rest } = headers;
+      headers = rest;
+    }
+
     try {
       const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(payload),
+        headers: headers,
+        body: isFormData ? payload : JSON.stringify(payload),
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));

@@ -10,8 +10,13 @@ const ApartmentDetails = () => {
   const [apartment, setApartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
-
-  useEffect(() => {
+  
+  // Modals state
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [inquiryMsg, setInquiryMsg] = useState('');
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [advanceAmount, setAdvanceAmount] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);  useEffect(() => {
     const fetchApartment = async () => {
       try {
         const data = await apiProxy.get(`/apartments/`);
@@ -47,6 +52,37 @@ const ApartmentDetails = () => {
     }
   };
 
+  const submitInquiry = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      await apiProxy.post("/inquiries/submit/", { apartment: id, message: inquiryMsg });
+      alert("Inquiry submitted successfully!");
+      setShowInquiryModal(false);
+      setInquiryMsg('');
+    } catch (error) {
+       console.error(error);
+       alert("Failed to submit inquiry.");
+    } finally {
+       setActionLoading(false);
+    }
+  };
+
+  const submitBooking = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      await apiProxy.post("/bookings/create/", { apartment: id, advance_amount: advanceAmount });
+      alert("Booking successful! Please submit your payment proof on the dashboard.");
+      setShowBookingModal(false);
+      navigate('/dashboard');
+    } catch (error) {
+       console.error(error);
+       alert("Failed to book apartment. Maybe you need to log in first.");
+    } finally {
+       setActionLoading(false);
+    }
+  };
   if (loading) return <div style={{ padding: '150px 0', textAlign: 'center' }}>Loading...</div>;
 
   if (!apartment) {
@@ -187,10 +223,20 @@ const ApartmentDetails = () => {
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => setShowInquiryModal(true)}
                 className="apt-contact-btn animate-pulse-glow"
-                style={{ flex: 1, padding: '15px 40px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '50px', fontWeight: 600, cursor: 'pointer' }}
+                style={{ flex: 1, padding: '15px 20px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '50px', fontWeight: 600, cursor: 'pointer' }}
               >
                 Send Inquiry
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowBookingModal(true)}
+                className="apt-contact-btn"
+                style={{ flex: 1, padding: '15px 20px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '50px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Book Now
               </motion.button>
               <motion.button 
                 whileHover={{ scale: 1.05 }}
@@ -218,8 +264,92 @@ const ApartmentDetails = () => {
           </div>
         </div>
       </section>
+
+      {/* Inquiry Modal */}
+      {showInquiryModal && (
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <h2>Send Inquiry</h2>
+            <form onSubmit={submitInquiry}>
+               <textarea 
+                  rows="4" 
+                  value={inquiryMsg} 
+                  onChange={(e) => setInquiryMsg(e.target.value)} 
+                  placeholder="I am interested in this apartment..."
+                  required
+                  style={{ width: '100%', marginBottom: '15px', padding: '10px' }}
+                />
+               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                 <button type="button" onClick={() => setShowInquiryModal(false)} style={btnStyleSecondary}>Cancel</button>
+                 <button type="submit" disabled={actionLoading} style={btnStylePrimary}>{actionLoading ? 'Sending...' : 'Submit'}</button>
+               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+         <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <h2>Book Apartment</h2>
+             <p>Declaring booking intent requires you to submit payment proof of your advance amount shortly after from your dashboard.</p>
+            <form onSubmit={submitBooking}>
+               <input 
+                  type="number" 
+                  value={advanceAmount} 
+                  onChange={(e) => setAdvanceAmount(e.target.value)} 
+                  placeholder="Advance Amount (BDT)"
+                  required
+                  style={{ width: '100%', marginBottom: '15px', padding: '10px' }}
+                />
+               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                 <button type="button" onClick={() => setShowBookingModal(false)} style={btnStyleSecondary}>Cancel</button>
+                 <button type="submit" disabled={actionLoading} style={btnStylePrimary}>{actionLoading ? 'Booking...' : 'Confirm Book'}</button>
+               </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
+};
+
+const modalOverlayStyle = {
+  position: 'fixed',
+  top: 0, left: 0, right: 0, bottom: 0,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000
+};
+
+const modalContentStyle = {
+  backgroundColor: '#fff',
+  padding: '30px',
+  borderRadius: '12px',
+  width: '90%',
+  maxWidth: '400px',
+  color: '#333'
+};
+
+const btnStylePrimary = {
+  padding: '10px 20px',
+  background: 'var(--primary)',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '6px',
+  cursor: 'pointer'
+};
+
+const btnStyleSecondary = {
+  padding: '10px 20px',
+  background: '#ccc',
+  color: '#333',
+  border: 'none',
+  borderRadius: '6px',
+  cursor: 'pointer'
 };
 
 export default ApartmentDetails;

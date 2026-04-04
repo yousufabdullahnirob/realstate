@@ -124,8 +124,10 @@ const Projects = () => {
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   className={`project-tile ${project.status}`}
                 >
-                  <div className="project-img" style={{ backgroundImage: `url(${project.image})`, backgroundSize: 'cover' }}></div>
-                  <h3>{project.name}</h3>
+                  <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
+                    <div className="project-img" style={{ backgroundImage: `url(${project.image})`, backgroundSize: 'cover' }}></div>
+                    <h3>{project.name}</h3>
+                  </Link>
                 </motion.div>
               ))
             )}

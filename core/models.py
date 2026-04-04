@@ -144,7 +144,7 @@ class Payment(models.Model):
     verification_status = models.CharField(max_length=10, choices=VerificationStatus.choices, default=VerificationStatus.PENDING)
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_gateway = models.CharField(max_length=50, default='Manual/Proof')
-    payment_proof_image = models.URLField(max_length=500, null=True, blank=True)
+    payment_proof = models.FileField(upload_to='payments/', null=True, blank=True)
 
     def __str__(self):
         return f"Payment {self.transaction_id} - {self.verification_status}"

@@ -13,21 +13,32 @@ const Sidebar = () => {
 
   return (
     <aside className="sidebar">
-      <div className="logo">
-        <Logo />
-        
+      <div className="logo" style={{ marginBottom: '60px', justifyContent: 'center' }}>
+        <Logo style={{ height: '45px', filter: 'drop-shadow(0 0 10px var(--primary-glow))' }} />
       </div>
 
       <nav className="sidebar-nav">
-        {menuItems.map((item) => (
-          <Link key={item.path} to={item.path} className={window.location.pathname === item.path ? "active" : ""}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {item.icon}
-            </svg>
-            {item.label}
-          </Link>
-        ))}
+        {menuItems.map((item) => {
+          const isActive = window.location.pathname === item.path;
+          return (
+            <Link key={item.path} to={item.path} className={isActive ? "active" : ""}>
+              <div className={`nav-icon ${isActive ? 'glowing-icon' : ''}`}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {item.icon}
+                </svg>
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.2px' }}>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
+
+      <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '20px' }}>
+         <div className="dashboard-header" style={{ padding: '15px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)' }}>
+            <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: '4px' }}>Logged in as</p>
+            <p style={{ fontSize: '12px', fontWeight: '800' }}>Platform Admin</p>
+         </div>
+      </div>
     </aside>
   );
 };

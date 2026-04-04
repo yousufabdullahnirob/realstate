@@ -50,8 +50,7 @@ const ApartmentForm = () => {
       if (id === 'new') {
         await apiProxy.post('/apartments/', formData);
       } else {
-        // Assuming update via POST for now if PUT is not in proxy, but properly it should be PUT
-        await apiProxy.post(`/apartments/${id}/`, formData);
+        await apiProxy.put(`/apartments/${id}/update/`, formData);
       }
       navigate('/admin/apartments');
     } catch (error) {

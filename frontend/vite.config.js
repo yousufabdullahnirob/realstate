@@ -8,4 +8,9 @@ export default defineConfig({
     strictPort: true,
   },
   plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/vitest.setup.js',
+  },
 })

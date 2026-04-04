@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.models import (
     Apartment, ApartmentImage, User, Project, ProjectImage, 
-    Inquiry, Notification, Installment, Payment, PropertyView, Favorite
+    Inquiry, Notification, Installment, Payment, PropertyView, Favorite, Booking
 )
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -82,7 +82,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_image(self, obj):
         first_image = obj.images.first()
-        return first_image.image_url if first_image else ""
+        return first_image.image_url if first_image else None
 
     def get_available_units_count(self, obj):
         return obj.apartments.filter(status='available').count()
@@ -131,7 +131,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
         first_image = obj.images.first()
         if first_image:
             return first_image.image_url
-        return ""
+        return None
 
     def create(self, validated_data):
         image_url = validated_data.pop('image_url', None)
@@ -157,6 +157,9 @@ class InquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inquiry
         fields = ['id', 'user', 'user_email', 'apartment', 'apartment_title', 'message', 'status', 'created_at']
+        extra_kwargs = {
+            'user': {'read_only': True}
+        }
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -167,6 +170,19 @@ class InstallmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Installment
         fields = '__all__'
+
+class BookingSerializer(serializers.ModelSerializer):
+    installments = InstallmentSerializer(many=True, read_only=True)
+    user_email = serializers.ReadOnlyField(source='user.email')
+    apartment_title = serializers.ReadOnlyField(source='apartment.title')
+
+    class Meta:
+        model = Booking
+        fields = ['id', 'booking_reference', 'user', 'user_email', 'apartment', 'apartment_title', 'booking_date', 'status', 'advance_amount', 'installments']
+        extra_kwargs = {
+            'booking_reference': {'read_only': True},
+            'user': {'read_only': True}
+        }
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
