@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "vite": "^8.0.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.1"
+    "@vitejs/plugin-react": "^6.0.1",
+    "vitest": "^1.0.0"
   }
 }
