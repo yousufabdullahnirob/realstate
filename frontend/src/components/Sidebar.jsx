@@ -9,36 +9,26 @@ const Sidebar = () => {
     { path: "/admin/bookings", label: "Bookings", icon: <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/> },
     { path: "/admin/inquiries", label: "Inquiries", icon: <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/> },
     { path: "/admin/notifications", label: "Notifications", icon: <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/> },
+    { path: "/", label: "Back to Website", icon: <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/> },
   ];
 
   return (
     <aside className="sidebar">
-      <div className="logo" style={{ marginBottom: '60px', justifyContent: 'center' }}>
-        <Logo style={{ height: '45px', filter: 'drop-shadow(0 0 10px var(--primary-glow))' }} />
+      <div className="logo">
+        <Logo />
+        
       </div>
 
       <nav className="sidebar-nav">
-        {menuItems.map((item) => {
-          const isActive = window.location.pathname === item.path;
-          return (
-            <Link key={item.path} to={item.path} className={isActive ? "active" : ""}>
-              <div className={`nav-icon ${isActive ? 'glowing-icon' : ''}`}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {item.icon}
-                </svg>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.2px' }}>{item.label}</span>
-            </Link>
-          );
-        })}
+        {menuItems.map((item) => (
+          <Link key={item.path} to={item.path} className={window.location.pathname === item.path ? "active" : ""}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {item.icon}
+            </svg>
+            {item.label}
+          </Link>
+        ))}
       </nav>
-
-      <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '20px' }}>
-         <div className="dashboard-header" style={{ padding: '15px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)' }}>
-            <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: '4px' }}>Logged in as</p>
-            <p style={{ fontSize: '12px', fontWeight: '800' }}>Platform Admin</p>
-         </div>
-      </div>
     </aside>
   );
 };

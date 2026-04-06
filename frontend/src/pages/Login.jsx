@@ -19,7 +19,7 @@ const Login = () => {
       if (data.user.role === 'admin' || data.user.role === 'agent') {
         navigate('/admin');
       } else {
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Login failed:', error);

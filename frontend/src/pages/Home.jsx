@@ -6,24 +6,26 @@ import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
 import approvedModel from '../assets/about/approved_model.png';
 import communityVibe from '../assets/about/community_vibe.png';
-import MapSection from '../components/MapSection';
-import { useNavigate } from 'react-router-dom';
 
 const slides = [
   {
     title: "Building Dreams Into Reality",
     text: "Discover architectural excellence designed for modern living.",
-    image: "/bd_centric_2.png"
+    // Modern Dhaka apartment building exterior
+    // Slide 1: Modern apartment building exterior — matches "Building Dreams Into Reality"
+    image: "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600"
   },
   {
     title: "Modern Living Redefined",
     text: "Crafted spaces blending comfort, elegance, and innovation.",
-    image: "/bd_centric_3.png"
+    // Slide 2: Luxury interior living room — matches "Modern Living Redefined"
+    image: "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600"
   },
   {
     title: "Spaces That Inspire Growth",
     text: "Where design meets functionality for timeless experiences.",
-    image: "/bd_centric_1.png"
+    // Slide 3: Residential towers at dusk — matches "Spaces That Inspire Growth"
+    image: "https://images.pexels.com/photos/2102587/pexels-photo-2102587.jpeg?auto=compress&cs=tinysrgb&w=1600"
   }
 ];
 
@@ -32,8 +34,6 @@ const offers = [
     id: 'design',
     title: 'Design & Planning',
     text: 'We will help you to get the result you dreamed of.',
-    fullText: 'Our design and planning phase is where your vision begins to take shape. We collaborate closely with you to understand your lifestyle, aesthetic preferences, and practical needs. Using advanced architectural techniques and 3D modeling, we create comprehensive blueprints that meticulously plan every square foot. From spatial flow to structural integrity, our planning ensures a flawless execution process.',
-    image: '/service_1.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -60,7 +60,6 @@ const offers = [
     id: 'solutions',
     title: 'Custom Solutions',
     text: 'Individual, aesthetically stunning solutions for customers.',
-    fullText: 'No two projects are identical, and neither are our solutions. We specialize in bespoke architectural and interior solutions tailored strictly to your unique requirements. Whether you need specialized smart-home integrations, custom-built storage systems, or unique material sourcing, our team designs solutions that are as functional as they are visually striking.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -79,7 +78,6 @@ const offers = [
     id: 'furniture',
     title: 'Furniture & Decor',
     text: 'We create and produce our product design lines.',
-    fullText: 'A beautiful space is defined by what fills it. We offer complete interior furnishing services, sourcing premium global decor and crafting bespoke furniture pieces tailored to your exact floor plan. From selecting the perfect fabrics and luxury finishes to curating modern art pieces, our designers ensure your interior reflects absolute elegance and unparalleled comfort.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.rect 
@@ -104,8 +102,6 @@ const offers = [
     id: 'exterior',
     title: 'Exterior Design',
     text: 'We will help you to get the result you dreamed of.',
-    fullText: 'First impressions matter. Our exterior design services focus on creating stunning facades and harmonious outdoor spaces that blend perfectly with the surrounding environment. We expertly balance form and function, incorporating durable high-end materials, beautiful landscaping, and striking outdoor lighting to maximize your property\'s curb appeal and longevity.',
-    image: '/service_2.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -125,7 +121,6 @@ const offers = [
     id: 'concept',
     title: 'Creating a Concept',
     text: 'Individual, aesthetically stunning solutions for customers.',
-    fullText: 'At the heart of every iconic building is a powerful core concept. We dedicate time to establishing a unique theme—be it minimalist, modern, or neo-classical—that dictates the design language of your entire project. This cohesive creative direction ensures that every room, texture, and architectural element tells the same beautiful story.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -143,7 +138,6 @@ const offers = [
     id: 'control',
     title: "Author's Control",
     text: 'We create and produce our product design lines.',
-    fullText: 'A great design is only as good as its execution. Through our Author\'s Control service, the original architects who designed your project actively supervise the construction phase. We conduct rigorous site inspections to guarantee that contractors strictly follow the blueprints and use the specified premium materials, ensuring the final build is nothing short of a masterpiece.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -170,29 +164,28 @@ const processSteps = [
   {
     id: '01',
     title: 'Strategic Planning',
-    text: 'Every masterpiece starts with a vision. Our experts conduct rigorous location analysis and feasibility studies to ensure your property is built on the best foundation. We define clear architectural blueprints perfectly aligned with your personal aspirations.'
+    text: 'We begin with rigorous location scouting, feasibility studies, and a clear architectural vision for the project.'
   },
   {
     id: '02',
     title: 'Modern Design',
-    text: 'Step into the future with our state-of-the-art 3D visualizations and sustainable architecture. We blend aesthetics with functionality, creating living spaces that embrace natural light, smart layouts, and contemporary urban luxury.'
+    text: 'Our team crafts detailed 3D visualizations and functional layouts tailored for contemporary urban living.'
   },
   {
     id: '03',
     title: 'Quality Construction',
-    text: 'Excellence lies in the details. We utilize the highest grade materials and cutting-edge engineering techniques to build resilient and safe structures. Uncompromising quality control ensures long-lasting perfection.'
+    text: 'Using premium materials and engineering excellence, we build structures that stand the test of time and safety.'
   },
   {
     id: '04',
     title: 'Final Handover',
-    text: 'The moment your dream becomes reality. Following a comprehensive multi-point quality check, we deliver your new home with complete documentation and a seamless key handover experience. Welcome to your redefined lifestyle.'
+    text: 'After thorough quality checks, we welcome you to your new home with a seamless keys delivery experience.'
   }
 ];
 
 const Home = () => {
   const [current, setCurrent] = useState(0);
   const [activeOffer, setActiveOffer] = useState(null); 
-  const [selectedOffer, setSelectedOffer] = useState(null);
   const [activeProcess, setActiveProcess] = useState(null);
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [featuredApartments, setFeaturedApartments] = useState([]);
@@ -225,50 +218,26 @@ const Home = () => {
     setCurrent(index);
   };
 
-  const navigate = useNavigate();
-  const [searchFilters, setSearchFilters] = useState({
-    location: 'Location',
-    price: 'Price (BDT)',
-    size: 'Size'
-  });
-
-  const handleHeroSearch = () => {
-    const params = new URLSearchParams();
-    if (searchFilters.location !== 'Location') params.append('location', searchFilters.location);
-    if (searchFilters.price !== 'Price (BDT)') params.append('price', searchFilters.price);
-    if (searchFilters.size !== 'Size') params.append('size', searchFilters.size);
-    navigate(`/apartments?${params.toString()}`);
-  };
-
   return (
     <div>
       <section className="hero">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: `url(${slides[current].image}) center/cover no-repeat`,
-              opacity: 0.4,
-              zIndex: 1
-            }}
+
+        {/* Synchronized background images — crossfade on slide change */}
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={"hero-bg-slide " + (index === current ? "active" : "inactive")}
+            style={{ backgroundImage: "url(" + slide.image + ")" }}
           />
-        </AnimatePresence>
-        <div className="container" style={{ position: 'relative', zIndex: 5 }}>
+        ))}
+
+        <div className="container">
           <AnimatePresence mode="wait">
-            <motion.div 
+            <motion.div
               key={current}
-              initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -20, filter: 'blur(5px)' }}
+              initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(5px)" }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="hero-content"
             >
@@ -278,7 +247,7 @@ const Home = () => {
                 {slides.map((_, index) => (
                   <span
                     key={index}
-                    className={current === index ? 'active' : ''}
+                    className={current === index ? "active" : ""}
                     onClick={() => goToSlide(index)}
                   />
                 ))}
@@ -286,13 +255,13 @@ const Home = () => {
             </motion.div>
           </AnimatePresence>
         </div>
-        <motion.div 
+        <motion.div
           className="hero-button"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <button className="animate-pulse-glow" onClick={() => navigate('/apartments')}>Search Projects</button>
+          <button className="animate-pulse-glow">Search Projects</button>
         </motion.div>
       </section>
 
@@ -306,7 +275,7 @@ const Home = () => {
         >
           <div className="filter">
             <span className="icon">📍</span>
-            <select value={searchFilters.location} onChange={(e) => setSearchFilters({...searchFilters, location: e.target.value})}>
+            <select>
               <option>Location</option>
               <option>Dhaka</option>
               <option>Chittagong</option>
@@ -314,22 +283,21 @@ const Home = () => {
           </div>
           <div className="filter">
             <span className="icon">৳</span>
-            <select value={searchFilters.price} onChange={(e) => setSearchFilters({...searchFilters, price: e.target.value})}>
+            <select>
               <option>Price (BDT)</option>
-              <option>5,000,000 - 10,000,000</option>
-              <option>10,00,000 - 15,00,000</option>
+              <option>50,00,000 - 1,00,00,000</option>
+              <option>1,00,00,000 - 2,00,00,000</option>
             </select>
           </div>
           <div className="filter">
             <span className="icon">📐</span>
-            <select value={searchFilters.size} onChange={(e) => setSearchFilters({...searchFilters, size: e.target.value})}>
-              <option>BHK</option>
-              <option value="1">1 BHK</option>
-              <option value="2">2 BHK</option>
-              <option value="3">3 BHK</option>
+            <select>
+              <option>Size</option>
+              <option>1 BHK</option>
+              <option>2 BHK</option>
             </select>
           </div>
-          <button className="search-btn" onClick={handleHeroSearch}>Search</button>
+          <button className="search-btn">Search</button>
         </motion.div>
       </section>
 
@@ -525,59 +493,12 @@ const Home = () => {
                 </div>
                 <h3>{offer.title}</h3>
                 <p>{offer.text}</p>
-                <button 
-                  className="offer-read-more" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedOffer(offer);
-                  }}
-                  style={{ background: 'transparent', border: 'none', borderBottom: '1px solid currentColor', cursor: 'pointer', padding: 0 }}
-                >
-                  READ MORE
-                </button>
+                <Link to={`/services#${offer.id}`} className="offer-read-more">READ MORE</Link>
               </motion.div>
             ))}
           </div>
         </div>
-
-        <AnimatePresence>
-          {selectedOffer && (
-            <motion.div 
-              className="service-modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedOffer(null)}
-            >
-              <motion.div 
-                className="service-modal glass-premium"
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="modal-close" onClick={() => setSelectedOffer(null)}>×</div>
-                <div className="modal-content">
-                  <div className="modal-icon">
-                    {selectedOffer.icon}
-                  </div>
-                  {selectedOffer.image && (
-                    <div className="modal-image-box">
-                      <img src={selectedOffer.image} alt={selectedOffer.title} />
-                    </div>
-                  )}
-                  <h2>{selectedOffer.title}</h2>
-                  <div className="modal-divider"></div>
-                  <p>{selectedOffer.fullText}</p>
-                  <button className="modal-btn" onClick={() => setSelectedOffer(null)}>Got It</button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </section>
-
-      <MapSection />
     </div>
   );
 };

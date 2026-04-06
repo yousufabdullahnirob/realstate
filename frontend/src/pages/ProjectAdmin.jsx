@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import apiProxy from "../utils/proxyClient";
 import "../admin.css";
 
 const ProjectAdmin = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
-  const [modalType, setModalType] = useState("");
-  const [currentProject, setCurrentProject] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    location: "",
-    status: "Ongoing",
-    total_floors: 0,
-    total_units: 0,
-    launch_date: new Date().toISOString().split('T')[0],
-  });
+  const [deleteModal, setDeleteModal] = useState(null);
 
   const fetchProjects = async () => {
     try {
@@ -23,103 +15,81 @@ const ProjectAdmin = () => {
       const data = await apiProxy.get("/admin/projects/");
       setProjects(data);
     } catch (error) {
-      console.error("Error fetching admin projects:", error);
+      console.error("Error fetching projects:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
+  useEffect(() => { fetchProjects(); }, []);
 
-  const openAddModal = () => {
-    setModalType("add");
-    setFormData({
-      name: "",
-      location: "",
-      status: "ongoing",
-      total_floors: 0,
-      total_units: 0,
-      launch_date: new Date().toISOString().split('T')[0],
-    });
-  };
-
-  const openEditModal = (project) => {
-    setModalType("edit");
-    setCurrentProject(project);
-    setFormData({
-      name: project.name,
-      location: project.location,
-      status: project.status,
-      total_floors: project.total_floors,
-      total_units: project.total_units,
-      launch_date: project.launch_date,
-    });
-  };
-
-  const openDeleteModal = (project) => {
-    setModalType("delete");
-    setCurrentProject(project);
-  };
-
-  const closeModal = () => setModalType("");
-
-  const saveProject = async () => {
+  const handleDelete = async () => {
     try {
-      if (modalType === "add") {
-        await apiProxy.post("/admin/projects/", formData);
-      } else if (modalType === "edit") {
-        // Assuming there's a PATCH or PUT endpoint
-        await apiProxy.post(`/admin/projects/${currentProject.id}/`, formData); // In this backend setup, POST to detail might be update or we should check views
-      }
+      await apiProxy.delete(`/admin/projects/${deleteModal.id}/`);
+      setDeleteModal(null);
       fetchProjects();
-      closeModal();
     } catch (error) {
-      console.error("Error saving project:", error);
-    }
-  };
-
-  const deleteProject = async () => {
-    try {
-      // Assuming a DELETE request or a POST to delete
-      await apiProxy.delete(`/admin/projects/${currentProject.id}/`);
-      fetchProjects();
-      closeModal();
-    } catch (error) {
-      console.error("Error deleting project:", error);
+      alert("Delete failed: " + error.message);
     }
   };
 
   return (
     <div className="dashboard-container">
-      <div className="section-header" style={{ marginBottom: '32px' }}>
+      <div className="section-header" style={{ marginBottom: 32 }}>
         <h2>Projects Management</h2>
-        <button className="add-btn" onClick={openAddModal}>+ Add Project</button>
+        <button className="add-btn" onClick={() => navigate("/admin/projects/new")}>
+          + Add Project
+        </button>
       </div>
 
       <div className="admin-table-container">
-        {loading ? <p style={{ padding: '24px', color: 'var(--text-muted)' }}>Loading projects...</p> : (
+        {loading ? (
+          <p style={{ padding: 24, color: "var(--text-muted)" }}>Loading projects...</p>
+        ) : projects.length === 0 ? (
+          <div style={{ padding: 48, textAlign: "center", color: "var(--text-muted)" }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🏗️</div>
+            <p style={{ fontWeight: 700, marginBottom: 8 }}>No projects yet</p>
+            <p style={{ fontSize: 13 }}>Click "Add Project" to create your first one</p>
+          </div>
+        ) : (
           <table className="admin-table">
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Project Name</th>
                 <th>Location</th>
+                <th>Floors</th>
+                <th>Units</th>
+                <th>Launch Date</th>
                 <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {projects.map((p) => (
                 <tr key={p.id}>
-                  <td style={{ color: 'var(--text-muted)' }}>#{p.id}</td>
-                  <td style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{p.name}</td>
+                  <td style={{ color: "var(--text-muted)", fontWeight: 600 }}>#{p.id}</td>
+                  <td style={{ fontWeight: 700, color: "var(--text-primary)" }}>{p.name}</td>
                   <td>{p.location}</td>
-                  <td><span className={`status ${p.status.toLowerCase()}`}>{p.status}</span></td>
-                  <td style={{ textAlign: 'right' }}>
-                    <button className="edit-btn" onClick={() => openEditModal(p)}>Edit</button>
-                    <button className="delete-btn" onClick={() => openDeleteModal(p)}>Delete</button>
+                  <td>{p.total_floors}</td>
+                  <td>{p.total_units}</td>
+                  <td>{p.launch_date}</td>
+                  <td>
+                    <span className={`status ${p.status}`}>{p.status}</span>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <button
+                      className="edit-btn"
+                      onClick={() => navigate(`/admin/projects/edit/${p.id}`)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => setDeleteModal(p)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -128,51 +98,15 @@ const ProjectAdmin = () => {
         )}
       </div>
 
-      <button className="floating-add-btn" aria-label="Add Project" onClick={openAddModal}>+</button>
-
-      {(modalType === "add" || modalType === "edit") && (
+      {/* Delete confirmation modal */}
+      {deleteModal && (
         <div className="modal-overlay active">
           <div className="modal-box">
-            <h3>{modalType === "add" ? "Add Project" : "Edit Project"}</h3>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Project Name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Location"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            />
-            <select
-              className="form-select"
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-              <option value="ongoing">Ongoing</option>
-              <option value="completed">Completed</option>
-              <option value="upcoming">Upcoming</option>
-            </select>
+            <h3>Delete Project</h3>
+            <p>Are you sure you want to delete <strong>{deleteModal.name}</strong>? This cannot be undone.</p>
             <div className="modal-actions">
-              <button className="cancel-btn" onClick={closeModal}>Cancel</button>
-              <button className="save-btn" onClick={saveProject}>Save</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {modalType === "delete" && (
-        <div className="modal-overlay active">
-          <div className="modal-box">
-            <h3>Confirm Deletion</h3>
-            <p>Are you sure you want to delete this project?</p>
-            <div className="modal-actions">
-              <button className="cancel-btn" onClick={closeModal}>Cancel</button>
-              <button className="confirm-delete-btn" onClick={deleteProject}>Delete</button>
+              <button className="cancel-btn" onClick={() => setDeleteModal(null)}>Cancel</button>
+              <button className="confirm-delete-btn" onClick={handleDelete}>Delete</button>
             </div>
           </div>
         </div>

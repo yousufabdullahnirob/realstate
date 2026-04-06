@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
 
@@ -90,13 +91,18 @@ const Projects = () => {
       </motion.section>
 
       <section className="project-filter">
-        {['all', 'completed', 'progress', 'future'].map((filter) => (
+        {[
+          { value: 'all', label: 'All' },
+          { value: 'ongoing', label: 'Ongoing' },
+          { value: 'upcoming', label: 'Upcoming' },
+          { value: 'completed', label: 'Completed' },
+        ].map((filter) => (
           <button
-            key={filter}
-            className={activeFilter === filter ? 'filter-btn active' : 'filter-btn'}
-            onClick={() => setActiveFilter(filter)}
+            key={filter.value}
+            className={activeFilter === filter.value ? 'filter-btn active' : 'filter-btn'}
+            onClick={() => setActiveFilter(filter.value)}
           >
-            {filter === 'all' ? 'All' : filter === 'progress' ? 'Under Progress' : filter === 'future' ? 'Future Planned' : 'Completed'}
+            {filter.label}
           </button>
         ))}
       </section>
@@ -123,10 +129,12 @@ const Projects = () => {
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   className={`project-tile ${project.status}`}
+                  style={{ cursor: 'pointer' }}
                 >
-                  <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
+                  <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div className="project-img" style={{ backgroundImage: `url(${project.image})`, backgroundSize: 'cover' }}></div>
                     <h3>{project.name}</h3>
+                    <p style={{ fontSize: 13, color: '#94a3b8', padding: '0 16px 16px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>{project.status}</p>
                   </Link>
                 </motion.div>
               ))

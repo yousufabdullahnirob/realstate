@@ -1,176 +1,157 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import apiProxy from "../utils/proxyClient";
-import Header from "../components/Header";
-import "../styles.css";
+import { formatBDT } from "../utils/formatters";
 
 const ClientDashboard = () => {
-    const [stats, setStats] = useState({ active_installments: 0, total_paid: 0, upcoming_due: "N/A" });
-    const [properties, setProperties] = useState([]);
-    const [favorites, setFavorites] = useState([]);
-    const [payments, setPayments] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ active_installments: 0, total_paid: 0, upcoming_due: "N/A" });
+  const [properties, setProperties] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const userStr = localStorage.getItem('user');
-    const user = userStr ? JSON.parse(userStr) : { full_name: 'Resident' };
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : { full_name: "Resident" };
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const resp = await apiProxy.get("/client/stats/");
-                setStats(resp);
-                
-                const props = await apiProxy.get("/apartments/my/");
-                setProperties(props);
-                
-                const pays = await apiProxy.get("/payments/my/");
-                setPayments(pays);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statsRes, propsRes, paysRes] = await Promise.allSettled([
+          apiProxy.get("/client/stats/"),
+          apiProxy.get("/apartments/my/"),
+          apiProxy.get("/payments/my/"),
+        ]);
+        if (statsRes.status === "fulfilled") setStats(statsRes.value);
+        if (propsRes.status === "fulfilled") setProperties(Array.isArray(propsRes.value) ? propsRes.value : []);
+        if (paysRes.status === "fulfilled") setPayments(Array.isArray(paysRes.value) ? paysRes.value : []);
+      } catch (e) {
+        console.error("Dashboard error:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-                const favs = await apiProxy.get("/favorites/");
-                setFavorites(favs);
-            } catch (error) {
-                console.error("Failed to fetch client data:", error);
-                // No fallback: display zero/empty if API fails to maintain data integrity
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUserData();
-    }, []);
+  const formatDate = (dt) => dt ? new Date(dt).toLocaleDateString("en-BD", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
 
-    const DiamondIcon = () => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 12L12 18L18 12L12 6L6 12Z" />
-        </svg>
-    );
+  if (loading) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
+      <p style={{ color: "#94a3b8", fontWeight: 600 }}>Loading your dashboard...</p>
+    </div>
+  );
 
-    const CalendarIcon = () => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-        </svg>
-    );
+  return (
+    <div style={{ fontFamily: "Plus Jakarta Sans, sans-serif", padding: "32px 40px", maxWidth: 1100, margin: "0 auto" }}>
 
-    const BellIcon = () => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-    );
+      {/* Welcome */}
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", letterSpacing: -0.5 }}>
+          Welcome back, {user.full_name} 👋
+        </h1>
+        <p style={{ fontSize: 14, color: "#94a3b8", marginTop: 6 }}>Here is an overview of your account.</p>
+      </div>
 
-    if (loading) return <div className="container" style={{ paddingTop: '200px', textAlign: 'center' }}>Loading your dashboard...</div>;
+      {/* Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
+        {[
+          { label: "Total Paid", value: formatBDT(stats.total_paid), icon: "💰", color: "#10b981" },
+          { label: "Active Installments", value: stats.active_installments, icon: "📋", color: "#0ea5e9" },
+          { label: "Upcoming Due", value: formatDate(stats.upcoming_due), icon: "📅", color: "#f59e0b" },
+        ].map(card => (
+          <div key={card.label} style={{
+            background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 12,
+            padding: "24px 28px", position: "relative", overflow: "hidden",
+          }}>
+            <div style={{
+              position: "absolute", top: 16, right: 16, width: 40, height: 40,
+              borderRadius: 10, background: card.color + "18",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
+            }}>{card.icon}</div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{card.label}</p>
+            <p style={{ fontSize: 26, fontWeight: 800, color: "#0f172a" }}>{card.value}</p>
+            <div style={{ position: "absolute", bottom: 0, left: 0, height: 3, width: "40%", background: card.color, borderRadius: "0 4px 0 0" }} />
+          </div>
+        ))}
+      </div>
 
-    return (
-        <div className="admin-container" style={{ overflowY: 'auto' }}>
-            <Header />
-            <div className="container" style={{ paddingTop: '160px', paddingBottom: '100px' }}>
-                <div className="dashboard-header" style={{ marginBottom: '60px', textAlign: 'left' }}>
-                    <div style={{ display: 'inline-block', padding: '8px 16px', background: 'rgba(14, 165, 233, 0.1)', color: 'var(--primary)', borderRadius: '12px', fontSize: '13px', fontWeight: '800', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        Platform Member Access
-                    </div>
-                    <h1 style={{ fontSize: '56px', fontWeight: '800', color: 'var(--text-dark)', marginBottom: '16px', letterSpacing: '-2px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>
-                        Welcome back, <span style={{ color: 'var(--primary)' }}>{user.full_name}</span>
-                    </h1>
-                    <p style={{ fontSize: '20px', color: 'var(--text-muted)', maxWidth: '600px', lineHeight: '1.6' }}>Monitor your real estate portfolio, manage active installments, and track your investment progress.</p>
+      {/* My Properties */}
+      <div style={{ background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 12, padding: 28, marginBottom: 24 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", marginBottom: 20 }}>My Properties</h2>
+        {properties.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "32px 0", color: "#94a3b8" }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>🏢</div>
+            <p style={{ fontWeight: 600 }}>No properties yet</p>
+            <Link to="/apartments" style={{ color: "#0ea5e9", fontWeight: 700, fontSize: 13, textDecoration: "none", marginTop: 8, display: "inline-block" }}>
+              Browse Apartments →
+            </Link>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+            {properties.map(prop => (
+              <div key={prop.id} style={{ borderRadius: 10, overflow: "hidden", border: "1.5px solid #e2e8f0" }}>
+                {prop.image && (
+                  <div style={{ height: 140, backgroundImage: `url(${prop.image})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                )}
+                <div style={{ padding: "14px 16px" }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", marginBottom: 4 }}>{prop.title}</p>
+                  <p style={{ fontSize: 12, color: "#94a3b8" }}>📍 {prop.location}</p>
+                  <span style={{
+                    display: "inline-block", marginTop: 8, padding: "3px 10px",
+                    borderRadius: 6, fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                    background: prop.status === "available" ? "#d1fae5" : prop.status === "booked" ? "#fef3c7" : "#fee2e2",
+                    color: prop.status === "available" ? "#065f46" : prop.status === "booked" ? "#92400e" : "#991b1b",
+                  }}>{prop.status}</span>
                 </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-                <div className="bento-grid" style={{ marginBottom: '80px' }}>
-                    <div className="card glass" style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px' }}>
-                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(14, 165, 233, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
-                            <DiamondIcon />
-                        </div>
-                        <h4 style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800', marginBottom: '12px' }}>Total Investment Portfolio</h4>
-                        <p style={{ fontSize: '48px', fontWeight: '800', color: 'var(--text-dark)', letterSpacing: '-1px' }}>
-                            {stats.total_paid.toLocaleString()} <span style={{ fontSize: '20px', color: 'var(--text-muted)' }}>BDT</span>
-                        </p>
-                    </div>
-                    <div className="card glass" style={{ padding: '48px' }}>
-                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
-                            <CalendarIcon />
-                        </div>
-                        <h4 style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800', marginBottom: '12px' }}>Active Units</h4>
-                        <p style={{ fontSize: '48px', fontWeight: '800', color: 'var(--text-dark)' }}>{stats.active_installments}</p>
-                    </div>
-                    <div className="card glass" style={{ padding: '48px' }}>
-                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(245, 158, 11, 0.1)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
-                            <BellIcon />
-                        </div>
-                        <h4 style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800', marginBottom: '12px' }}>Next Installment</h4>
-                        <p style={{ fontSize: '48px', fontWeight: '800', color: 'var(--accent)' }}>{stats.upcoming_due}</p>
-                    </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '60px' }}>
-                    <section>
-                        <div className="section-title" style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h2 style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '-1px' }}>Your Portfolio</h2>
-                            <a href="/apartments" style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary)', textDecoration: 'none' }}>Expand My Portfolio →</a>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            {properties.length > 0 ? properties.map(prop => (
-                                <div key={prop.id} className="card glass" style={{ display: 'flex', gap: '32px', padding: '24px', alignItems: 'center' }}>
-                                    {prop.image && (
-                                        <img src={prop.image} alt={prop.title} style={{ width: '180px', height: '140px', borderRadius: '16px', objectFit: 'cover' }} />
-                                    )}
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                            <h3 style={{ fontSize: '22px', fontWeight: '800' }}>{prop.title}</h3>
-                                            <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', background: 'rgba(14, 165, 233, 0.08)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '6px' }}>{prop.status}</span>
-                                        </div>
-                                        <p style={{ color: 'var(--text-muted)', fontSize: '15px', marginBottom: '20px' }}>{prop.location}</p>
-                                        <a href={`/apartments/${prop.id}`} style={{ display: 'inline-block', fontSize: '13px', fontWeight: '800', color: 'var(--text-dark)', textDecoration: 'none', padding: '8px 16px', background: 'var(--bg-main)', borderRadius: '10px' }}>Management View →</a>
-                                    </div>
-                                </div>
-                            )) : (
-                                <div className="card glass" style={{ padding: '80px 40px', textAlign: 'center' }}>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '18px', marginBottom: '24px' }}>You haven't acquired any properties yet.</p>
-                                    <a href="/projects" className="contact-btn" style={{ padding: '16px 32px' }}>Explore Designer Projects</a>
-                                </div>
-                            )}
-                        </div>
-                    </section>
-
-                    <section>
-                        <div className="section-title" style={{ marginBottom: '40px' }}>
-                            <h2 style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '-1px' }}>Payment Ledger</h2>
-                        </div>
-                        <div className="card glass" style={{ padding: '0', borderRadius: '32px', overflow: 'hidden' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
-                                        <th style={{ textAlign: 'left', padding: '24px 32px', fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Descriptor</th>
-                                        <th style={{ textAlign: 'right', padding: '24px 32px', fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {payments.length > 0 ? payments.slice(0, 5).map(pay => (
-                                        <tr key={pay.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                                            <td style={{ padding: '24px 32px' }}>
-                                                <p style={{ fontSize: '15px', fontWeight: '700' }}>Apartment Installment</p>
-                                                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{pay.payment_date}</p>
-                                            </td>
-                                            <td style={{ padding: '24px 32px', textAlign: 'right' }}>
-                                                <p style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-dark)' }}>{pay.amount.toLocaleString()} <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>BDT</span></p>
-                                                <p style={{ fontSize: '11px', fontWeight: '800', color: pay.verification_status === 'verified' ? 'var(--success)' : 'var(--warning)', textTransform: 'uppercase' }}>{pay.verification_status}</p>
-                                            </td>
-                                        </tr>
-                                    )) : (
-                                        <tr>
-                                            <td colSpan="2" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No recent ledger entries.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                            <div style={{ padding: '32px' }}>
-                                <a href="/payments/submit" className="contact-btn" style={{ width: '100%', textAlign: 'center', display: 'block', borderRadius: '16px' }}>Initiate Security Payment</a>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
+      {/* Payment History */}
+      <div style={{ background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 12, padding: 28, marginBottom: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Payment History</h2>
+          <Link to="/submit-payment" style={{ fontSize: 12, fontWeight: 700, color: "#0ea5e9", textDecoration: "none" }}>
+            + Submit Payment
+          </Link>
         </div>
-    );
+        {payments.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "32px 0", color: "#94a3b8" }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>💳</div>
+            <p style={{ fontWeight: 600 }}>No payment history yet</p>
+          </div>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+            <thead>
+              <tr style={{ borderBottom: "1.5px solid #f1f5f9" }}>
+                {["Date", "Amount", "Transaction ID", "Status"].map(h => (
+                  <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map(pay => (
+                <tr key={pay.id} style={{ borderBottom: "1px solid #f8fafc" }}>
+                  <td style={{ padding: "12px" }}>{formatDate(pay.payment_date)}</td>
+                  <td style={{ padding: "12px", fontWeight: 700, color: "#0ea5e9" }}>{formatBDT(pay.amount)}</td>
+                  <td style={{ padding: "12px", fontFamily: "monospace", fontSize: 12 }}>{pay.transaction_id}</td>
+                  <td style={{ padding: "12px" }}>
+                    <span style={{
+                      padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                      background: pay.verification_status === "verified" ? "#d1fae5" : pay.verification_status === "rejected" ? "#fee2e2" : "#fef3c7",
+                      color: pay.verification_status === "verified" ? "#065f46" : pay.verification_status === "rejected" ? "#991b1b" : "#92400e",
+                    }}>{pay.verification_status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+    </div>
+  );
 };
 
 export default ClientDashboard;

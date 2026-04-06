@@ -2,120 +2,282 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiProxy from '../utils/proxyClient';
 
+const Field = ({ label, hint, children }) => (
+  <div style={{ marginBottom: 20 }}>
+    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+      {label}
+    </label>
+    {hint && <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{hint}</p>}
+    {children}
+  </div>
+);
+
+const inputStyle = {
+  width: '100%',
+  padding: '10px 14px',
+  borderRadius: 8,
+  border: '1.5px solid #e2e8f0',
+  fontSize: 14,
+  color: '#0f172a',
+  outline: 'none',
+  background: '#fff',
+  boxSizing: 'border-box',
+};
+
 const ApartmentForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isNew = !id || id === 'new';
+
   const [projects, setProjects] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     project: '',
-    price: '',
+    description: '',
+    location: '',
     floor_area_sqft: '',
+    price: '',
     bedrooms: '',
     bathrooms: '',
-    location: '',
     status: 'available',
-    description: ''
+    is_approved: false,
+    image_url: '',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const loadData = async () => {
+      // Load projects list for the dropdown
       try {
         const projectsData = await apiProxy.get('/projects/');
-        setProjects(projectsData);
+        setProjects(Array.isArray(projectsData) ? projectsData : []);
+      } catch (e) {
+        console.warn('Could not load projects list:', e.message);
+        // Don't show error - just leave dropdown empty
+      }
 
-        if (id !== 'new') {
-          const aptData = await apiProxy.get(`/apartments/${id}/`);
+      // Load existing apartment data only when editing
+      if (!isNew) {
+        try {
+          const apt = await apiProxy.get("/admin/apartments/" + id + "/");
           setFormData({
-            ...aptData,
-            image_url: aptData.image || ''
+            title: apt.title || '',
+            project: apt.project || '',
+            description: apt.description || '',
+            location: apt.location || '',
+            floor_area_sqft: apt.floor_area_sqft || '',
+            price: apt.price || '',
+            bedrooms: apt.bedrooms || '',
+            bathrooms: apt.bathrooms || '',
+            status: apt.status || 'available',
+            is_approved: apt.is_approved || false,
+            image_url: apt.image || '',
           });
+        } catch (e) {
+          setError('Could not load apartment details: ' + e.message);
         }
-      } catch (error) {
-        console.error("Initial data fetch failed:", error);
       }
     };
-    fetchInitialData();
+    loadData();
   }, [id]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setFormData({ ...formData, [e.target.name]: val });
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setLoading(true);
+    setError('');
+    setSuccess('');
     try {
-      if (id === 'new') {
-        await apiProxy.post('/apartments/', formData);
+      const payload = {
+        ...formData,
+        project: formData.project || null,
+        price: parseFloat(formData.price) || 0,
+        floor_area_sqft: parseFloat(formData.floor_area_sqft) || 0,
+        bedrooms: parseInt(formData.bedrooms) || 0,
+        bathrooms: parseInt(formData.bathrooms) || 0,
+      };
+      if (isNew) {
+        await apiProxy.post('/admin/apartments/', payload);
       } else {
-        await apiProxy.put(`/apartments/${id}/update/`, formData);
+        await apiProxy.patch("/admin/apartments/" + id + "/", payload);
       }
-      navigate('/admin/apartments');
-    } catch (error) {
-      console.error("Save failed:", error);
+      setSuccess('Apartment saved successfully!');
+      setTimeout(() => navigate('/admin/apartments'), 1000);
+    } catch (e) {
+      setError('Save failed: ' + e.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="form-page">
-      <div className="container">
-        <h2>{id === 'new' ? 'Add New Apartment' : 'Edit Apartment'}</h2>
-        <form onSubmit={handleSubmit} className="admin-form">
-          <div className="form-group">
-            <label>Title</label>
-            <input name="title" value={formData.title} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Project</label>
-            <select name="project" value={formData.project} onChange={handleChange} required>
-              <option value="">Select Project</option>
-              {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Price (BDT)</label>
-              <input type="number" name="price" value={formData.price} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label>Area (sqft)</label>
-              <input type="number" name="floor_area_sqft" value={formData.floor_area_sqft} onChange={handleChange} required />
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Bedrooms</label>
-              <input type="number" name="bedrooms" value={formData.bedrooms} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label>Bathrooms</label>
-              <input type="number" name="bathrooms" value={formData.bathrooms} onChange={handleChange} required />
-            </div>
-          </div>
-            <div className="form-group">
-              <label>Location</label>
-              <input name="location" value={formData.location} onChange={handleChange} required />
-            </div>
-          <div className="form-group">
-            <label>Apartment Image URL</label>
-            <input type="text" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://unsplash.com/..." required />
-          </div>
-          <div className="form-group">
-            <label>Description</label>
-            <textarea name="description" value={formData.description} onChange={handleChange} rows="4" style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }} required />
-          </div>
-          <button type="submit" className="save-btn" disabled={loading} style={{ padding: '12px 24px', backgroundColor: '#e63946', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-            {loading ? 'Saving...' : 'Save Apartment'}
-          </button>
-        </form>
+    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>
+            {isNew ? 'Add New Apartment' : 'Edit Apartment'}
+          </h1>
+          <p style={{ fontSize: 13, color: '#94a3b8' }}>Fill in all apartment details below</p>
+        </div>
+        <button
+          onClick={() => navigate('/admin/apartments')}
+          style={{ padding: '9px 18px', borderRadius: 8, border: '1.5px solid #e2e8f0', background: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', color: '#334155' }}
+        >
+          ← Back
+        </button>
       </div>
+
+      {error && (
+        <div style={{ background: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: 10, padding: '12px 16px', marginBottom: 20, color: '#991b1b', fontWeight: 600, fontSize: 13 }}>
+          {error}
+        </div>
+      )}
+      {success && (
+        <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, padding: '12px 16px', marginBottom: 20, color: '#166534', fontWeight: 600, fontSize: 13 }}>
+          {success}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+
+        {/* Section: Basic Info */}
+        <div style={{ background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 28, marginBottom: 20 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 24, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+            Basic Information
+          </h3>
+          <Field label="Apartment Title *" hint="e.g. Mahim Tower - Unit 4B, Floor 8">
+            <input style={inputStyle} name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Mahim Palace - Type A, Floor 5" required />
+          </Field>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <Field label="Project" hint="Which project does this apartment belong to?">
+              <select style={inputStyle} name="project" value={formData.project} onChange={handleChange}>
+                <option value="">-- No Project --</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Location *" hint="Building address or area">
+              <input style={inputStyle} name="location" value={formData.location} onChange={handleChange} placeholder="e.g. Bashundhara R/A, Dhaka" required />
+            </Field>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <Field label="Status *">
+              <select style={inputStyle} name="status" value={formData.status} onChange={handleChange}>
+                <option value="available">Available</option>
+                <option value="booked">Booked</option>
+                <option value="sold">Sold</option>
+              </select>
+            </Field>
+            <Field label="Approved for Public Listing">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                <input
+                  type="checkbox"
+                  name="is_approved"
+                  checked={formData.is_approved}
+                  onChange={handleChange}
+                  style={{ width: 18, height: 18, cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 14, color: '#334155', fontWeight: 500 }}>
+                  {formData.is_approved ? 'Yes — visible on public site' : 'No — hidden from public'}
+                </span>
+              </div>
+            </Field>
+          </div>
+        </div>
+
+        {/* Section: Specifications */}
+        <div style={{ background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 28, marginBottom: 20 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 24, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+            Specifications
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <Field label="Price (BDT) *">
+              <input style={inputStyle} type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 8500000" required />
+            </Field>
+            <Field label="Floor Area (sqft) *">
+              <input style={inputStyle} type="number" name="floor_area_sqft" value={formData.floor_area_sqft} onChange={handleChange} placeholder="e.g. 1250" required />
+            </Field>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <Field label="Bedrooms *">
+              <input style={inputStyle} type="number" name="bedrooms" value={formData.bedrooms} onChange={handleChange} placeholder="e.g. 3" required />
+            </Field>
+            <Field label="Bathrooms *">
+              <input style={inputStyle} type="number" name="bathrooms" value={formData.bathrooms} onChange={handleChange} placeholder="e.g. 2" required />
+            </Field>
+          </div>
+        </div>
+
+        {/* Section: Description */}
+        <div style={{ background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 28, marginBottom: 20 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 24, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+            Description
+          </h3>
+          <Field label="Apartment Description *" hint="Describe the apartment — layout, finishes, view, floor, special features">
+            <textarea
+              style={{ ...inputStyle, resize: 'vertical', minHeight: 140 }}
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Spacious 3-bedroom apartment on the 8th floor with south-facing balcony. Features Italian marble flooring, modular kitchen, and panoramic city views..."
+              required
+            />
+          </Field>
+        </div>
+
+        {/* Section: Image */}
+        <div style={{ background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 28, marginBottom: 28 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 24, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+            Apartment Image
+          </h3>
+          <Field label="Image URL" hint="Paste a direct image link (Imgur, Google Drive public link, etc.)">
+            <input style={inputStyle} name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://i.imgur.com/yourimage.jpg" />
+          </Field>
+          {formData.image_url && (
+            <img
+              src={formData.image_url}
+              alt="Preview"
+              style={{ marginTop: 12, width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 8, border: '1.5px solid #e2e8f0' }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          )}
+        </div>
+
+        {/* Submit */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleSubmit}
+            style={{
+              flex: 1, padding: '14px', borderRadius: 10, border: 'none',
+              background: loading ? '#94a3b8' : '#0f172a',
+              color: 'white', fontWeight: 800, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {loading ? 'Saving...' : 'Done'}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/admin/apartments')}
+            style={{ padding: '14px 28px', borderRadius: 10, border: '1.5px solid #e2e8f0', background: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#334155' }}
+          >
+            Cancel
+          </button>
+        </div>
+
+      </form>
     </div>
   );
 };
 
 export default ApartmentForm;
-

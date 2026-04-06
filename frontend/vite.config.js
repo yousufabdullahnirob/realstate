@@ -6,11 +6,13 @@ export default defineConfig({
     port: 5173,
     host: true,
     strictPort: true,
+    // FIX: Added proxy — avoids CORS issues during development
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/tests/vitest.setup.js',
-  },
 })

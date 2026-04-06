@@ -8,7 +8,7 @@ const Inquiries = () => {
   useEffect(() => {
     const fetchInquiries = async () => {
       try {
-        const data = await apiProxy.get("/admin/inquiries/");
+        const data = await apiProxy.get("/inquiries/");
         setInquiries(data);
       } catch (error) {
         console.error("Inquiries fetch failed:", error);
@@ -18,16 +18,6 @@ const Inquiries = () => {
     };
     fetchInquiries();
   }, []);
-
-  const handleStatusChange = async (id, newStatus) => {
-      try {
-          const updated = await apiProxy.patch(`/admin/inquiries/${id}/`, { status: newStatus });
-          setInquiries(inquiries.map(inq => inq.id === id ? { ...inq, status: updated.status } : inq));
-      } catch (error) {
-          console.error("Failed to update status:", error);
-          alert("Failed to update status.");
-      }
-  };
 
   if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading Inquiries...</div>;
 
@@ -61,19 +51,10 @@ const Inquiries = () => {
                   {inquiry.message}
                 </td>
                 <td>{new Date(inquiry.created_at).toLocaleDateString()}</td>
-                <td>
-                    <select 
-                        value={inquiry.status} 
-                        onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
-                        style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    >
-                        <option value="new">NEW</option>
-                        <option value="contacted">CONTACTED</option>
-                        <option value="closed">CLOSED</option>
-                    </select>
-                </td>
+                <td><span className={`status ${inquiry.status}`}>{inquiry.status.toUpperCase()}</span></td>
                 <td style={{ textAlign: 'right' }}>
-                  <button className="edit-btn">View</button>
+                  <button className="edit-btn">Reply</button>
+                  <button className="delete-btn">Archive</button>
                 </td>
               </tr>
             ))}

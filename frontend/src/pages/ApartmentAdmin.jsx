@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import apiProxy from "../utils/proxyClient";
 import { formatBDT } from "../utils/formatters";
 import "../admin.css";
 
 const ApartmentAdmin = () => {
+  const navigate = useNavigate();
   const [apartments, setApartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalType, setModalType] = useState("");
-  const [currentApartment, setCurrentApartment] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
 
   const fetchApartments = async () => {
     try {
@@ -21,37 +22,46 @@ const ApartmentAdmin = () => {
     }
   };
 
-  useEffect(() => {
-    fetchApartments();
-  }, []);
+  useEffect(() => { fetchApartments(); }, []);
 
-  const openDeleteModal = (apartment) => {
-    setModalType("delete");
-    setCurrentApartment(apartment);
+  const handleDelete = async () => {
+    try {
+      await apiProxy.delete(`/apartments/${deleteModal.id}/`);
+      setDeleteModal(null);
+      fetchApartments();
+    } catch (error) {
+      alert("Delete failed: " + error.message);
+    }
   };
 
-  const closeModal = () => setModalType("");
-
-  const deleteApartment = async () => {
+  const handleApprove = async (apt) => {
     try {
-      // Assuming a DELETE request or a POST to delete
-      await apiProxy.delete(`/apartments/${currentApartment.id}/`);
+      await apiProxy.patch(`/apartments/${apt.id}/`, { is_approved: !apt.is_approved });
       fetchApartments();
-      closeModal();
     } catch (error) {
-      console.error("Delete failed:", error);
+      alert("Failed to update approval: " + error.message);
     }
   };
 
   return (
     <div className="dashboard-container">
-      <div className="section-header" style={{ marginBottom: '32px' }}>
+      <div className="section-header" style={{ marginBottom: 32 }}>
         <h2>Apartments Management</h2>
-        <button className="add-btn">+ Add Apartment</button>
+        <button className="add-btn" onClick={() => navigate("/admin/apartments/new")}>
+          + Add Apartment
+        </button>
       </div>
 
       <div className="admin-table-container">
-        {loading ? <p style={{ padding: '24px', color: 'var(--text-muted)' }}>Loading...</p> : (
+        {loading ? (
+          <p style={{ padding: 24, color: "var(--text-muted)" }}>Loading apartments...</p>
+        ) : apartments.length === 0 ? (
+          <div style={{ padding: 48, textAlign: "center", color: "var(--text-muted)" }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🏢</div>
+            <p style={{ fontWeight: 700, marginBottom: 8 }}>No apartments yet</p>
+            <p style={{ fontSize: 13 }}>Click "Add Apartment" to create your first one</p>
+          </div>
+        ) : (
           <table className="admin-table">
             <thead>
               <tr>
@@ -59,21 +69,51 @@ const ApartmentAdmin = () => {
                 <th>Title</th>
                 <th>Project</th>
                 <th>Price</th>
+                <th>Beds/Baths</th>
+                <th>Area</th>
                 <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th>Approved</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {apartments.map((a) => (
                 <tr key={a.id}>
-                  <td style={{ color: 'var(--text-muted)' }}>#{a.id}</td>
-                  <td style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{a.title}</td>
-                  <td>{a.project_name || a.project}</td>
-                  <td>{formatBDT(a.price)}</td>
-                  <td><span className={`status ${a.status ? a.status.toLowerCase() : 'active'}`}>{a.status || 'Active'}</span></td>
-                  <td style={{ textAlign: 'right' }}>
-                    <button className="edit-btn">Edit</button>
-                    <button className="delete-btn" onClick={() => openDeleteModal(a)}>Delete</button>
+                  <td style={{ color: "var(--text-muted)", fontWeight: 600 }}>#{a.id}</td>
+                  <td style={{ fontWeight: 700, color: "var(--text-primary)" }}>{a.title}</td>
+                  <td>{a.project_name || "—"}</td>
+                  <td style={{ fontWeight: 600, color: "var(--accent)" }}>{formatBDT(a.price)}</td>
+                  <td>{a.bedrooms} bed / {a.bathrooms} bath</td>
+                  <td>{a.floor_area_sqft} sqft</td>
+                  <td>
+                    <span className={`status ${a.status}`}>{a.status}</span>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => handleApprove(a)}
+                      style={{
+                        padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 800,
+                        border: "none", cursor: "pointer",
+                        background: a.is_approved ? "#d1fae5" : "#fee2e2",
+                        color: a.is_approved ? "#065f46" : "#991b1b",
+                      }}
+                    >
+                      {a.is_approved ? "✓ Yes" : "✗ No"}
+                    </button>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <button
+                      className="edit-btn"
+                      onClick={() => navigate(`/admin/apartments/edit/${a.id}`)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => setDeleteModal(a)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -82,14 +122,15 @@ const ApartmentAdmin = () => {
         )}
       </div>
 
-      {modalType === "delete" && (
+      {/* Delete confirmation modal */}
+      {deleteModal && (
         <div className="modal-overlay active">
           <div className="modal-box">
-            <h3>Confirm Deletion</h3>
-            <p>Are you sure you want to delete this apartment?</p>
+            <h3>Delete Apartment</h3>
+            <p>Are you sure you want to delete <strong>{deleteModal.title}</strong>? This cannot be undone.</p>
             <div className="modal-actions">
-              <button className="cancel-btn" onClick={closeModal}>Cancel</button>
-              <button className="confirm-delete-btn" onClick={deleteApartment}>Delete</button>
+              <button className="cancel-btn" onClick={() => setDeleteModal(null)}>Cancel</button>
+              <button className="confirm-delete-btn" onClick={handleDelete}>Delete</button>
             </div>
           </div>
         </div>
