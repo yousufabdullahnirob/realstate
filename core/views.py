@@ -179,6 +179,7 @@ class RegisterView(generics.CreateAPIView):
 class CustomLoginView(APIView):
     permission_classes = [permissions.AllowAny]
     authentication_classes = []
+    throttle_scope = 'login'
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -188,14 +189,14 @@ class CustomLoginView(APIView):
         password = serializer.validated_data.get('password')
         required_role = serializer.validated_data.get('role')
 
-        # Find user by email
+        # Find user by email (case-insensitive)
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Authenticate
-        user = authenticate(username=email, password=password)
+        # Authenticate (ensure email is lowercased to match what is usually in DB)
+        user = authenticate(request=request, username=user.email, password=password)
         if not user:
             return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -404,6 +405,8 @@ class NotificationListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if self.request.user.role == User.Role.ADMIN:
+            return self.queryset.all()
         return self.queryset.filter(user=self.request.user)
 class ClientStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]

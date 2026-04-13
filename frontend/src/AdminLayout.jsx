@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import { Outlet, Navigate } from 'react-router-dom';
 
 const AdminLayout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const token = localStorage.getItem('access');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -11,11 +12,14 @@ const AdminLayout = () => {
     return <Navigate to="/login" replace />;
   }
 
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
     <div className="admin-container">
-      <Sidebar />
+      {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="main-content">
-        <Topbar />
+        <Topbar onToggleSidebar={toggleSidebar} />
         <main className="admin-content page-content">
           <Outlet />
         </main>

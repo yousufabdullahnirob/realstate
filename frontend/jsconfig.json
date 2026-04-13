@@ -4,7 +4,9 @@
     "paths": {
       "@/*": ["*"]
     },
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "target": "ES6",
+    "lib": ["DOM", "ES2020", "DOM.Iterable"]
   },
   "include": ["src"]
 }

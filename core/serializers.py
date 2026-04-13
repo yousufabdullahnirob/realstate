@@ -59,7 +59,7 @@ class LoginSerializer(serializers.Serializer):
 class ProjectImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectImage
-        fields = ['image_url']
+        fields = ['id', 'image']
 
 class ProjectSerializer(serializers.ModelSerializer):
     apartment_count = serializers.IntegerField(source='apartments.count', read_only=True)
@@ -67,7 +67,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     sold_units_count = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     images = ProjectImageSerializer(many=True, read_only=True)
-    image_url = serializers.URLField(write_only=True, required=False)
+    image_file = serializers.ImageField(write_only=True, required=False)
 
     class Meta:
         model = Project
@@ -77,12 +77,15 @@ class ProjectSerializer(serializers.ModelSerializer):
             'features', 'extra_description',
             'total_floors', 'total_units', 'launch_date', 'status', 'is_active',
             'apartment_count', 'available_units_count', 'sold_units_count',
-            'image', 'images', 'image_url', 'created_at', 'updated_at'
+            'image', 'images', 'image_file', 'created_at', 'updated_at'
         ]
 
     def get_image(self, obj):
         first_image = obj.images.first()
-        return first_image.image_url if first_image else None
+        if first_image and first_image.image:
+            # Field is now a URLField, return directly
+            return first_image.image
+        return None
 
     def get_available_units_count(self, obj):
         return obj.apartments.filter(status='available').count()
@@ -91,63 +94,63 @@ class ProjectSerializer(serializers.ModelSerializer):
         return obj.apartments.filter(status='sold').count()
 
     def create(self, validated_data):
-        image_url = validated_data.pop('image_url', None)
+        image_file = validated_data.pop('image_file', None)
         project = Project.objects.create(**validated_data)
-        if image_url:
-            ProjectImage.objects.create(project=project, image_url=image_url)
+        if image_file:
+            ProjectImage.objects.create(project=project, image=image_file)
         return project
 
     def update(self, instance, validated_data):
-        image_url = validated_data.pop('image_url', None)
+        image_file = validated_data.pop('image_file', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        if image_url:
-            # For simplicity, replace or add
+        if image_file:
             ProjectImage.objects.filter(project=instance).delete()
-            ProjectImage.objects.create(project=instance, image_url=image_url)
+            ProjectImage.objects.create(project=instance, image=image_file)
         return instance
 
 class ApartmentImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApartmentImage
-        fields = ['image_url']
+        fields = ['id', 'image']
 
 class ApartmentSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     project_name = serializers.ReadOnlyField(source='project.name')
     images = ApartmentImageSerializer(many=True, read_only=True)
-    image_url = serializers.URLField(write_only=True, required=False)
+    image_file = serializers.ImageField(write_only=True, required=False)
 
     class Meta:
         model = Apartment
         fields = [
-            'id', 'title', 'price', 'description', 'location', 'image', 'images', 'image_url',
+            'id', 'title', 'price', 'description', 'location', 'image', 'images', 'image_file',
             'project', 'project_name', 'floor_area_sqft', 'bedrooms', 'bathrooms', 'status',
             'is_approved', 'total_views'
         ]
 
     def get_image(self, obj):
         first_image = obj.images.first()
-        if first_image:
-            return first_image.image_url
+        if first_image and first_image.image:
+            # Field is now a URLField, return directly
+            return first_image.image
         return None
 
     def create(self, validated_data):
-        image_url = validated_data.pop('image_url', None)
+        image_file = validated_data.pop('image_file', None)
         apartment = Apartment.objects.create(**validated_data)
-        if image_url:
-            ApartmentImage.objects.create(apartment=apartment, image_url=image_url)
+        if image_file:
+            ApartmentImage.objects.create(apartment=apartment, image=image_file)
         return apartment
 
     def update(self, instance, validated_data):
-        image_url = validated_data.pop('image_url', None)
+        image_file = validated_data.pop('image_file', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        if image_url:
+        if image_file:
             ApartmentImage.objects.filter(apartment=instance).delete()
-            ApartmentImage.objects.create(apartment=instance, image_url=image_url)
+            ApartmentImage.objects.create(apartment=instance, image=image_file)
         return instance
 
 class InquirySerializer(serializers.ModelSerializer):

@@ -479,7 +479,11 @@ const Home = () => {
                   className="project-main-card"
                 >
                    <div className="project-card-image-wrap">
-                     <img src={project.image} alt={project.name} />
+                     {project.image ? (
+                       <img src={project.image} alt={project.name} />
+                     ) : (
+                       <div className="project-placeholder" style={{ width: '100%', height: '100%', background: '#eee' }}></div>
+                     )}
                    </div>
                    <div className="project-card-info">
                      <Link to={`/projects/${project.id}`} className="project-card-name">

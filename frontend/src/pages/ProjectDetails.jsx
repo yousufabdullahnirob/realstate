@@ -63,13 +63,17 @@ const ProjectDetails = () => {
             className="featured-project-spotlight"
           >
             <div className="spotlight-image-wrap">
-              <motion.img 
-                src={project.image} 
-                alt={project.name} 
-                className="spotlight-img"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.6 }}
-              />
+              {project.image ? (
+                <motion.img 
+                  src={project.image} 
+                  alt={project.name} 
+                  className="spotlight-img"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.6 }}
+                />
+              ) : (
+                <div className="spotlight-img placeholder" style={{ width: '100%', height: '400px', background: '#eee', borderRadius: '24px' }}></div>
+              )}
               <span className="spotlight-badge">{project.status}</span>
             </div>
             <div className="spotlight-content">

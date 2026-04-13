@@ -62,6 +62,11 @@ const Projects = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="projects-hero-tile"
+          style={{ 
+            background: 'linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.4)), url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
         >
           <h1>Projects</h1>
         </motion.div>

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Logo from '../Logo';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const menuItems = [
     { path: "/admin/", label: "Dashboard", icon: <path d="M3 13.125h7v-10H3v10Zm0 8.75h7v-7H3v7Zm8.75 0h7v-10h-7v10Zm0-18.75v7h7v-7h-7Z"/> },
     { path: "/admin/projects", label: "Projects", icon: <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/> },
@@ -13,15 +13,22 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="sidebar">
-      <div className="logo">
-        <Logo />
-        
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+      <div className="logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Logo />
+        </div>
+        <button onClick={onClose} className="hamburger-btn" aria-label="Close Navigation">✕</button>
       </div>
 
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
-          <Link key={item.path} to={item.path} className={window.location.pathname === item.path ? "active" : ""}>
+          <Link 
+            key={item.path} 
+            to={item.path} 
+            className={window.location.pathname === item.path ? "active" : ""}
+            onClick={onClose}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {item.icon}
             </svg>

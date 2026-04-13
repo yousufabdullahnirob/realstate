@@ -44,8 +44,9 @@ const ProjectForm = () => {
     total_units: '',
     launch_date: '',
     status: 'upcoming',
-    image_url: '',
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -71,8 +72,10 @@ const ProjectForm = () => {
           total_units: data.total_units || '',
           launch_date: data.launch_date || '',
           status: data.status || 'upcoming',
-          image_url: data.image || '',
         });
+        if (data.image) {
+          setImagePreview(data.image);
+        }
       } catch (e) {
         setError('Failed to load project: ' + e.message);
       }
@@ -81,7 +84,18 @@ const ProjectForm = () => {
   }, [id]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked, files } = e.target;
+    
+    if (type === 'file') {
+      const file = files[0];
+      if (file) {
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+      }
+    } else {
+      const val = type === 'checkbox' ? checked : value;
+      setFormData({ ...formData, [name]: val });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -90,16 +104,28 @@ const ProjectForm = () => {
     setError('');
     setSuccess('');
     try {
-      // Make sure numbers are actually numbers not strings
-      const payload = {
-        ...formData,
-        total_floors: parseInt(formData.total_floors) || 0,
-        total_units: parseInt(formData.total_units) || 0,
-      };
+      const data = new FormData();
+      
+      // Append basic fields
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== undefined) {
+          data.append(key, formData[key]);
+        }
+      });
+
+      // Override with parsed values
+      data.set('total_floors', parseInt(formData.total_floors) || 0);
+      data.set('total_units', parseInt(formData.total_units) || 0);
+
+      // Append image file
+      if (imageFile) {
+        data.append('image_file', imageFile);
+      }
+
       if (isNew) {
-        await apiProxy.post('/admin/projects/', payload);
+        await apiProxy.post('/admin/projects/', data);
       } else {
-        await apiProxy.patch("/admin/projects/" + id + "/", payload);
+        await apiProxy.patch("/admin/projects/" + id + "/", data);
       }
       setSuccess('Project saved! Redirecting...');
       setTimeout(() => navigate('/admin/projects'), 1200);
@@ -238,17 +264,35 @@ const ProjectForm = () => {
           <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 24, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
             Project Image
           </h3>
-          <Field label="Image URL" hint="Paste a direct image link (from Imgur, Google Drive, or any image host)">
-            <input style={inputStyle} name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://i.imgur.com/yourimage.jpg" />
+          <Field label="Upload Image" hint="Select a project thumbnail or cover photo">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <input
+                type="file"
+                name="image_file"
+                accept="image/*"
+                onChange={handleChange}
+                style={{
+                  ...inputStyle,
+                  padding: '8px',
+                  background: '#f8fafc',
+                  cursor: 'pointer'
+                }}
+              />
+              
+              {imagePreview && (
+                <div style={{ position: 'relative', marginTop: 8 }}>
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    style={{ width: '100%', maxHeight: 300, objectFit: 'cover', borderRadius: 8, border: '1.5px solid #e2e8f0' }}
+                  />
+                  <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(15, 23, 42, 0.8)', color: 'white', padding: '4px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
+                    PREVIEW
+                  </div>
+                </div>
+              )}
+            </div>
           </Field>
-          {formData.image_url && (
-            <img
-              src={formData.image_url}
-              alt="Preview"
-              style={{ marginTop: 12, width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 8, border: '1.5px solid #e2e8f0' }}
-              onError={e => { e.target.style.display = 'none'; }}
-            />
-          )}
         </div>
 
         {/* Submit */}

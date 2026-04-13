@@ -58,7 +58,7 @@ const ApartmentDetails = () => {
     try {
         await apiProxy.post('/bookings/create/', {
             apartment: id,
-            advance_amount: (apartment.price_raw * 0.1).toString() // Deposit 10%
+            advance_amount: (apartment.price_raw * 0.1).toFixed(2) // Deposit 10% rounded to 2 decimals
         });
         alert("Booking request submitted! Check your dashboard for status.");
         navigate('/dashboard');

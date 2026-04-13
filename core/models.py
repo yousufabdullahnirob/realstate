@@ -49,7 +49,7 @@ class Project(models.Model):
 
 class ProjectImage(models.Model):
     project = models.ForeignKey(Project, related_name='images', on_delete=models.CASCADE)
-    image_url = models.URLField(max_length=500)
+    image = models.URLField(max_length=1000, null=True, blank=True)
     
     def __str__(self):
         return f"Image for {self.project.name}"
@@ -64,8 +64,8 @@ class Apartment(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=255)
-    floor_area_sqft = models.DecimalField(max_digits=10, decimal_places=2)
-    price = models.DecimalField(max_digits=12, decimal_places=2)
+    floor_area_sqft = models.DecimalField(max_digits=12, decimal_places=2)
+    price = models.DecimalField(max_digits=20, decimal_places=2)
     bedrooms = models.IntegerField()
     bathrooms = models.IntegerField()
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.AVAILABLE)
@@ -79,7 +79,7 @@ class Apartment(models.Model):
 
 class ApartmentImage(models.Model):
     apartment = models.ForeignKey(Apartment, related_name='images', on_delete=models.CASCADE)
-    image_url = models.URLField(max_length=500) # Using URL for simplicity, could be ImageField
+    image = models.URLField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return f"Image for {self.apartment.title}"
@@ -110,7 +110,7 @@ class Booking(models.Model):
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE, related_name='bookings')
     booking_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
-    advance_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    advance_amount = models.DecimalField(max_digits=20, decimal_places=2)
 
     def __str__(self):
         return f"Booking {self.booking_reference}"
@@ -118,7 +118,7 @@ class Booking(models.Model):
 class Installment(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='installments')
     due_date = models.DateField()
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
     is_paid = models.BooleanField(default=False)
     paid_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -139,7 +139,7 @@ class Payment(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
     installment = models.ForeignKey(Installment, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
     transaction_id = models.CharField(max_length=100, unique=True)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
     payment_status = models.CharField(max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.SUCCESS)
     verification_status = models.CharField(max_length=10, choices=VerificationStatus.choices, default=VerificationStatus.PENDING)
     payment_date = models.DateTimeField(auto_now_add=True)
@@ -153,7 +153,7 @@ class Sale(models.Model):
     apartment = models.OneToOneField(Apartment, on_delete=models.CASCADE, related_name='sale')
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchases')
     sale_date = models.DateTimeField(auto_now_add=True)
-    final_price = models.DecimalField(max_digits=12, decimal_places=2)
+    final_price = models.DecimalField(max_digits=20, decimal_places=2)
 
     def __str__(self):
         return f"Sale of {self.apartment.title}"

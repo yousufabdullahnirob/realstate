@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiProxy from '../utils/proxyClient';
 
-const mockNotifications = [
-  { id: 1, message: 'New inquiry from Rahim Khan', time: '2min ago', type: 'inquiry', icon: '💬', project: 'Skyline Residency' },
-  { id: 2, message: 'New booking request', time: '1hr ago', type: 'booking', icon: '📅', project: 'Apt 5A' },
-  { id: 3, message: 'Project update complete', time: '3hrs ago', type: 'project', icon: '🏗', project: 'Skyline Residency - 95% complete' },
-  { id: 4, message: 'Maintenance request needed', time: '1day ago', type: 'maintenance', icon: '🛠', project: 'Apt 3B' },
-];
+const iconMap = { booking: '📋', inquiry: '📩', payment: '💳', approval: '✅' };
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -36,18 +31,23 @@ const Notifications = () => {
       </div>
       
       <div className="notifications-list">
-        {mockNotifications.map(notif => (
-          <div key={notif.id} className={`notification-item ${notif.type}`}>
-            <div className="notif-icon">
-              {notif.icon}
+        {notifications.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔔</div>
+            <p>No notifications found.</p>
+          </div>
+        ) : notifications.map(notif => (
+          <div key={notif.id} className={`notification-item ${notif.type}`} style={{ background: notif.is_read ? 'var(--secondary)' : '#eff6ff', border: notif.is_read ? '1.5px solid var(--border-color)' : '1.5px solid #bfdbfe' }}>
+            <div className="notif-icon" style={{ fontSize: 20, background: 'transparent', padding: 0 }}>
+              {iconMap[notif.type] || '🔔'}
             </div>
             <div className="notif-content">
-              <p>{notif.message} <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>• {notif.project}</span></p>
-              <span className="notif-time">{notif.time}</span>
+              <p style={{ fontWeight: notif.is_read ? 500 : 700 }}>{notif.message}</p>
+              <span className="notif-time">{new Date(notif.created_at).toLocaleString('en-BD')}</span>
             </div>
-            <div className="notif-actions">
-              <button className="view-btn">View Details</button>
-            </div>
+            {!notif.is_read && (
+               <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, marginTop: 4 }} />
+            )}
           </div>
         ))}
       </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Topbar = () => {
+const Topbar = ({ onToggleSidebar }) => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
@@ -14,6 +14,14 @@ const Topbar = () => {
 
   return (
     <div className="topbar">
+      <button className="hamburger-btn" onClick={onToggleSidebar} aria-label="Toggle Navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
       <div className="topbar-search">
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <svg style={{ position: 'absolute', left: '14px', opacity: 0.5 }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

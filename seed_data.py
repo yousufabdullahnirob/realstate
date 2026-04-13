@@ -7,23 +7,23 @@ from datetime import date, timedelta
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'real_estate_backend.settings')
 django.setup()
 
-from core.models import User, Project, Apartment, Inquiry, Notification, ProjectImage, ApartmentImage, PropertyView
+from core.models import User, Project, Apartment, Inquiry, Notification, ProjectImage, ApartmentImage, PropertyView, Booking, Installment
 
 def seed_data():
     print("Seeding data...")
 
     # 1. Create Users
     admin, _ = User.objects.get_or_create(
-        email='admin@mahimbuilders.com',
+        email=os.getenv('ADMIN_EMAIL', 'admin@mahimbuilders.com'),
         defaults={
-            'username': 'admin@mahimbuilders.com',
+            'username': os.getenv('ADMIN_EMAIL', 'admin@mahimbuilders.com'),
             'full_name': 'Admin User',
             'role': User.Role.ADMIN,
             'is_staff': True,
             'is_superuser': True
         }
     )
-    admin.set_password('admin123')
+    admin.set_password(os.getenv('ADMIN_PASSWORD', 'admin123'))
     admin.save()
 
     agent, _ = User.objects.get_or_create(
@@ -58,12 +58,19 @@ def seed_data():
     
     # Image pool (Unique URLs)
     image_pool = [
+        # Projects / Exteriors
         "https://images.unsplash.com/photo-1621415263481-9964d4206689?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1621259182978-fbf9312269b8?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1590644365607-1c5a519a7a37?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1623298317883-6b70254ef39a?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1621259181231-158296339ac0?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        
+        # Interiors / Apartments
         "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1600566752355-35792bed65ec?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1600607687940-4e2889315d?auto=format&fit=crop&w=1200&q=80",
@@ -76,14 +83,17 @@ def seed_data():
         "https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1600585154542-6379b74459db?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1600121848594-d8641e576d13?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1600607687940-4e2889315d?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1600566752229-1269ed0ac274?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1600121848594-d8641e576d13?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1600566752355-35792bed65ec?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80"
+        "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1556911223-e45205573945?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1536376074432-8d640596717d?auto=format&fit=crop&w=1200&q=80"
     ]
     random.shuffle(image_pool)
 
@@ -206,16 +216,11 @@ def seed_data():
             status=p_def["status"]
         )
         projects.append(p)
-        ProjectImage.objects.create(project=p, image_url=p_def["image"])
+        ProjectImage.objects.create(project=p, image=get_unique_image())
 
     print("Seeding Apartments...")
     apartment_titles = ["Royal Suite", "Penthouse Elite", "Family Haven", "Executive Living", "Lakeside View"]
     for p in projects:
-        # Find the original def to get the image
-        p_def = next((d for d in project_defs if d["name"] == p.name), None)
-        img_url = p_def["image"] if p_def else "/assets/projects/default.png"
-        
-        # Create 2-3 apartments per project
         for i in range(random.randint(2, 3)):
             apt = Apartment.objects.create(
                 project=p,
@@ -228,14 +233,14 @@ def seed_data():
                 bathrooms=random.randint(3, 4),
                 status=random.choice(['available', 'available', 'available', 'booked', 'sold'])
             )
-            ApartmentImage.objects.create(apartment=apt, image_url=img_url)
+            ApartmentImage.objects.create(apartment=apt, image=get_unique_image())
 
     # Seed Admin User
     admin_user, _ = User.objects.get_or_create(
-        email='admin@mahimbuilders.com',
-        defaults={'username': 'admin@mahimbuilders.com', 'full_name': 'Admin User', 'role': 'admin', 'is_staff': True, 'is_superuser': True}
+        email=os.getenv('ADMIN_EMAIL', 'admin@mahimbuilders.com'),
+        defaults={'username': os.getenv('ADMIN_EMAIL', 'admin@mahimbuilders.com'), 'full_name': 'Admin User', 'role': 'admin', 'is_staff': True, 'is_superuser': True}
     )
-    admin_user.set_password('admin123')
+    admin_user.set_password(os.getenv('ADMIN_PASSWORD', 'admin123'))
     admin_user.save()
 
     # Seed Customer User
@@ -246,7 +251,8 @@ def seed_data():
     customer_user.set_password('pass123')
     customer_user.save()
 
-    print("Seeding Inquiries & Notifications...")
+    print("Seeding Inquiries, Bookings & Notifications...")
+    import uuid
     for _ in range(5):
         apt = Apartment.objects.order_by('?').first()
         Inquiry.objects.create(
@@ -260,6 +266,29 @@ def seed_data():
             message=f"New inquiry from {customer_user.full_name} for {apt.title}",
             type='inquiry'
         )
+    
+    # Add a Booking for the customer
+    booked_apt = Apartment.objects.filter(status='booked').first()
+    if not booked_apt:
+        booked_apt = Apartment.objects.first()
+        booked_apt.status = 'booked'
+        booked_apt.save()
+
+    booking = Booking.objects.create(
+        user=customer_user,
+        apartment=booked_apt,
+        booking_reference=f"BKG-{uuid.uuid4().hex[:8].upper()}",
+        advance_amount=500000,
+        status=Booking.Status.CONFIRMED
+    )
+    
+    # Add an Installment for that booking
+    Installment.objects.create(
+        booking=booking,
+        due_date=date.today() + timedelta(days=30),
+        amount=100000,
+        is_paid=False
+    )
 
     print("Done seeding data!")
 

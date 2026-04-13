@@ -333,7 +333,7 @@ const AdminDashboard = () => {
       )}
 
       {/* KPI Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+      <div className="responsive-grid-kpi">
         <StatCard icon="🏗️" label="Total Projects"   value={stats.total_projects}   color="#0ea5e9" sub="Active listings" />
         <StatCard icon="🏢" label="Total Apartments" value={stats.total_apartments} color="#8b5cf6" sub="All units" />
         <StatCard icon="✅" label="Available Units"  value={stats.available_units}  color="#10b981" sub="Ready to sell" />
@@ -341,7 +341,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Charts Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="responsive-grid-double">
         {/* Sales Chart */}
         <section className="preview-section glass">
           <SalesChart data={salesData} />
@@ -354,7 +354,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Row 2: Approvals + Analytics */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="responsive-grid-double">
 
         {/* Approvals */}
         <section className="preview-section glass" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -479,7 +479,7 @@ const AdminDashboard = () => {
       </section>
 
       {/* Row 4: Inquiries + Notifications */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="responsive-grid-double">
 
         {/* Inquiries */}
         <section className="preview-section glass">

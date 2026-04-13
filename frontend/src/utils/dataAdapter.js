@@ -7,7 +7,7 @@ export const DataAdapter = {
       name: backendProject.name,
       location: backendProject.location,
       status: backendProject.status,
-      image: backendProject.image || "",
+      image: backendProject.image || null,
       description: backendProject.description ? backendProject.description.split('\n\n') : [],
       land_area: backendProject.land_area,
       orientation: backendProject.orientation,
@@ -31,7 +31,7 @@ export const DataAdapter = {
       bedrooms: backendApt.bedrooms || '0',
       bathrooms: backendApt.bathrooms || '0',
       location: backendApt.location || 'Dhaka',
-      image: backendApt.image || "",
+      image: backendApt.image || null,
       description: backendApt.description,
       project_id: backendApt.project,
     };

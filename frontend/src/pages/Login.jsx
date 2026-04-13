@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import apiProxy from '../utils/proxyClient';
 import loginBg from '../assets/login-bg.png';
 
@@ -8,6 +8,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isExpired = new URLSearchParams(location.search).get('expired');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +42,16 @@ const Login = () => {
       color: 'var(--text-color)',
       overflow: 'hidden'
     }}>
+      {isExpired && (
+        <div style={{
+          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+          background: '#fee2e2', color: '#991b1b', padding: '12px 24px', borderRadius: '12px',
+          border: '1px solid #fecaca', fontWeight: '700', zIndex: 100, fontSize: '14px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+        }}>
+          ⚠️ Session expired. Please log in again.
+        </div>
+      )}
       <div style={{
         position: 'absolute',
         inset: -20,

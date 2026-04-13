@@ -25,7 +25,9 @@ const ContactUs = () => {
     >
       {/* Hero */}
       <section className="contact-hero" style={{ 
-        background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+        background: 'linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         color: 'white',
         padding: '120px 0',
         textAlign: 'center'

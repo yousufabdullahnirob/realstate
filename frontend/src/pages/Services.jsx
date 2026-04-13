@@ -9,6 +9,7 @@ export const services = [
     tagline: "We will help you to get the result you dreamed of.",
     icon: "📐",
     color: "#0ea5e9",
+    image: "https://images.unsplash.com/photo-1503387762-592dee58c460?auto=format&fit=crop&w=1200&q=80",
     description: "Our design and planning team brings together architects, urban planners, and interior designers to craft living spaces that perfectly balance aesthetics with functionality. From the very first sketch to final approval, we ensure every square foot is intentional.",
     features: [
       "Custom architectural blueprints tailored to Dhaka urban landscape",
@@ -25,6 +26,7 @@ export const services = [
     tagline: "Individual, aesthetically stunning solutions for every customer.",
     icon: "🏗️",
     color: "#8b5cf6",
+    image: "https://images.unsplash.com/photo-1618221195710-dd6b41fa33a8?auto=format&fit=crop&w=1200&q=80",
     description: "No two families are alike — and neither should their homes be. Our custom solutions service lets you shape your apartment from the ground up, choosing layouts, finishes, and configurations that match your lifestyle perfectly.",
     features: [
       "Fully bespoke floor plan modifications",
@@ -41,6 +43,7 @@ export const services = [
     tagline: "We create and produce our own product design lines.",
     icon: "🛋️",
     color: "#10b981",
+    image: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?auto=format&fit=crop&w=1200&q=80",
     description: "Move into a fully furnished, move-in-ready home. Our furniture and decor service partners with leading Bangladeshi and international brands to outfit your apartment with curated pieces that complement the architecture and your personal taste.",
     features: [
       "Full apartment furnishing packages available",
@@ -57,6 +60,7 @@ export const services = [
     tagline: "Facades that define the skyline and your property value.",
     icon: "🏢",
     color: "#f59e0b",
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
     description: "A building exterior is its first impression. Our exterior design team specializes in creating facades that are visually striking, weather-resistant, and suited to Bangladesh tropical climate — combining modern aesthetics with practical durability.",
     features: [
       "Climate-adaptive facade materials for Dhaka humidity and rain",
@@ -73,6 +77,7 @@ export const services = [
     tagline: "From vision to reality — we turn ideas into iconic spaces.",
     icon: "💡",
     color: "#ef4444",
+    image: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=1200&q=80",
     description: "Every great project starts with a bold idea. Our concept creation service works closely with developers and investors to turn raw land or an abstract vision into a fully realized residential project — with a clear identity, market positioning, and design direction.",
     features: [
       "Project identity and branding development",
@@ -89,6 +94,7 @@ export const services = [
     tagline: "We oversee every detail so nothing is left to chance.",
     icon: "🔍",
     color: "#06b6d4",
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80",
     description: "Quality does not happen by accident. Our author control service places a dedicated project supervisor on-site throughout construction, ensuring that every detail matches the approved design — from structural integrity to the finish on a door handle.",
     features: [
       "On-site project management and supervision",
@@ -111,123 +117,143 @@ const ServiceCard = ({ service, index }) => {
       transition={{ duration: 0.6, delay: 0.1 }}
       style={{
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        minHeight: 480,
+        gridTemplateColumns: window.innerWidth > 968 ? "1.2fr 1fr" : "1fr",
+        minHeight: 600,
         borderBottom: "1px solid #e2e8f0",
+        overflow: "hidden",
       }}
     >
-      {/* Description panel */}
+      {/* Visual Image Panel */}
       <div style={{
-        background: index % 2 === 0 ? service.color + "10" : "white",
         order: index % 2 === 0 ? 1 : 2,
+        position: "relative",
+        overflow: "hidden",
+        minHeight: 400,
+      }}>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 1.5, ease: [0.33, 1, 0.68, 1] }}
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundImage: `url(${service.image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: `linear-gradient(${index % 2 === 0 ? 'to right' : 'to left'}, rgba(15, 23, 42, 0.6), transparent)`,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          padding: 40,
+          color: "white",
+        }}>
+          <div style={{
+            background: "rgba(255,255,255,0.15)",
+            backdropFilter: "blur(8px)",
+            padding: "20px 24px",
+            borderRadius: 16,
+            maxWidth: 380,
+            border: "1px solid rgba(255,255,255,0.2)",
+          }}>
+            <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16, opacity: 0.9 }}>
+              What is Included
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {service.features.slice(0, 4).map((feature, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ color: service.color, fontSize: 14 }}>✓</span>
+                  <span style={{ fontSize: 13, fontWeight: 500 }}>{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Panel */}
+      <div style={{
+        background: index % 2 === 0 ? "white" : "#f8fafc",
+        order: index % 2 === 0 ? 2 : 1,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        padding: "64px 56px",
-        borderRight: index % 2 === 0 ? "1px solid #e2e8f0" : "none",
-        borderLeft: index % 2 !== 0 ? "1px solid #e2e8f0" : "none",
+        padding: "80px 64px",
+        borderRight: (index % 2 === 0 && window.innerWidth > 968) ? "none" : "1px solid #e2e8f0",
+        borderLeft: (index % 2 !== 0 && window.innerWidth > 968) ? "none" : "1px solid #e2e8f0",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 28 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 32 }}>
           <div style={{
-            width: 64, height: 64, borderRadius: 16,
+            width: 72, height: 72, borderRadius: 20,
             background: service.color + "18",
             border: "2px solid " + service.color + "30",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 28,
+            fontSize: 32,
           }}>{service.icon}</div>
-          <span style={{
-            fontSize: 13, fontWeight: 800, color: service.color,
-            textTransform: "uppercase", letterSpacing: 2,
-          }}>0{index + 1}</span>
+          <div>
+            <span style={{
+              fontSize: 13, fontWeight: 800, color: service.color,
+              textTransform: "uppercase", letterSpacing: 2, display: "block"
+            }}>Service 0{index + 1}</span>
+            <h2 style={{
+              fontSize: 38, fontWeight: 800, color: "#0f172a",
+              letterSpacing: -1.5, lineHeight: 1.1, marginTop: 4
+            }}>{service.title}</h2>
+          </div>
         </div>
 
-        <h2 style={{
-          fontSize: 34, fontWeight: 800, color: "#0f172a",
-          letterSpacing: -1, lineHeight: 1.15, marginBottom: 16,
-        }}>{service.title}</h2>
-        <p style={{ fontSize: 15, color: "#64748b", fontStyle: "italic", marginBottom: 20, fontWeight: 500 }}>
+        <p style={{ fontSize: 16, color: "#64748b", fontStyle: "italic", marginBottom: 24, fontWeight: 500, borderLeft: `3px solid ${service.color}`, paddingLeft: 16 }}>
           {service.tagline}
         </p>
-        <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, marginBottom: 28 }}>
+        <p style={{ fontSize: 16, color: "#475569", lineHeight: 1.8, marginBottom: 40 }}>
           {service.description}
         </p>
 
-        <div>
-          <p style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 12 }}>
-            Our Process
+        <div style={{ marginBottom: 40 }}>
+          <p style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>
+            The Execution Process
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {service.process.map((step, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{
                   background: service.color, color: "white",
-                  borderRadius: "50%", width: 20, height: 20,
+                  borderRadius: 6, width: 24, height: 24,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 10, fontWeight: 800, flexShrink: 0,
+                  fontSize: 11, fontWeight: 800, flexShrink: 0,
                 }}>{i + 1}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>{step}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{step}</span>
                 {i < service.process.length - 1 && (
-                  <span style={{ color: "#cbd5e1", fontSize: 12 }}>→</span>
+                  <span style={{ color: "#cbd5e1", fontSize: 14, margin: "0 4px" }}>→</span>
                 )}
               </div>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Features panel */}
-      <div style={{
-        background: index % 2 === 0 ? "white" : service.color + "10",
-        order: index % 2 === 0 ? 2 : 1,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        padding: "64px 56px",
-      }}>
-        <p style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 24 }}>
-          What is Included
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {service.features.map((feature, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              style={{
-                display: "flex", alignItems: "flex-start", gap: 14,
-                padding: "14px 18px", borderRadius: 10,
-                background: "white",
-                border: "1.5px solid #e2e8f0",
-              }}
-            >
-              <div style={{
-                width: 22, height: 22, borderRadius: 6,
-                background: service.color + "18",
-                border: "1.5px solid " + service.color + "30",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}>
-                <span style={{ color: service.color, fontSize: 11, fontWeight: 800 }}>✓</span>
-              </div>
-              <span style={{ fontSize: 14, color: "#334155", fontWeight: 500, lineHeight: 1.6 }}>{feature}</span>
-            </motion.div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 28 }}>
+        <div>
           <Link
             to="/contact"
             style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              background: service.color, color: "white",
-              padding: "13px 26px", borderRadius: 10,
-              fontWeight: 700, fontSize: 13, textDecoration: "none",
-              boxShadow: "0 8px 24px " + service.color + "30",
+              display: "inline-flex", alignItems: "center", gap: 10,
+              background: "#0f172a", color: "white",
+              padding: "16px 32px", borderRadius: 12,
+              fontWeight: 700, fontSize: 14, textDecoration: "none",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 10px 25px rgba(15, 23, 42, 0.2)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            Get a Quote for {service.title} →
+            Request {service.title} Details →
           </Link>
         </div>
       </div>
@@ -255,7 +281,9 @@ const Services = () => {
 
       {/* Hero Banner */}
       <section style={{
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: 'linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url("https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1600&q=80")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         color: "white",
         padding: "100px 40px 80px",
         textAlign: "center",

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import approvedModel from '../assets/about/approved_model.png';
 import communityVibe from '../assets/about/community_vibe.png';
+import heroBg from '../assets/about/about_hero_bg.png';
 
 const AboutUs = () => {
   return (
@@ -15,7 +16,7 @@ const AboutUs = () => {
       {/* Hero Section */}
       <section className="about-hero" style={{ 
         height: '450px', 
-        background: 'linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url("https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&w=1600&q=80")',
+        background: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)), url(${heroBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',

@@ -26,6 +26,8 @@
     --text-main:     #2d3748;
     --text-muted:    #718096;
     --text-dark:     #0f172a;
+    --text-primary:  #0f172a;       /* Added to fix invisible headings */
+    --text-secondary: #475569;      /* Added for better contrast */
 
     /* Defaults */
     --heading-color: var(--text-dark);
@@ -1719,10 +1721,13 @@ APARTMENT LISTING PAGE
 /* HERO */
 
 .apt-hero{
-    background: linear-gradient(135deg, #0c111a 0%, #1a2744 100%);
+    background: linear-gradient(rgba(12, 17, 26, 0.75), rgba(26, 39, 68, 0.85)), 
+                url("https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=80");
+    background-size: cover;
+    background-position: center;
     color:white;
     text-align:center;
-    padding:140px 20px 90px;
+    padding:160px 20px 110px;
 }
 
 .apt-hero h1{
