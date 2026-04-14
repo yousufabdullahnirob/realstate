@@ -198,42 +198,55 @@ def seed_data():
         }
     ]
 
+    project_images = [
+        "projects/tower1.png", "projects/tower2.png", "projects/mall.png",
+        "projects/palace2.png", "projects/sheikh_view.png", "projects/rose2.png",
+        "projects/palace1.png", "projects/tower1.png" # Reusing Tower 1 for Rose 1
+    ]
+
     projects = []
-    for p_def in project_defs:
+    for i, p_def in enumerate(project_defs):
         p = Project.objects.create(
             name=p_def["name"],
             location=p_def["loc"],
-            description=p_def["description"],
+            description=p_def.get("description", "Premium architectural excellence designed for modern living in Dhaka."),
             land_area=p_def.get("land_area"),
             orientation=p_def.get("orientation"),
             parking=p_def.get("parking"),
             handover_date=p_def.get("handover_date"),
-            features=p_def.get("features"),
+            features=p_def.get("features", "Elevator, Parking, Rooftop Garden, Children's Play Area"),
             extra_description=p_def.get("extra_description"),
             total_floors=p_def.get("total_floors", random.randint(7, 15)),
             total_units=p_def.get("total_units", random.randint(10, 50)),
             launch_date="2023-01-01",
-            status=p_def["status"]
+            status=p_def.get("status", "ongoing")
         )
         projects.append(p)
-        ProjectImage.objects.create(project=p, image=get_unique_image())
+        
+        # Assign permanent images from the new pool
+        img_path = project_images[i] if i < len(project_images) else project_images[0]
+        ProjectImage.objects.create(project=p, image=img_path)
 
     print("Seeding Apartments...")
-    apartment_titles = ["Royal Suite", "Penthouse Elite", "Family Haven", "Executive Living", "Lakeside View"]
+    apartment_titles = ["Royal Suite", "Penthouse Elite", "Family Haven", "Executive Living", "Lakeside View", "Signature Corner Unit"]
+    apt_images = ["apartments/kitchen.png", "apartments/living_room.png", "apartments/bedroom.png", "apartments/dining.png"]
+    
     for p in projects:
-        for i in range(random.randint(2, 3)):
+        # Create 3-5 apartments per project for more data
+        for i in range(random.randint(3, 5)):
             apt = Apartment.objects.create(
                 project=p,
-                title=f"{random.choice(apartment_titles)} - {p.name} {i+1}",
-                description=f"Luxury living at {p.name}. Features premium finishes, smart home integration, and breathtaking views.",
+                title=f"{random.choice(apartment_titles)} - {p.name}",
+                description=f"Luxury living at {p.name}. Features premium finishes, smart home integration, and breathtaking urban views.",
                 location=p.location,
-                floor_area_sqft=random.randint(1500, 3500),
-                price=random.randint(10000000, 50000000),
-                bedrooms=random.randint(3, 5),
-                bathrooms=random.randint(3, 4),
+                floor_area_sqft=random.randint(1200, 3800),
+                price=random.randint(8000000, 60000000),
+                bedrooms=random.randint(2, 5),
+                bathrooms=random.randint(2, 4),
                 status=random.choice(['available', 'available', 'available', 'booked', 'sold'])
             )
-            ApartmentImage.objects.create(apartment=apt, image=get_unique_image())
+            # Assign a random interior room from the pool
+            ApartmentImage.objects.create(apartment=apt, image=random.choice(apt_images))
 
     # Seed Admin User
     admin_user, _ = User.objects.get_or_create(

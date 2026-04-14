@@ -83,8 +83,15 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         first_image = obj.images.first()
         if first_image and first_image.image:
-            # Field is now a URLField, return directly
-            return first_image.image
+            try:
+                url = first_image.image.url
+                # If Django prepended /media/ to an absolute URL, strip it
+                if url.startswith('/media/http'):
+                    import urllib.parse
+                    return urllib.parse.unquote(url.replace('/media/', ''))
+                return url
+            except (ValueError, AttributeError):
+                return str(first_image.image)
         return None
 
     def get_available_units_count(self, obj):
@@ -132,9 +139,22 @@ class ApartmentSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         first_image = obj.images.first()
         if first_image and first_image.image:
-            # Field is now a URLField, return directly
-            return first_image.image
+            try:
+                url = first_image.image.url
+                if url.startswith('/media/http'):
+                    import urllib.parse
+                    return urllib.parse.unquote(url.replace('/media/', ''))
+                return url
+            except (ValueError, AttributeError):
+                return str(first_image.image)
         return None
+
+    def to_internal_value(self, data):
+        # Handle cases where project might be an empty string from frontend
+        if 'project' in data and data['project'] == '':
+            data = data.copy()
+            data['project'] = None
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
         image_file = validated_data.pop('image_file', None)

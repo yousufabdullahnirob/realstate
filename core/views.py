@@ -90,12 +90,12 @@ class ApartmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ApartmentSerializer
     
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.request and self.request.method == 'GET':
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated(), IsAdminOrAgentRole()]
 
     def get_authenticators(self):
-        if self.request.method == 'GET':
+        if self.request and self.request.method == 'GET':
             return []
         return super().get_authenticators()
 
@@ -249,17 +249,19 @@ class ApartmentListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = ApartmentSerializer
     
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.request and self.request.method == 'GET':
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated(), IsAdminRole()]
 
     def get_authenticators(self):
-        if self.request.method == 'GET':
+        if self.request and self.request.method == 'GET':
             return []
         return super().get_authenticators()
 
     def get_queryset(self):
         queryset = Apartment.objects.all()
+        if not self.request:
+            return queryset
         
         # Filtering logic
         min_price = self.request.query_params.get('min_price')
@@ -405,6 +407,8 @@ class NotificationListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if not self.request or not self.request.user or not self.request.user.is_authenticated:
+            return self.queryset.none()
         if self.request.user.role == User.Role.ADMIN:
             return self.queryset.all()
         return self.queryset.filter(user=self.request.user)
@@ -440,6 +444,8 @@ class MyApartmentsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if not self.request or not self.request.user or not self.request.user.is_authenticated:
+            return Apartment.objects.none()
         # Return apartments associated with user's bookings or sales
         return Apartment.objects.filter(bookings__user=self.request.user).distinct()
 
@@ -448,6 +454,8 @@ class MyBookingsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if not self.request or not self.request.user or not self.request.user.is_authenticated:
+            return Booking.objects.none()
         return Booking.objects.filter(user=self.request.user).order_by('-booking_date')
 
 class MyPaymentsView(generics.ListAPIView):
@@ -455,6 +463,8 @@ class MyPaymentsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if not self.request or not self.request.user or not self.request.user.is_authenticated:
+            return Payment.objects.none()
         return Payment.objects.filter(booking__user=self.request.user).order_by('-payment_date')
 
 class AdminPaymentListAPIView(generics.ListAPIView):
@@ -493,6 +503,8 @@ class FavoriteListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if not self.request or not self.request.user or not self.request.user.is_authenticated:
+            return Favorite.objects.none()
         return Favorite.objects.filter(user=self.request.user)
 
 class ProfileUpdateAPIView(generics.RetrieveUpdateAPIView):

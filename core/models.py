@@ -49,7 +49,7 @@ class Project(models.Model):
 
 class ProjectImage(models.Model):
     project = models.ForeignKey(Project, related_name='images', on_delete=models.CASCADE)
-    image = models.URLField(max_length=1000, null=True, blank=True)
+    image = models.ImageField(upload_to='projects/', null=True, blank=True)
     
     def __str__(self):
         return f"Image for {self.project.name}"
@@ -79,7 +79,7 @@ class Apartment(models.Model):
 
 class ApartmentImage(models.Model):
     apartment = models.ForeignKey(Apartment, related_name='images', on_delete=models.CASCADE)
-    image = models.URLField(max_length=1000, null=True, blank=True)
+    image = models.ImageField(upload_to='apartments/', null=True, blank=True)
 
     def __str__(self):
         return f"Image for {self.apartment.title}"

@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, animate, useInVi
 import Header from '../components/Header';
 import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
+import { FilterUtils } from '../utils/filterUtils';
 import approvedModel from '../assets/about/approved_model.png';
 import communityVibe from '../assets/about/community_vibe.png';
 import hero1 from '../assets/hero_1.png';
@@ -311,30 +312,27 @@ const Home = () => {
           </div>
           <div className="filter">
             <span className="icon">৳</span>
-            <select 
-              value={homeFilters.max_price} 
-              onChange={(e) => setHomeFilters({...homeFilters, max_price: e.target.value})}
-              style={{ background: 'transparent', border: 'none', color: '#000', outline: 'none' }}
-            >
-              <option value="" style={{ color: '#000' }}>Price (Any)</option>
-              <option value="5000000" style={{ color: '#000' }}>Up to 5M BDT</option>
-              <option value="10000000" style={{ color: '#000' }}>Up to 10M BDT</option>
-              <option value="20000000" style={{ color: '#000' }}>Up to 20M BDT</option>
-              <option value="50000000" style={{ color: '#000' }}>Up to 50M BDT</option>
+          <div className="search-group">
+            <label className="search-label">Price Range</label>
+            <select name="max_price" value={homeFilters.max_price} onChange={(e) => setHomeFilters({...homeFilters, max_price: e.target.value})} className="search-select">
+              <option value="" style={{ color: '#000' }}>Any Price</option>
+              {FilterUtils.generatePriceRanges(filterMeta.price_range.min, filterMeta.price_range.max).map(price => (
+                <option key={price} value={price} style={{ color: '#000' }}>
+                  Up to {FilterUtils.formatPrice(price)}
+                </option>
+              ))}
             </select>
           </div>
-          <div className="filter">
-            <span className="icon">📐</span>
-            <select 
-              value={homeFilters.size} 
-              onChange={(e) => setHomeFilters({...homeFilters, size: e.target.value})}
-              style={{ background: 'transparent', border: 'none', color: '#000', outline: 'none' }}
-            >
-              <option value="" style={{ color: '#000' }}>Size (Any)</option>
-              <option value="0-800" style={{ color: '#000' }}>{"Small (< 800 sqft)"}</option>
-              <option value="800-1500" style={{ color: '#000' }}>Medium (800-1500 sqft)</option>
-              <option value="1500-2500" style={{ color: '#000' }}>Large (1500-2500 sqft)</option>
-              <option value="2500" style={{ color: '#000' }}>Extra Large (2500+ sqft)</option>
+          <div className="search-group">
+            <label className="search-label">Property Size</label>
+            <select name="size" value={homeFilters.size} onChange={(e) => setHomeFilters({...homeFilters, size: e.target.value})} className="search-select">
+              <option value="" style={{ color: '#000' }}>Any Size</option>
+              {FilterUtils.generateSizeRanges(filterMeta.size_range.min, filterMeta.size_range.max).map(size => (
+                <option key={size} value={`${size-500}-${size}`} style={{ color: '#000' }}>
+                  {size-500} - {size} sqft
+                </option>
+              ))}
+              <option value={`${filterMeta.size_range.max}-10000`} style={{ color: '#000' }}>{Math.floor(filterMeta.size_range.max)}+ sqft</option>
             </select>
           </div>
           <button className="search-btn" onClick={handleHomeSearch}>Search</button>

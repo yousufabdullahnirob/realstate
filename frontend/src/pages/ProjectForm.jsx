@@ -108,10 +108,21 @@ const ProjectForm = () => {
       
       // Append basic fields
       Object.keys(formData).forEach(key => {
-        if (formData[key] !== null && formData[key] !== undefined) {
+        if (formData[key] !== null && formData[key] !== undefined && key !== 'launch_date') {
           data.append(key, formData[key]);
         }
       });
+
+      // Ensure date is formatted properly (YYYY-MM-DD)
+      if (formData.launch_date) {
+        // If it's a date object or a string that looks like a date, ensure it's ISO format
+        const dateObj = new Date(formData.launch_date);
+        if (!isNaN(dateObj.getTime())) {
+           data.append('launch_date', dateObj.toISOString().split('T')[0]);
+        } else {
+           data.append('launch_date', formData.launch_date);
+        }
+      }
 
       // Override with parsed values
       data.set('total_floors', parseInt(formData.total_floors) || 0);
