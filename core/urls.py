@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import (
     ClientStatsView, MyApartmentsView, MyPaymentsView, PaymentSubmitView,
     AdminStatsView, AnalyticsStatsView, AnalyticsSalesView, AnalyticsProjectsView,
@@ -11,10 +11,21 @@ from .views import (
     InquiryUpdateAPIView, InquiryListAPIView, AdminPaymentListAPIView, AdminPendingPaymentListAPIView,
     RegisterView, CustomLoginView, ProjectListCreateAPIView, ProjectDetailAPIView, DBHealthCheckView,
     ApartmentUpdateAPIView, AdminUserListAPIView, AdminUserRoleUpdateAPIView, ApartmentListCreateAPIView,
-    ProtectedMediaView, BookingCancelAPIView, FilterMetadataAPIView
+    ProtectedMediaView, BookingCancelAPIView, FilterMetadataAPIView,
+    ApartmentViewSet, BookingViewSet, InstallmentViewSet, MessageViewSet, NotificationViewSet, AdminListAPIView
 )
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'v2/apartments', ApartmentViewSet, basename='apartment-v2')
+router.register(r'v2/bookings', BookingViewSet, basename='booking-v2')
+router.register(r'v2/installments', InstallmentViewSet, basename='installment-v2')
+router.register(r'v2/messages', MessageViewSet, basename='message-v2')
+router.register(r'v2/notifications', NotificationViewSet, basename='notification-v2')
 
 urlpatterns = [
+    path('', include(router.urls)),
+    path('v2/admins/', AdminListAPIView.as_view(), name='admin-list-v2'),
     # PUBLIC METADATA
     path('filters/metadata/', FilterMetadataAPIView.as_view(), name='filter-metadata'),
 

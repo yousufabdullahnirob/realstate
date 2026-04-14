@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import "../admin.css";
 import apiProxy from "../utils/proxyClient";
 import { formatBDT } from "../utils/formatters";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ProjectStatusPieChart = ({ data }) => {
   if (!data.project_status || data.project_status.length === 0) {
@@ -230,6 +230,7 @@ const Badge = ({ status }) => {
 };
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ total_projects: 0, total_apartments: 0, available_units: 0, booked_units: 0 });
   const [analytics, setAnalytics] = useState({ total_overall_views: 0, top_apartments: [] });
   const [salesData, setSalesData] = useState({ monthly_sales: [], total_sales: 0 });
@@ -238,6 +239,8 @@ const AdminDashboard = () => {
   const [pendingPayments, setPendingPayments] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [replyText, setReplyText] = useState({}); // { receiverId: text }
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
   const [approvingId, setApprovingId] = useState(null);
@@ -252,7 +255,7 @@ const AdminDashboard = () => {
       catch (e) { errs[key] = e.message; return null; }
     };
 
-    const [statsData, analyticsData, salesData, projectStatusData, apartmentsData, paymentsData, inquiriesData, notifsData] = await Promise.all([
+    const [statsData, analyticsData, salesData, projectStatusData, apartmentsData, paymentsData, inquiriesData, notifsData, msgsData] = await Promise.all([
       safe('stats',         () => apiProxy.get("/admin/stats/")),
       safe('analytics',     () => apiProxy.get("/analytics/stats/")),
       safe('sales',         () => apiProxy.get("/analytics/sales/")),
@@ -261,6 +264,7 @@ const AdminDashboard = () => {
       safe('payments',      () => apiProxy.get("/payments/my/")),
       safe('inquiries',     () => apiProxy.get("/inquiries/")),
       safe('notifications', () => apiProxy.get("/notifications/")),
+      safe('messages',      () => apiProxy.get("/v2/messages/")),
     ]);
 
     if (statsData)      setStats(statsData);
@@ -271,13 +275,43 @@ const AdminDashboard = () => {
     if (paymentsData)   setPendingPayments(Array.isArray(paymentsData) ? paymentsData.filter(p => p.verification_status === 'pending') : []);
     if (inquiriesData)  setInquiries(Array.isArray(inquiriesData) ? inquiriesData.slice(0, 5) : []);
     if (notifsData)     setNotifications(Array.isArray(notifsData) ? notifsData.slice(0, 5) : []);
+    if (msgsData)       setMessages(msgsData);
 
     setErrors(errs);
     setLastRefresh(new Date());
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  const handleNotifClick = async (notif) => {
+    if (!notif.is_read) {
+      try {
+        await apiProxy.patch(`/v2/notifications/${notif.id}/`, { is_read: true });
+        setNotifications(notifications.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
+      } catch (err) { console.error("Failed to mark read:", err); }
+    }
+    switch (notif.type) {
+      case 'message': navigate('/admin'); break;
+      case 'inquiry': navigate('/admin/inquiries'); break;
+      case 'booking': navigate('/admin/bookings'); break;
+      case 'payment': navigate('/admin/payments'); break;
+      default: break;
+    }
+  };
+
+  useEffect(() => { 
+    fetchAll();
+    const interval = setInterval(async () => {
+      try {
+        const [msgs, notes] = await Promise.all([
+          apiProxy.get("/v2/messages/", { bypassCache: true }),
+          apiProxy.get("/notifications/", { bypassCache: true })
+        ]);
+        setMessages(msgs);
+        setNotifications(Array.isArray(notes) ? notes.slice(0, 5) : []);
+      } catch (e) { console.error("Admin polling error:", e); }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [fetchAll]);
 
   const handleApprove = async (id) => {
     setApprovingId(id);
@@ -296,6 +330,20 @@ const AdminDashboard = () => {
       setPendingPayments(prev => prev.filter(p => p.id !== id));
     } catch (e) { alert("Failed to update payment: " + e.message); }
     finally { setVerifyingId(null); }
+  };
+
+  const handleSendReply = async (receiverId) => {
+    const content = replyText[receiverId];
+    if (!content?.trim()) return;
+
+    try {
+      const res = await apiProxy.post("/v2/messages/", {
+        receiver: receiverId,
+        content: content
+      });
+      setMessages([...messages, res]);
+      setReplyText({ ...replyText, [receiverId]: "" });
+    } catch (e) { alert("Reply failed: " + e.message); }
   };
 
   const formatDate = (dt) => dt ? new Date(dt).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
@@ -525,13 +573,27 @@ const AdminDashboard = () => {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {notifications.map(n => {
-                const iconMap = { booking: '📋', inquiry: '📩', payment: '💳', approval: '✅' };
+                const iconMap = { booking: '📋', inquiry: '📩', payment: '💳', approval: '✅', message: '💬' };
                 return (
-                  <div key={n.id} style={{
-                    display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 10,
-                    background: n.is_read ? 'var(--secondary)' : '#eff6ff',
-                    border: `1.5px solid ${n.is_read ? 'var(--border-color)' : '#bfdbfe'}`
-                  }}>
+                  <div 
+                    key={n.id} 
+                    onClick={() => handleNotifClick(n)}
+                    style={{
+                      display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 10,
+                      background: n.is_read ? 'var(--secondary)' : '#eff6ff',
+                      border: `1.5px solid ${n.is_read ? 'var(--border-color)' : '#bfdbfe'}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <span style={{ fontSize: 20 }}>{iconMap[n.type] || '🔔'}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 13, fontWeight: n.is_read ? 500 : 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.message}</p>
@@ -545,6 +607,63 @@ const AdminDashboard = () => {
           )}
         </section>
       </div>
+
+      {/* Row 5: Messaging */}
+      <section className="preview-section glass" style={{ marginTop: 24 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20 }}>Client Communications</h3>
+        {messages.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>💬</div>
+            <p style={{ fontWeight: 600 }}>No active conversations</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+            {/* Group messages by thread */}
+            {Object.values(messages.reduce((acc, msg) => {
+              const otherUser = msg.sender_email === "admin@mahimbuilders.com" ? msg.receiver_email : msg.sender_email; 
+              const otherId = msg.sender_email === "admin@mahimbuilders.com" ? msg.receiver : msg.sender;
+              if (!acc[otherUser]) acc[otherUser] = { email: otherUser, id: otherId, msgs: [] };
+              acc[otherUser].msgs.push(msg);
+              return acc;
+            }, {})).map(thread => (
+              <div key={thread.email} style={{
+                background: 'var(--secondary)', border: '1.5px solid var(--border-color)',
+                borderRadius: 12, display: 'flex', flexDirection: 'column', height: 400
+              }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 700, fontSize: 13 }}>
+                  {thread.email}
+                </div>
+                <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {thread.msgs.map(m => (
+                    <div key={m.id} style={{
+                      alignSelf: m.sender_email === "admin@mahimbuilders.com" ? 'flex-end' : 'flex-start',
+                      background: m.sender_email === "admin@mahimbuilders.com" ? 'var(--accent)' : 'var(--bg-dark)',
+                      color: m.sender_email === "admin@mahimbuilders.com" ? 'white' : 'var(--text-primary)',
+                      padding: '8px 12px', borderRadius: 10, maxWidth: '85%', fontSize: 12
+                    }}>
+                      <p>{m.content}</p>
+                      <p style={{ fontSize: 9, opacity: 0.7, marginTop: 4, textAlign: 'right' }}>{new Date(m.timestamp).toLocaleTimeString()}</p>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ padding: 12, borderTop: '1px solid var(--border-color)', display: 'flex', gap: 8 }}>
+                  <input
+                    type="text"
+                    placeholder="Reply..."
+                    value={replyText[thread.id] || ""}
+                    onChange={(e) => setReplyText({ ...replyText, [thread.id]: e.target.value })}
+                    style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-dark)', color: 'white', fontSize: 12 }}
+                  />
+                  <button
+                    onClick={() => handleSendReply(thread.id)}
+                    style={{ padding: '8px 16px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                  >Send</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
     </div>
   );

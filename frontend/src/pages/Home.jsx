@@ -335,7 +335,8 @@ const Home = () => {
               <option value={`${filterMeta.size_range.max}-10000`} style={{ color: '#000' }}>{Math.floor(filterMeta.size_range.max)}+ sqft</option>
             </select>
           </div>
-          <button className="search-btn" onClick={handleHomeSearch}>Search</button>
+        </div>
+        <button className="search-btn" onClick={handleHomeSearch}>Search</button>
         </motion.div>
       </section>
 

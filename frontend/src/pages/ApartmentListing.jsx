@@ -147,10 +147,11 @@ const ApartmentListing = () => {
             style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
           >
             <option value="">Any Price</option>
-            <option value="5000000">Up to 5M BDT</option>
-            <option value="10000000">Up to 10M BDT</option>
-            <option value="20000000">Up to 20M BDT</option>
-            <option value="50000000">Up to 50M BDT</option>
+            <option value="10000000">Up to 1 Crore</option>
+            <option value="15000000">Up to 1.5 Crore</option>
+            <option value="20000000">Up to 2 Crore</option>
+            <option value="25000000">Up to 2.5 Crore</option>
+            <option value="30000000">Up to 3 Crore</option>
           </select>
           <button className="apt-search-btn" onClick={handleSearch}>Search</button>
         </motion.div>

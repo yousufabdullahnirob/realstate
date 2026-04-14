@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.models import (
     Apartment, ApartmentImage, User, Project, ProjectImage, 
-    Inquiry, Notification, Installment, Payment, PropertyView, Favorite, Booking
+    Inquiry, Notification, Installment, Payment, PropertyView, Favorite, Booking, Message
 )
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -133,8 +133,13 @@ class ApartmentSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'price', 'description', 'location', 'image', 'images', 'image_file',
             'project', 'project_name', 'floor_area_sqft', 'bedrooms', 'bathrooms', 'status',
-            'is_approved', 'total_views'
+            'is_approved', 'total_views', 'created_at', 'updated_at'
         ]
+
+    def validate_price(self, value):
+        if value < 10000000 or value > 30000000:
+            raise serializers.ValidationError("Price must be between 1 Crore (10,000,000) and 3 Crore (30,000,000) BDT.")
+        return value
 
     def get_image(self, obj):
         first_image = obj.images.first()
@@ -199,9 +204,16 @@ class BookingSerializer(serializers.ModelSerializer):
     user_email = serializers.ReadOnlyField(source='user.email')
     apartment_title = serializers.ReadOnlyField(source='apartment.title')
 
+    total_paid = serializers.ReadOnlyField()
+    remaining_balance = serializers.ReadOnlyField()
+
     class Meta:
         model = Booking
-        fields = ['id', 'booking_reference', 'user', 'user_email', 'apartment', 'apartment_title', 'booking_date', 'status', 'advance_amount', 'installments']
+        fields = [
+            'id', 'booking_reference', 'user', 'user_email', 'apartment', 'apartment_title', 
+            'booking_date', 'status', 'advance_amount', 'installments', 
+            'total_paid', 'remaining_balance'
+        ]
         extra_kwargs = {
             'booking_reference': {'read_only': True},
             'user': {'read_only': True}
@@ -239,6 +251,18 @@ class FavoriteSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ['id', 'user', 'apartment', 'apartment_details', 'created_at']
         extra_kwargs = {'user': {'read_only': True}}
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender_email = serializers.ReadOnlyField(source='sender.email')
+    receiver_email = serializers.ReadOnlyField(source='receiver.email')
+
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'sender_email', 'receiver', 'receiver_email', 'content', 'is_read', 'timestamp']
+        extra_kwargs = {
+            'sender': {'read_only': True},
+            'timestamp': {'read_only': True}
+        }
 
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

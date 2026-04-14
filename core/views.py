@@ -3,20 +3,20 @@ from django.db.models import Count, Sum, Min, Max
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework import status, generics, permissions, filters
+from rest_framework import status, generics, permissions, filters, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import (
-    Apartment, User, Project, Inquiry, Notification, 
-    ProjectImage, Payment, Installment, PropertyView, Favorite, Booking
+    Apartment, User, Project, Inquiry, Notification,
+    ProjectImage, Payment, Installment, PropertyView, Favorite, Booking, Message
 )
 from .serializers import (
-    ApartmentSerializer, RegistrationSerializer, LoginSerializer, 
-    UserSerializer, ProjectSerializer, InquirySerializer, 
+    ApartmentSerializer, RegistrationSerializer, LoginSerializer,
+    UserSerializer, ProjectSerializer, InquirySerializer,
     NotificationSerializer, PaymentSerializer, InstallmentSerializer,
-    FavoriteSerializer, PasswordChangeSerializer, BookingSerializer
+    FavoriteSerializer, PasswordChangeSerializer, BookingSerializer, MessageSerializer
 )
 from .permissions import IsAdminRole, IsAgentRole, IsAdminOrAgentRole
 
@@ -412,6 +412,17 @@ class NotificationListAPIView(generics.ListAPIView):
         if self.request.user.role == User.Role.ADMIN:
             return self.queryset.all()
         return self.queryset.filter(user=self.request.user)
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    """ViewSet for individual notifications, primarily used for marking as read."""
+    queryset = Notification.objects.all().order_by('-created_at')
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.role == User.Role.ADMIN:
+            return self.queryset.all()
+        return self.queryset.filter(user=self.request.user)
 class ClientStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -618,3 +629,77 @@ class AnalyticsProjectsView(APIView):
             "apartment_status": apt_counts,
             "total_projects": Project.objects.filter(is_active=True).count()
         })
+
+# --- REFINED VIEWSETS ---
+
+class ApartmentViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing Apartments with price validation and role-based permissions."""
+    queryset = Apartment.objects.all().order_by('-created_at')
+    serializer_class = ApartmentSerializer
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsAdminRole()]
+
+class BookingViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing Bookings, handles reference generation and balance calculations."""
+    queryset = Booking.objects.all().order_by('-booking_date')
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.role == User.Role.ADMIN:
+            return Booking.objects.all()
+        return Booking.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        import uuid
+        # Generate a unique booking reference
+        ref = f"BKG-{uuid.uuid4().hex[:8].upper()}"
+        serializer.save(user=self.request.user, booking_reference=ref)
+
+class InstallmentViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing Installments with automated payment status updates."""
+    queryset = Installment.objects.all().order_by('due_date')
+    serializer_class = InstallmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_update(self, serializer):
+        # Save changes first
+        instance = serializer.save()
+        
+        # LOGICAL CONFIRMATION: If marked as paid, ensure paid_date is set
+        if instance.is_paid and not instance.paid_date:
+            instance.paid_date = timezone.now()
+            instance.save()
+            # Here we could also trigger notifications or update booking status
+
+class AdminListAPIView(generics.ListAPIView):
+    """View to list all administrators, useful for starting a message thread."""
+    queryset = User.objects.filter(role=User.Role.ADMIN)
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class MessageViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing real-time chat messages between Clients and Admins."""
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Users can only see messages they sent or received
+        return Message.objects.filter(
+            models.Q(sender=self.request.user) | models.Q(receiver=self.request.user)
+        ).order_by('timestamp')
+
+    def perform_create(self, serializer):
+        # Set sender as the current user
+        message = serializer.save(sender=self.request.user)
+        
+        # LOGICAL CONFIRMATION: Automatically create a notification for the receiver
+        Notification.objects.create(
+            user=message.receiver,
+            message=f"New message from {self.request.user.email}",
+            type=Notification.Type.MESSAGE
+        )

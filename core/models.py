@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Sum
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -65,7 +67,14 @@ class Apartment(models.Model):
     description = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=255)
     floor_area_sqft = models.DecimalField(max_digits=12, decimal_places=2)
-    price = models.DecimalField(max_digits=20, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=20, 
+        decimal_places=2,
+        validators=[
+            MinValueValidator(10000000), # 1 Crore
+            MaxValueValidator(30000000)  # 3 Crore
+        ]
+    )
     bedrooms = models.IntegerField()
     bathrooms = models.IntegerField()
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.AVAILABLE)
@@ -114,6 +123,17 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking {self.booking_reference}"
+
+    @property
+    def total_paid(self):
+        """Calculates total paid including advance and paid installments"""
+        paid_installments = self.installments.filter(is_paid=True).aggregate(Sum('amount'))['amount__sum'] or 0
+        return self.advance_amount + paid_installments
+
+    @property
+    def remaining_balance(self):
+        """Calculates remaining balance based on apartment price and total paid"""
+        return self.apartment.price - self.total_paid
 
 class Installment(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='installments')
@@ -164,6 +184,7 @@ class Notification(models.Model):
         INQUIRY = 'inquiry', 'Inquiry'
         PAYMENT = 'payment', 'Payment'
         APPROVAL = 'approval', 'Approval'
+        MESSAGE = 'message', 'Message'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
@@ -193,3 +214,16 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f"{self.user.email} favorited {self.apartment.title}"
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"From {self.sender.email} to {self.receiver.email} at {self.timestamp}"
