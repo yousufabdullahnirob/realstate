@@ -1,4 +1,5 @@
 from django.db import models
+from django.http import HttpResponse
 from rest_framework import status, generics, permissions, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,6 +16,45 @@ from .serializers import (
     FavoriteSerializer, PasswordChangeSerializer, BookingSerializer
 )
 from .permissions import IsAdminRole, IsAgentRole, IsAdminOrAgentRole
+
+
+class HomeView(APIView):
+        permission_classes = [permissions.AllowAny]
+        authentication_classes = []
+
+        def get(self, request):
+                return HttpResponse(
+                        """
+                        <!doctype html>
+                        <html lang="en">
+                            <head>
+                                <meta charset="utf-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1">
+                                <title>Mahim Builders</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; margin: 0; background: #f6f7fb; color: #1f2937; }
+                                    .card { max-width: 760px; margin: 10vh auto; background: white; border-radius: 16px; padding: 32px; box-shadow: 0 12px 40px rgba(0,0,0,.08); }
+                                    h1 { margin-top: 0; }
+                                    a { color: #0f766e; text-decoration: none; }
+                                    a:hover { text-decoration: underline; }
+                                    .links { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
+                                </style>
+                            </head>
+                            <body>
+                                <main class="card">
+                                    <h1>Mahim Builders</h1>
+                                    <p>The backend is running. Use the API or open the frontend app from the links below.</p>
+                                    <div class="links">
+                                        <a href="http://localhost:5173/">Open Frontend</a>
+                                        <a href="/api/health/">API Health</a>
+                                        <a href="/admin/">Admin</a>
+                                    </div>
+                                </main>
+                            </body>
+                        </html>
+                        """,
+                        content_type="text/html; charset=utf-8",
+                )
 
 class AdminUserListAPIView(generics.ListAPIView):
     queryset = User.objects.all().order_by('-date_joined')
@@ -104,6 +144,31 @@ class AnalyticsStatsView(APIView):
         }
         return Response(data)
 
+class FilterMetadataView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        from django.db.models import Min, Max
+        apts = Apartment.objects.filter(status=Apartment.Status.AVAILABLE)
+        apt_agg = apts.aggregate(min_price=Min('price'), max_price=Max('price'), min_size=Min('floor_area_sqft'), max_size=Max('floor_area_sqft'))
+        locations = list(Apartment.objects.filter(status=Apartment.Status.AVAILABLE).values_list('location', flat=True).distinct().order_by('location'))
+        project_locations = list(Project.objects.filter(is_active=True).values_list('location', flat=True).distinct().order_by('location'))
+        bedrooms = sorted(list(Apartment.objects.filter(status=Apartment.Status.AVAILABLE).values_list('bedrooms', flat=True).distinct()))
+        return Response({
+            'apartment_locations': locations,
+            'project_locations': project_locations,
+            'bedrooms': bedrooms,
+            'price_range': {
+                'min': float(apt_agg['min_price'] or 0),
+                'max': float(apt_agg['max_price'] or 0)
+            },
+            'size_range': {
+                'min': float(apt_agg['min_size'] or 0),
+                'max': float(apt_agg['max_size'] or 0)
+            }
+        })
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegistrationSerializer
@@ -191,7 +256,7 @@ class ProjectDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class ApartmentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
-    
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return [permissions.AllowAny()]
@@ -202,16 +267,79 @@ class ApartmentListCreateAPIView(generics.ListCreateAPIView):
             return []
         return super().get_authenticators()
 
+    def get_queryset(self):
+        queryset = Apartment.objects.all()
+        # Public users only see available apartments
+        user = self.request.user
+        if not user.is_authenticated or not hasattr(user, 'role') or user.role != User.Role.ADMIN:
+            queryset = queryset.filter(status=Apartment.Status.AVAILABLE)
+
+        p = self.request.query_params
+
+        location = p.get('location', '').strip()
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+
+        bedrooms = p.get('bedrooms', '').strip()
+        if bedrooms:
+            try:
+                queryset = queryset.filter(bedrooms=int(bedrooms))
+            except ValueError:
+                pass
+
+        min_price = p.get('min_price', '').strip()
+        if min_price:
+            try:
+                queryset = queryset.filter(price__gte=float(min_price))
+            except ValueError:
+                pass
+
+        max_price = p.get('max_price', '').strip()
+        if max_price:
+            try:
+                queryset = queryset.filter(price__lte=float(max_price))
+            except ValueError:
+                pass
+
+        min_size = p.get('min_size', '').strip()
+        if min_size:
+            try:
+                queryset = queryset.filter(floor_area_sqft__gte=float(min_size))
+            except ValueError:
+                pass
+
+        max_size = p.get('max_size', '').strip()
+        if max_size:
+            try:
+                queryset = queryset.filter(floor_area_sqft__lte=float(max_size))
+            except ValueError:
+                pass
+
+        return queryset
+
 class ApartmentUpdateAPIView(generics.UpdateAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
     permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 
 class ProjectPublicListAPIView(generics.ListAPIView):
-    queryset = Project.objects.filter(is_active=True)
     serializer_class = ProjectSerializer
     permission_classes = [permissions.AllowAny]
     authentication_classes = []
+
+    def get_queryset(self):
+        queryset = Project.objects.filter(is_active=True)
+        p = self.request.query_params
+
+        location = p.get('location', '').strip()
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+
+        proj_status = p.get('status', '').strip()
+        if proj_status and proj_status != 'all':
+            queryset = queryset.filter(status__iexact=proj_status)
+
+        return queryset
 
 class ProjectPublicDetailAPIView(generics.RetrieveAPIView):
     queryset = Project.objects.filter(is_active=True)

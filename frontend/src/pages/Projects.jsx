@@ -5,27 +5,48 @@ import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
 
 const Projects = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeStatusFilter, setActiveStatusFilter] = useState('all');
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [projectLocations, setProjectLocations] = useState([]);
+  const [locationFilter, setLocationFilter] = useState('');
 
+  // Fetch dynamic location options
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const data = await apiProxy.get('/projects/');
-        setProjects(data.map(DataAdapter.adaptProject));
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProjects();
+    apiProxy.get('/filters/metadata/')
+      .then(data => setProjectLocations(data.project_locations || []))
+      .catch(err => console.error('Filter metadata error:', err));
   }, []);
 
-  const filteredProjects = projects.filter(project =>
-    activeFilter === 'all' || project.status.toLowerCase() === activeFilter.toLowerCase()
-  );
+  const fetchProjects = async (location, status) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (location) params.set('location', location);
+      // status tab passed to backend as well
+      if (status && status !== 'all') params.set('status', status);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+      const data = await apiProxy.get(`/projects/${qs}`);
+      setProjects(data.map(DataAdapter.adaptProject));
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects('', 'all');
+  }, []);
+
+  const handleSearch = () => {
+    fetchProjects(locationFilter, activeStatusFilter);
+  };
+
+  const handleStatusFilter = (status) => {
+    setActiveStatusFilter(status);
+    fetchProjects(locationFilter, status);
+  };
 
   return (
     <div>
@@ -41,7 +62,7 @@ const Projects = () => {
       </section>
 
       <section className="search-section">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -49,29 +70,16 @@ const Projects = () => {
         >
           <div className="filter">
             <span className="icon">📍</span>
-            <select>
-              <option>Location</option>
-              <option>Dhaka</option>
-              <option>Chittagong</option>
+            <select value={locationFilter} onChange={e => setLocationFilter(e.target.value)}>
+              <option value="">All Locations</option>
+              {projectLocations.map(loc => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
             </select>
           </div>
-          <div className="filter">
-            <span className="icon">৳</span>
-            <select>
-              <option>Price (BDT)</option>
-              <option>50,00,000 - 1,00,00,000</option>
-              <option>1,00,00,000 - 2,00,00,000</option>
-            </select>
-          </div>
-          <div className="filter">
-            <span className="icon">📐</span>
-            <select>
-              <option>Size</option>
-              <option>1000 - 1500 sqft</option>
-              <option>1500 - 2500 sqft</option>
-            </select>
-          </div>
-          <button className="search-btn">Search</button>
+          <button className="search-btn" onClick={handleSearch}>Search</button>
+          <button className="search-btn" onClick={() => { setLocationFilter(''); fetchProjects('', activeStatusFilter); }}
+            style={{ background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)' }}>Clear</button>
         </motion.div>
       </section>
 
@@ -99,8 +107,8 @@ const Projects = () => {
         ].map((filter) => (
           <button
             key={filter.value}
-            className={activeFilter === filter.value ? 'filter-btn active' : 'filter-btn'}
-            onClick={() => setActiveFilter(filter.value)}
+            className={activeStatusFilter === filter.value ? 'filter-btn active' : 'filter-btn'}
+            onClick={() => handleStatusFilter(filter.value)}
           >
             {filter.label}
           </button>
@@ -108,39 +116,45 @@ const Projects = () => {
       </section>
 
       <section className="projects-gallery">
-        <LayoutGroup>
-          <AnimatePresence mode="popLayout">
-            {loading ? (
-              <motion.p 
-                key="loading" 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
-              >
-                Loading projects...
-              </motion.p>
-            ) : (
-              filteredProjects.map((project, index) => (
-                <motion.div 
-                  layout
-                  key={project.id || index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className={`project-tile ${project.status}`}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div className="project-img" style={{ backgroundImage: `url(${project.image})`, backgroundSize: 'cover' }}></div>
-                    <h3>{project.name}</h3>
-                    <p style={{ fontSize: 13, color: '#94a3b8', padding: '0 16px 16px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>{project.status}</p>
-                  </Link>
-                </motion.div>
-              ))
-            )}
-          </AnimatePresence>
-        </LayoutGroup>
+        <AnimatePresence mode="popLayout">
+          {loading ? (
+            <motion.p
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              Loading projects...
+            </motion.p>
+          ) : projects.length === 0 ? (
+            <motion.p
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{ gridColumn: '1/-1', textAlign: 'center', color: 'var(--text-muted)', padding: '60px 0' }}
+            >
+              No projects found for the selected filters.
+            </motion.p>
+          ) : projects.map((project, index) => (
+            <motion.div
+              layout
+              key={project.id || index}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+              className={`project-tile ${project.status}`}
+              style={{ cursor: 'pointer' }}
+            >
+              <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="project-img" style={{ backgroundImage: `url(${project.image})`, backgroundSize: 'cover' }}></div>
+                <h3>{project.name}</h3>
+                <p style={{ fontSize: 13, color: '#94a3b8', padding: '0 16px 16px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>{project.status}</p>
+              </Link>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </section>
     </div>
   );

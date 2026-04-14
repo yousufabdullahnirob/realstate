@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header';
 import apiProxy from '../utils/proxyClient';
@@ -185,23 +185,28 @@ const processSteps = [
 
 const Home = () => {
   const [current, setCurrent] = useState(0);
-  const [activeOffer, setActiveOffer] = useState(null); 
+  const [activeOffer, setActiveOffer] = useState(null);
   const [activeProcess, setActiveProcess] = useState(null);
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [featuredApartments, setFeaturedApartments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterMeta, setFilterMeta] = useState({ apartment_locations: [], bedrooms: [], price_range: { min: 0, max: 0 } });
+  const [homeFilters, setHomeFilters] = useState({ location: '', bedrooms: '', max_price: '' });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [projects, apartments] = await Promise.all([
+        const [projects, apartments, meta] = await Promise.all([
           apiProxy.get('/projects/'),
-          apiProxy.get('/apartments/')
+          apiProxy.get('/apartments/'),
+          apiProxy.get('/filters/metadata/')
         ]);
         setFeaturedProjects(projects.map(DataAdapter.adaptProject));
         setFeaturedApartments(apartments.slice(0, 3).map(DataAdapter.adaptApartment));
+        setFilterMeta(meta);
       } catch (error) {
-        console.error("Home data fetch error:", error);
+        console.error('Home data fetch error:', error);
       } finally {
         setLoading(false);
       }
@@ -214,8 +219,14 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const goToSlide = (index) => {
-    setCurrent(index);
+  const goToSlide = (index) => { setCurrent(index); };
+
+  const handleHomeSearch = () => {
+    const params = new URLSearchParams();
+    if (homeFilters.location) params.set('location', homeFilters.location);
+    if (homeFilters.bedrooms) params.set('bedrooms', homeFilters.bedrooms);
+    if (homeFilters.max_price) params.set('max_price', homeFilters.max_price);
+    navigate(`/apartments?${params.toString()}`);
   };
 
   return (
@@ -266,7 +277,7 @@ const Home = () => {
       </section>
 
       <section className="search-section">
-        <motion.div 
+        <motion.div
           className="search-box glass-premium"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -275,29 +286,37 @@ const Home = () => {
         >
           <div className="filter">
             <span className="icon">📍</span>
-            <select>
-              <option>Location</option>
-              <option>Dhaka</option>
-              <option>Chittagong</option>
+            <select value={homeFilters.location} onChange={e => setHomeFilters(f => ({ ...f, location: e.target.value }))}>
+              <option value="">Any Location</option>
+              {filterMeta.apartment_locations.map(loc => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
+            </select>
+          </div>
+          <div className="filter">
+            <span className="icon">🛏</span>
+            <select value={homeFilters.bedrooms} onChange={e => setHomeFilters(f => ({ ...f, bedrooms: e.target.value }))}>
+              <option value="">Any Bedrooms</option>
+              {filterMeta.bedrooms.map(b => (
+                <option key={b} value={b}>{b} Bedroom{b > 1 ? 's' : ''}</option>
+              ))}
             </select>
           </div>
           <div className="filter">
             <span className="icon">৳</span>
-            <select>
-              <option>Price (BDT)</option>
-              <option>50,00,000 - 1,00,00,000</option>
-              <option>1,00,00,000 - 2,00,00,000</option>
+            <select value={homeFilters.max_price} onChange={e => setHomeFilters(f => ({ ...f, max_price: e.target.value }))}>
+              <option value="">Any Price</option>
+              {filterMeta.price_range.max > 0 && [
+                Math.round(filterMeta.price_range.max * 0.25),
+                Math.round(filterMeta.price_range.max * 0.5),
+                Math.round(filterMeta.price_range.max * 0.75),
+                Math.round(filterMeta.price_range.max)
+              ].map(val => (
+                <option key={val} value={val}>Up to ৳{(val / 1000000).toFixed(1)}M</option>
+              ))}
             </select>
           </div>
-          <div className="filter">
-            <span className="icon">📐</span>
-            <select>
-              <option>Size</option>
-              <option>1 BHK</option>
-              <option>2 BHK</option>
-            </select>
-          </div>
-          <button className="search-btn">Search</button>
+          <button className="search-btn" onClick={handleHomeSearch}>Search</button>
         </motion.div>
       </section>
 

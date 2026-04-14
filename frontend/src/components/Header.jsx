@@ -30,12 +30,12 @@ const Header = () => {
         </div>
         <nav className="nav">
           <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/apartments">Apartments</a></li>
-            <li><a href="/about">About Us</a></li>
-            <li><a href="/projects">Projects</a></li>
-            <li><a href="/services">Services</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/apartments">Apartments</Link></li>
+            <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/projects">Projects</Link></li>
+            <li><Link to="/services">Services</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
           </ul>
         </nav>
         <div className="header-auth">

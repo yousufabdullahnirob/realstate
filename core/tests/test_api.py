@@ -8,6 +8,11 @@ def api_client():
 
 @pytest.mark.django_db
 class TestCoreAPI:
+    def test_home_page(self, api_client):
+        response = api_client.get("/")
+        assert response.status_code == 200
+        assert b"Mahim Builders" in response.content
+
     def test_get_projects_list(self, api_client):
         Project.objects.create(name="Project 1", location="Loc 1", total_floors=1, total_units=1, launch_date="2024-01-01")
         Project.objects.create(name="Project 2", location="Loc 2", total_floors=1, total_units=1, launch_date="2024-01-01")
