@@ -85,10 +85,7 @@ A premium Real Estate and Housing Management platform built for seamless communi
 
 ## 🧪 Test Credentials
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Admin** | `admin@mahimbuilders.com` | `admin123` |
-| **Customer (Client)** | `testuser@example.com` | `user123` |
+
 
 ## 📁 Directory Structure
 
