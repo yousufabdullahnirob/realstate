@@ -78,10 +78,7 @@ A premium Real Estate and Housing Management platform built for seamless communi
 3.  **Start Dev Server**:
     ```bash
     npm run dev
-    ```
-    The frontend will be available at [http://localhost:5173](http://localhost:5173).
 
----
 
 ## 🧪 Test Credentials
 
