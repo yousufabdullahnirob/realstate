@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import apiProxy from '../utils/proxyClient';
+
 import loginBg from '../assets/login-bg.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const isExpired = new URLSearchParams(location.search).get('expired');
@@ -26,8 +30,13 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      alert(error.message || 'Login failed. Please check your credentials.');
+      if (error.status === 404 || error.message?.includes("not found")) {
+        navigate('/register', { state: { message: "Please register first." } });
+      } else {
+        alert(error.message || 'Login failed. Please check your credentials.');
+      }
     }
+
   };
 
   return (
@@ -106,10 +115,10 @@ const Login = () => {
 
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-1px', color: 'var(--heading-color)' }}>Welcome back</h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '12px', fontSize: '15px' }}>Access your administrative dashboard</p>
+
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', marginBottom: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Email Address</label>
             <input 
@@ -117,8 +126,11 @@ const Login = () => {
               type="email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com" 
+              placeholder="" 
               required
+              autoComplete="off"
+
+
               style={{ 
                 width: '100%', 
                 padding: '16px 20px', 
@@ -136,27 +148,52 @@ const Login = () => {
 
           <div style={{ marginBottom: '40px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', marginBottom: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Password</label>
-            <input 
-              className="login-input"
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••" 
-              required
-              style={{ 
-                width: '100%', 
-                padding: '16px 20px', 
-                borderRadius: '16px', 
-                background: 'rgba(255, 255, 255, 0.8)', 
-                border: '1px solid rgba(14, 165, 233, 0.2)',
-                color: 'var(--text-dark)',
-                outline: 'none',
-                transition: 'all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1)',
-                boxSizing: 'border-box',
-                fontSize: '15px'
-              }}
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                className="login-input"
+                type={showPassword ? "text" : "password"} 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="" 
+                required
+                style={{ 
+                  width: '100%', 
+                  padding: '16px 20px', 
+                  paddingRight: '50px',
+                  borderRadius: '16px', 
+                  background: 'rgba(255, 255, 255, 0.8)', 
+                  border: '1px solid rgba(14, 165, 233, 0.2)',
+                  color: 'var(--text-dark)',
+                  outline: 'none',
+                  transition: 'all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                  boxSizing: 'border-box',
+                  fontSize: '15px'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '8px',
+                  zIndex: 2
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
+
 
           <button 
             type="submit" 

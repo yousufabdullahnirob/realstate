@@ -185,20 +185,28 @@ class CustomLoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        email = serializer.validated_data.get('email')
+        email = serializer.validated_data.get('email', '').strip()
         password = serializer.validated_data.get('password')
         required_role = serializer.validated_data.get('role')
 
-        # Find user by email (case-insensitive)
-        try:
-            user = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Authenticate (ensure email is lowercased to match what is usually in DB)
-        user = authenticate(request=request, username=user.email, password=password)
+        # 1. Attempt standard authentication (case-sensitive by default)
+        user = authenticate(request=request, username=email, password=password)
+        
+        # 2. Case-insensitive fallback for email/username
         if not user:
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            try:
+                # Find the user case-insensitively
+                db_user = User.objects.get(email__iexact=email)
+                # Try authenticating again with the EXACT email from the database
+                user = authenticate(request=request, username=db_user.email, password=password)
+            except User.DoesNotExist:
+                return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            if not user:
+                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
 
         # Check if active
         if not user.is_active:
@@ -221,18 +229,41 @@ class CustomLoginView(APIView):
 class ProjectListCreateAPIView(generics.ListCreateAPIView):
     queryset = Project.objects.filter(is_active=True)
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+    
+    def get_permissions(self):
+        if self.request and self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsAdminRole()]
+
+    def get_authenticators(self):
+        if self.request and self.request.method == 'GET':
+            return []
+        return super().get_authenticators()
+
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'location']
     ordering_fields = ['created_at', 'launch_date']
 
+    ordering = ['-created_at']
+
     def perform_create(self, serializer):
-        serializer.save()
+        # Explicitly set is_active if not provided
+        serializer.save(is_active=True)
 
 class ProjectDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.filter(is_active=True)
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+    
+    def get_permissions(self):
+        if self.request and self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsAdminRole()]
+
+    def get_authenticators(self):
+        if self.request and self.request.method == 'GET':
+            return []
+        return super().get_authenticators()
+
 
     def perform_destroy(self, instance):
         # Soft delete: set is_active = False
@@ -282,8 +313,13 @@ class ApartmentListCreateAPIView(generics.ListCreateAPIView):
                 queryset = queryset.filter(floor_area_sqft__gte=s_min, floor_area_sqft__lte=s_max)
             else:
                 queryset = queryset.filter(floor_area_sqft__gte=size)
-                
-        return queryset.order_by('-created_at')
+        return queryset
+
+    ordering = ['-created_at']
+
+    def perform_create(self, serializer):
+        # Automatically approve apartments created via admin/agent interface
+        serializer.save(is_approved=True)
 
 class ApartmentUpdateAPIView(generics.UpdateAPIView):
     queryset = Apartment.objects.all()
@@ -348,14 +384,21 @@ class AdminStatsView(APIView):
         total_projects = Project.objects.filter(is_active=True).count()
         total_apartments = Apartment.objects.count()
         available_units = Apartment.objects.filter(status='available').count()
+        booked_units = Apartment.objects.filter(status='booked').count()
         sold_units = Apartment.objects.filter(status='sold').count()
         
         return Response({
             "total_projects": total_projects,
             "total_apartments": total_apartments,
             "available_units": available_units,
-            "booked_units": sold_units # Map sold to booked for legacy UI or use sold
+            "booked_units": booked_units + sold_units,
+            "project_status_counts": {
+                "Upcoming": Project.objects.filter(status='upcoming', is_active=True).count(),
+                "Ongoing": Project.objects.filter(status='ongoing', is_active=True).count(),
+                "Completed": Project.objects.filter(status='completed', is_active=True).count(),
+            }
         })
+
 
 class InquiryListAPIView(generics.ListAPIView):
     queryset = Inquiry.objects.all().order_by('-created_at')
@@ -370,10 +413,22 @@ class AdminBookingListAPIView(generics.ListAPIView):
 class InquiryCreateAPIView(generics.CreateAPIView):
     queryset = Inquiry.objects.all()
     serializer_class = InquirySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user = self.request.user if self.request.user.is_authenticated else None
+        inquiry = serializer.save(user=user)
+        
+        # NOTIFY ADMINS of the new inquiry
+        from core.models import User, Notification
+        admins = User.objects.filter(role=User.Role.ADMIN)
+        for admin in admins:
+            Notification.objects.create(
+                user=admin,
+                message=f"New Inquiry from {inquiry.email}",
+                type=Notification.Type.INQUIRY
+            )
+
 
 class InquiryUpdateAPIView(generics.UpdateAPIView):
     queryset = Inquiry.objects.all()
@@ -392,6 +447,13 @@ class BookingCreateAPIView(generics.CreateAPIView):
         ref = f"BKG-{uuid.uuid4().hex[:8].upper()}"
         booking = serializer.save(user=self.request.user, booking_reference=ref)
         
+        # SYNC: Update apartment status to BOOKED
+        apartment = booking.apartment
+        if apartment.status == Apartment.Status.AVAILABLE:
+            apartment.status = Apartment.Status.BOOKED
+            apartment.save()
+            print(f"DEBUG: Apartment {apartment.id} status updated to BOOKED.")
+
         # Create an initial installment for the advance amount
         import datetime
         Installment.objects.create(
@@ -409,9 +471,10 @@ class NotificationListAPIView(generics.ListAPIView):
     def get_queryset(self):
         if not self.request or not self.request.user or not self.request.user.is_authenticated:
             return self.queryset.none()
-        if self.request.user.role == User.Role.ADMIN:
-            return self.queryset.all()
+        # Admins should only see notifications intended for them (user=self.request.user)
+        # Previously it returned all(), which included notifications for messages sent BY the admin.
         return self.queryset.filter(user=self.request.user)
+
 
 class NotificationViewSet(viewsets.ModelViewSet):
     """ViewSet for individual notifications, primarily used for marking as read."""
@@ -657,7 +720,14 @@ class BookingViewSet(viewsets.ModelViewSet):
         import uuid
         # Generate a unique booking reference
         ref = f"BKG-{uuid.uuid4().hex[:8].upper()}"
-        serializer.save(user=self.request.user, booking_reference=ref)
+        booking = serializer.save(user=self.request.user, booking_reference=ref)
+
+        # SYNC: Update apartment status to BOOKED
+        apartment = booking.apartment
+        if apartment.status == Apartment.Status.AVAILABLE:
+            apartment.status = Apartment.Status.BOOKED
+            apartment.save()
+            print(f"DEBUG: Apartment {apartment.id} status updated to BOOKED.")
 
 class InstallmentViewSet(viewsets.ModelViewSet):
     """ViewSet for managing Installments with automated payment status updates."""

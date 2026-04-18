@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+
 import apiProxy from '../utils/proxyClient';
 import registerBg from '../assets/Register_bg.avif';
 
@@ -13,6 +14,9 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectMessage = location.state?.message;
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -56,7 +60,23 @@ const Register = () => {
         <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Create Account</h2>
         <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px' }}>Join Mahim Builders' community.</p>
         <form onSubmit={handleRegister}>
+          {redirectMessage && (
+            <div style={{ 
+              background: '#eff6ff', 
+              color: '#1d4ed8', 
+              padding: '12px', 
+              borderRadius: '8px', 
+              marginBottom: '15px',
+              fontSize: '14px',
+              fontWeight: '600',
+              textAlign: 'center',
+              border: '1px solid #dbeafe'
+            }}>
+              ℹ️ {redirectMessage}
+            </div>
+          )}
           {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+
           <div className="form-group">
             <label>Full Name</label>
             <input type="text" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} required />

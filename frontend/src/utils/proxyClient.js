@@ -64,7 +64,9 @@ const apiProxy = {
         headers: getHeaders(!isFormData),
         body: isFormData ? payload : JSON.stringify(payload),
       });
-      return await handleResponse(response);
+      const data = await handleResponse(response);
+      apiCache.clear(); // Invalidate cache on change
+      return data;
     } catch (error) {
       console.error(`[Proxy] POST Error (${endpoint}):`, error);
       throw error;
@@ -79,7 +81,9 @@ const apiProxy = {
         headers: getHeaders(!isFormData),
         body: isFormData ? payload : JSON.stringify(payload),
       });
-      return await handleResponse(response);
+      const data = await handleResponse(response);
+      apiCache.clear(); // Invalidate cache on change
+      return data;
     } catch (error) {
       console.error(`[Proxy] PATCH Error (${endpoint}):`, error);
       throw error;
@@ -94,7 +98,9 @@ const apiProxy = {
         headers: getHeaders(!isFormData),
         body: isFormData ? payload : JSON.stringify(payload),
       });
-      return await handleResponse(response);
+      const data = await handleResponse(response);
+      apiCache.clear(); // Invalidate cache on change
+      return data;
     } catch (error) {
       console.error(`[Proxy] PUT Error (${endpoint}):`, error);
       throw error;
@@ -107,7 +113,9 @@ const apiProxy = {
         method: 'DELETE',
         headers: getHeaders(),
       });
-      return await handleResponse(response);
+      const data = await handleResponse(response);
+      apiCache.clear(); // Invalidate cache on change
+      return data;
     } catch (error) {
       console.error(`[Proxy] DELETE Error (${endpoint}):`, error);
       throw error;

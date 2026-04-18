@@ -136,7 +136,8 @@ const ApartmentForm = () => {
       setSuccess('Apartment saved successfully!');
       setTimeout(() => navigate('/admin/apartments'), 1000);
     } catch (e) {
-      setError('Save failed: ' + e.message);
+      console.error("API ERROR DETAILS:", e.response?.data || e);
+      setError('Save failed: ' + (e.response?.data ? JSON.stringify(e.response.data) : e.message));
     } finally {
       setLoading(false);
     }
@@ -226,8 +227,8 @@ const ApartmentForm = () => {
             Specifications
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <Field label="Price (BDT) *">
-              <input style={inputStyle} type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 8500000" required />
+            <Field label="Price (BDT) *" hint="Must be between 1 Crore (10,000,000) and 3 Crore (30,000,000)">
+              <input style={inputStyle} type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 12000000" required />
             </Field>
             <Field label="Floor Area (sqft) *">
               <input style={inputStyle} type="number" name="floor_area_sqft" value={formData.floor_area_sqft} onChange={handleChange} placeholder="e.g. 1250" required />

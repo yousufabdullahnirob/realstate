@@ -1,670 +1,186 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { 
+  Building2, 
+  LayoutDashboard, 
+  CheckCircle2, 
+  ShoppingBag,
+  RefreshCcw,
+  Bell,
+  Check
+} from "lucide-react";
 import "../admin.css";
 import apiProxy from "../utils/proxyClient";
-import { formatBDT } from "../utils/formatters";
-import { Link, useNavigate } from "react-router-dom";
+import { useSearch } from "../context/SearchContext";
 
-const ProjectStatusPieChart = ({ data }) => {
-  if (!data.project_status || data.project_status.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-        <p style={{ fontWeight: 600 }}>No project data yet</p>
-        <p style={{ fontSize: 12 }}>Project status data will appear here</p>
-      </div>
-    );
-  }
-
-  const total = data.total_projects || data.project_status.reduce((sum, item) => sum + item.count, 0);
-  const radius = 80;
-  const centerX = 100;
-  const centerY = 100;
-
-  let currentAngle = -Math.PI / 2; // Start from top
-
+const StatCard = ({ label, value, icon: Icon, color, link, filter }) => {
+  const navigate = useNavigate();
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-          Project Status Overview
-        </h4>
-        <p style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' }}>
-          {total} Projects
-        </p>
-        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Total projects by status</p>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-        <svg width={200} height={200} style={{ flexShrink: 0 }}>
-          {data.project_status.map((item, index) => {
-            if (item.count === 0) return null;
-
-            const percentage = total > 0 ? item.count / total : 0;
-            const angle = percentage * 2 * Math.PI;
-            const startAngle = currentAngle;
-            const endAngle = currentAngle + angle;
-
-            // Calculate path for pie slice
-            const x1 = centerX + radius * Math.cos(startAngle);
-            const y1 = centerY + radius * Math.sin(startAngle);
-            const x2 = centerX + radius * Math.cos(endAngle);
-            const y2 = centerY + radius * Math.sin(endAngle);
-
-            const largeArcFlag = angle > Math.PI ? 1 : 0;
-
-            const pathData = [
-              `M ${centerX} ${centerY}`,
-              `L ${x1} ${y1}`,
-              `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-              'Z'
-            ].join(' ');
-
-            currentAngle = endAngle;
-
-            return (
-              <path
-                key={index}
-                d={pathData}
-                fill={item.color}
-                stroke="white"
-                strokeWidth="2"
-              />
-            );
-          })}
-        </svg>
-
-        <div style={{ flex: 1 }}>
-          {data.project_status.map((item, index) => {
-            const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0;
-            return (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                <div
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 2,
-                    backgroundColor: item.color,
-                    marginRight: 8,
-                    flexShrink: 0
-                  }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
-                      {item.label}
-                    </span>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      {item.count} ({percentage}%)
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+    <div 
+      className="stat-card" 
+      onClick={() => navigate(link, { state: { filter } })}
+      style={{ cursor: 'pointer' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <p className="label">{label}</p>
+        <div style={{ color: color }}>
+          <Icon size={20} />
         </div>
       </div>
+      <h3 className="value">{value || 0}</h3>
     </div>
   );
 };
 
-const SalesChart = ({ data }) => {
-  if (!data.monthly_sales || data.monthly_sales.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-        <p style={{ fontWeight: 600 }}>No sales data yet</p>
-        <p style={{ fontSize: 12 }}>Sales data will appear here once apartments are sold</p>
-      </div>
-    );
-  }
-
-  const maxSales = Math.max(...data.monthly_sales.map(d => d.sales));
-  const chartHeight = 200;
-  const chartWidth = 400;
-  const barWidth = chartWidth / data.monthly_sales.length - 10;
-
-  return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-          Monthly Sales
-        </h4>
-        <p style={{ fontSize: 20, fontWeight: 800, color: '#10b981' }}>
-          {data.total_sales}
-        </p>
-        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Total apartments sold</p>
-      </div>
-
-      <div style={{ overflowX: 'auto', paddingBottom: 16 }}>
-        <svg width={Math.max(chartWidth, data.monthly_sales.length * (barWidth + 10))} height={chartHeight + 60} style={{ minWidth: chartWidth }}>
-          {/* Grid lines */}
-          {[0, 0.25, 0.5, 0.75, 1].map(ratio => {
-            const y = chartHeight - (ratio * chartHeight);
-            return (
-              <g key={ratio}>
-                <line
-                  x1={0} y1={y} x2={Math.max(chartWidth, data.monthly_sales.length * (barWidth + 10))} y2={y}
-                  stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2,2"
-                />
-                <text
-                  x={-10} y={y + 4}
-                  fontSize="10" fill="var(--text-muted)" textAnchor="end"
-                >
-                  {Math.round(maxSales * ratio)}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Bars */}
-          {data.monthly_sales.map((item, index) => {
-            const barHeight = maxSales > 0 ? (item.sales / maxSales) * chartHeight : 0;
-            const x = index * (barWidth + 10);
-            const y = chartHeight - barHeight;
-
-            return (
-              <g key={index}>
-                <rect
-                  x={x} y={y} width={barWidth} height={barHeight || 2} // Minimum height for visibility
-                  fill="#10b981" rx="2"
-                />
-                {barHeight > 10 && ( // Only show value text if bar is tall enough
-                  <text
-                    x={x + barWidth/2} y={y - 5}
-                    fontSize="10" fill="var(--text-primary)" textAnchor="middle"
-                  >
-                    {item.sales}
-                  </text>
-                )}
-                <text
-                  x={x + barWidth/2} y={chartHeight + 15}
-                  fontSize="9" fill="var(--text-muted)" textAnchor="middle"
-                  transform={`rotate(-45 ${x + barWidth/2} ${chartHeight + 15})`}
-                >
-                  {item.month_short}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-    </div>
-  );
-};
-
-const StatCard = ({ icon, label, value, sub, color }) => (
-  <div className="stat-card" style={{ position: 'relative', overflow: 'hidden' }}>
-    <div style={{
-      position: 'absolute', top: 16, right: 16,
-      width: 40, height: 40, borderRadius: 10,
-      background: `${color}18`, border: `1.5px solid ${color}30`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
-    }}>{icon}</div>
-    <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{label}</p>
-    <p style={{ fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: -1 }}>{value}</p>
-    {sub && <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, fontWeight: 500 }}>{sub}</p>}
-    <div style={{ position: 'absolute', bottom: 0, left: 0, height: 3, width: '40%', background: color, borderRadius: '0 4px 0 0' }} />
-  </div>
-);
-
-const Badge = ({ status }) => {
-  const map = {
-    pending:   { bg: '#fef3c7', border: '#f59e0b', color: '#92400e' },
-    verified:  { bg: '#d1fae5', border: '#10b981', color: '#065f46' },
-    rejected:  { bg: '#fee2e2', border: '#ef4444', color: '#991b1b' },
-    available: { bg: '#d1fae5', border: '#10b981', color: '#065f46' },
-    booked:    { bg: '#fef3c7', border: '#f59e0b', color: '#92400e' },
-    sold:      { bg: '#fee2e2', border: '#ef4444', color: '#991b1b' },
-    new:       { bg: '#eff6ff', border: '#3b82f6', color: '#1e40af' },
-    contacted: { bg: '#f3e8ff', border: '#8b5cf6', color: '#5b21b6' },
-    closed:    { bg: '#f1f5f9', border: '#cbd5e1', color: '#475569' },
-  };
-  const s = map[status] || { bg: '#f1f5f9', border: '#cbd5e1', color: '#475569' };
-  return (
-    <span style={{
-      padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 800,
-      textTransform: 'uppercase', letterSpacing: 0.5,
-      background: s.bg, border: `1.5px solid ${s.border}`, color: s.color
-    }}>{status}</span>
-  );
-};
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const [stats, setStats] = useState({ total_projects: 0, total_apartments: 0, available_units: 0, booked_units: 0 });
-  const [analytics, setAnalytics] = useState({ total_overall_views: 0, top_apartments: [] });
-  const [salesData, setSalesData] = useState({ monthly_sales: [], total_sales: 0 });
-  const [projectStatusData, setProjectStatusData] = useState({ project_status: [], total_projects: 0 });
-  const [unapprovedApts, setUnapprovedApts] = useState([]);
-  const [pendingPayments, setPendingPayments] = useState([]);
-  const [inquiries, setInquiries] = useState([]);
+  const { updateSearch } = useSearch();
+  const [stats, setStats] = useState({ 
+    total_projects: 0, 
+    total_apartments: 0, 
+    available_units: 0, 
+    booked_units: 0,
+    project_status_counts: { Upcoming: 0, Ongoing: 0, Completed: 0 }
+  });
   const [notifications, setNotifications] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [replyText, setReplyText] = useState({}); // { receiverId: text }
   const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState({});
-  const [approvingId, setApprovingId] = useState(null);
-  const [verifyingId, setVerifyingId] = useState(null);
-  const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    const errs = {};
-    const safe = async (key, fn) => {
-      try { return await fn(); }
-      catch (e) { errs[key] = e.message; return null; }
-    };
-
-    const [statsData, analyticsData, salesData, projectStatusData, apartmentsData, paymentsData, inquiriesData, notifsData, msgsData] = await Promise.all([
-      safe('stats',         () => apiProxy.get("/admin/stats/")),
-      safe('analytics',     () => apiProxy.get("/analytics/stats/")),
-      safe('sales',         () => apiProxy.get("/analytics/sales/")),
-      safe('projects',      () => apiProxy.get("/analytics/projects/")),
-      safe('apartments',    () => apiProxy.get("/apartments/")),
-      safe('payments',      () => apiProxy.get("/payments/my/")),
-      safe('inquiries',     () => apiProxy.get("/inquiries/")),
-      safe('notifications', () => apiProxy.get("/notifications/")),
-      safe('messages',      () => apiProxy.get("/v2/messages/")),
-    ]);
-
-    if (statsData)      setStats(statsData);
-    if (analyticsData)  setAnalytics(analyticsData);
-    if (salesData)      setSalesData(salesData);
-    if (projectStatusData) setProjectStatusData(projectStatusData);
-    if (apartmentsData) setUnapprovedApts(apartmentsData.filter(a => !a.is_approved));
-    if (paymentsData)   setPendingPayments(Array.isArray(paymentsData) ? paymentsData.filter(p => p.verification_status === 'pending') : []);
-    if (inquiriesData)  setInquiries(Array.isArray(inquiriesData) ? inquiriesData.slice(0, 5) : []);
-    if (notifsData)     setNotifications(Array.isArray(notifsData) ? notifsData.slice(0, 5) : []);
-    if (msgsData)       setMessages(msgsData);
-
-    setErrors(errs);
-    setLastRefresh(new Date());
-    setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const sData = await apiProxy.get("/admin/stats/");
+      const nData = await apiProxy.get("/notifications/?limit=5");
+      if (sData) setStats(sData);
+      if (nData) setNotifications(nData);
+    } catch (e) {
+      console.error("Dashboard error:", e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleNotifClick = async (notif) => {
-    if (!notif.is_read) {
-      try {
-        await apiProxy.patch(`/v2/notifications/${notif.id}/`, { is_read: true });
-        setNotifications(notifications.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
-      } catch (err) { console.error("Failed to mark read:", err); }
-    }
-    switch (notif.type) {
-      case 'message': navigate('/admin'); break;
-      case 'inquiry': navigate('/admin/inquiries'); break;
-      case 'booking': navigate('/admin/bookings'); break;
-      case 'payment': navigate('/admin/payments'); break;
-      default: break;
-    }
-  };
-
-  useEffect(() => { 
-    fetchAll();
-    const interval = setInterval(async () => {
-      try {
-        const [msgs, notes] = await Promise.all([
-          apiProxy.get("/v2/messages/", { bypassCache: true }),
-          apiProxy.get("/notifications/", { bypassCache: true })
-        ]);
-        setMessages(msgs);
-        setNotifications(Array.isArray(notes) ? notes.slice(0, 5) : []);
-      } catch (e) { console.error("Admin polling error:", e); }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [fetchAll]);
-
-  const handleApprove = async (id) => {
-    setApprovingId(id);
-    try {
-      await apiProxy.patch(`/apartments/${id}/`, { is_approved: true });
-      setUnapprovedApts(prev => prev.filter(a => a.id !== id));
-      setStats(prev => ({ ...prev, available_units: prev.available_units + 1 }));
-    } catch (e) { alert("Approval failed: " + e.message); }
-    finally { setApprovingId(null); }
-  };
-
-  const handleVerifyPayment = async (id, status) => {
-    setVerifyingId(id);
-    try {
-      await apiProxy.post(`/payments/${id}/verify/`, { status });
-      setPendingPayments(prev => prev.filter(p => p.id !== id));
-    } catch (e) { alert("Failed to update payment: " + e.message); }
-    finally { setVerifyingId(null); }
-  };
-
-  const handleSendReply = async (receiverId) => {
-    const content = replyText[receiverId];
-    if (!content?.trim()) return;
-
-    try {
-      const res = await apiProxy.post("/v2/messages/", {
-        receiver: receiverId,
-        content: content
-      });
-      setMessages([...messages, res]);
-      setReplyText({ ...replyText, [receiverId]: "" });
-    } catch (e) { alert("Reply failed: " + e.message); }
-  };
-
-  const formatDate = (dt) => dt ? new Date(dt).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  useEffect(() => {
+    updateSearch(''); // Critical: Clear any search filters
+    fetchData();
+  }, [updateSearch, fetchData]);
 
   if (loading) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 16 }}>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <div style={{ width: 40, height: 40, border: '3px solid var(--border-color)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-      <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading dashboard...</p>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+      <RefreshCcw className="spinning" size={32} color="#0f172a" />
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ padding: '32px' }}>
+      <header style={{ marginBottom: '40px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Admin Dashboard</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>Welcome back to Mahim Builders Management Console.</p>
+      </header>
 
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: -0.5 }}>Admin Dashboard</h1>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500, marginTop: 4 }}>Last updated: {lastRefresh.toLocaleTimeString()}</p>
-        </div>
-        <button onClick={fetchAll} style={{
-          background: 'var(--primary)', color: 'white', border: 'none',
-          padding: '10px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer'
-        }}>↻ Refresh</button>
+      <div className="stats-grid">
+        <StatCard label="Total Projects" value={stats.total_projects} icon={Building2} color="#3b82f6" link="/admin/projects" />
+        <StatCard label="Total Apartments" value={stats.total_apartments} icon={LayoutDashboard} color="#8b5cf6" link="/admin/apartments" />
+        <StatCard label="Available Units" value={stats.available_units} icon={CheckCircle2} color="#10b981" link="/admin/apartments" filter="available" />
+        <StatCard label="Booked & Sold" value={stats.booked_units} icon={ShoppingBag} color="#f59e0b" link="/admin/apartments" filter="booked_sold" />
       </div>
 
-      {/* Error Banner */}
-      {Object.keys(errors).length > 0 && (
-        <div style={{ background: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: 12, padding: '12px 16px' }}>
-          <p style={{ color: '#991b1b', fontWeight: 700, fontSize: 13 }}>
-            ⚠️ Some sections failed to load: {Object.keys(errors).join(', ')}. Check your backend connection.
-          </p>
-        </div>
-      )}
 
-      {/* KPI Stats */}
-      <div className="responsive-grid-kpi">
-        <StatCard icon="🏗️" label="Total Projects"   value={stats.total_projects}   color="#0ea5e9" sub="Active listings" />
-        <StatCard icon="🏢" label="Total Apartments" value={stats.total_apartments} color="#8b5cf6" sub="All units" />
-        <StatCard icon="✅" label="Available Units"  value={stats.available_units}  color="#10b981" sub="Ready to sell" />
-        <StatCard icon="💼" label="Booked & Sold"    value={stats.booked_units}     color="#f59e0b" sub="Transactions" />
-      </div>
-
-      {/* Charts Row */}
-      <div className="responsive-grid-double">
-        {/* Sales Chart */}
-        <section className="preview-section glass">
-          <SalesChart data={salesData} />
-        </section>
-
-        {/* Project Status Pie Chart */}
-        <section className="preview-section glass">
-          <ProjectStatusPieChart data={projectStatusData} />
-        </section>
-      </div>
-
-      {/* Row 2: Approvals + Analytics */}
-      <div className="responsive-grid-double">
-
-        {/* Approvals */}
-        <section className="preview-section glass" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800 }}>
-              Property Approvals
-              {unapprovedApts.length > 0 && (
-                <span style={{ marginLeft: 8, background: '#fee2e2', color: '#991b1b', border: '1.5px solid #fca5a5', borderRadius: 20, padding: '1px 8px', fontSize: 11, fontWeight: 800 }}>{unapprovedApts.length}</span>
-              )}
-            </h3>
-            <Link to="/admin/apartments" style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', textDecoration: 'none' }}>View all →</Link>
-          </div>
-          {unapprovedApts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
-              <p style={{ fontWeight: 600 }}>All properties approved</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 280, overflowY: 'auto' }}>
-              {unapprovedApts.map(apt => (
-                <div key={apt.id} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '12px 14px', borderRadius: 10,
-                  background: 'var(--secondary)', border: '1.5px solid var(--border-color)'
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '32px' }}>
+        <section style={{ background: 'white', borderRadius: '20px', padding: '32px', border: '1px solid var(--border-color)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '24px' }}>Project Status Distribution</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '60px' }}>
+             {/* Dynamic CSS Donut Chart */}
+             <div style={{ 
+                width: '180px', 
+                height: '180px', 
+                borderRadius: '50%', 
+                background: (() => {
+                  const total = stats.total_projects || 1;
+                  const p = stats.project_status_counts || {};
+                  const upcoming = ((p.Upcoming || 0) / total) * 100;
+                  const ongoing = ((p.Ongoing || 0) / total) * 100;
+                  // Bold solid colors: Upcoming: #3b82f6, Ongoing: #f59e0b, Completed: #10b981
+                  return `conic-gradient(
+                    #3b82f6 0% ${upcoming}%, 
+                    #f59e0b ${upcoming}% ${upcoming + ongoing}%, 
+                    #10b981 ${upcoming + ongoing}% 100%
+                  )`;
+                })(),
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                position: 'relative',
+                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.1)'
+             }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  inset: '32px',  /* Increased padding = thicker chart slices */
+                  background: 'white', 
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '32px', 
+                  fontWeight: 800,
+                  color: 'var(--text-primary)',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
                 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 700, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{apt.title}</p>
-                    <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{apt.project_name || 'No project'} · {formatBDT(apt.price)}</p>
-                  </div>
-                  <button
-                    onClick={() => handleApprove(apt.id)}
-                    disabled={approvingId === apt.id}
-                    className="approve-btn"
-                    style={{ marginLeft: 12, flexShrink: 0, opacity: approvingId === apt.id ? 0.6 : 1 }}
-                  >{approvingId === apt.id ? '...' : 'Approve'}</button>
+                  {stats.total_projects}
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
+             </div>
 
-        {/* Analytics */}
-        <section className="preview-section glass" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800 }}>Top Viewed Properties</h3>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600 }}>{analytics.total_overall_views} total views</span>
-          </div>
-          {analytics.top_apartments.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>👁️</div>
-              <p style={{ fontWeight: 600 }}>No view data yet</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {analytics.top_apartments.map((apt, i) => {
-                const pct = analytics.total_overall_views > 0 ? Math.round((apt.total_views / analytics.total_overall_views) * 100) : 0;
-                return (
-                  <div key={apt.id}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>
-                        <span style={{ color: 'var(--text-muted)', marginRight: 6 }}>#{i + 1}</span>{apt.title}
-                      </span>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--accent)' }}>{apt.total_views} views</span>
-                    </div>
-                    <div style={{ height: 6, background: 'var(--bg-dark)', borderRadius: 10, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, var(--accent), #38bdf8)', borderRadius: 10 }} />
-                    </div>
-                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, textAlign: 'right' }}>{pct}%</p>
+
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {Object.entries(stats?.project_status_counts || {}).map(([status, count]) => (
+                  <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: status === 'Ongoing' ? '#f59e0b' : status === 'Completed' ? '#10b981' : '#3b82f6' }}></div>
+                    <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{status}:</span>
+                    <span style={{ fontWeight: 800 }}>{count}</span>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-      </div>
 
-      {/* Pending Payments */}
-      <section className="preview-section glass">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 800 }}>
-            Pending Payment Verifications
-            {pendingPayments.length > 0 && (
-              <span style={{ marginLeft: 8, background: '#fef3c7', color: '#92400e', border: '1.5px solid #f59e0b', borderRadius: 20, padding: '1px 8px', fontSize: 11, fontWeight: 800 }}>{pendingPayments.length}</span>
-            )}
-          </h3>
-          <Link to="/admin/payments" style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', textDecoration: 'none' }}>Manage all →</Link>
-        </div>
-        {pendingPayments.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>💳</div>
-            <p style={{ fontWeight: 600 }}>No pending payments to verify</p>
-          </div>
-        ) : (
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead><tr><th>ID</th><th>Amount</th><th>Transaction ID</th><th>Date</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody>
-                {pendingPayments.map(pay => (
-                  <tr key={pay.id}>
-                    <td style={{ fontWeight: 700 }}>#{pay.id}</td>
-                    <td style={{ fontWeight: 700, color: 'var(--accent)' }}>{formatBDT(pay.amount)}</td>
-                    <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{pay.transaction_id}</td>
-                    <td>{formatDate(pay.payment_date)}</td>
-                    <td>
-                      {pay.payment_proof_image
-                        ? <a href={pay.payment_proof_image} target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', fontWeight: 700, fontSize: 12 }}>View Proof</a>
-                        : <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>No proof</span>}
-                    </td>
-                    <td><Badge status={pay.verification_status} /></td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button className="approve-btn" onClick={() => handleVerifyPayment(pay.id, 'verified')} disabled={verifyingId === pay.id}>✓ Verify</button>
-                        <button className="delete-btn" onClick={() => handleVerifyPayment(pay.id, 'rejected')} disabled={verifyingId === pay.id}>✕ Reject</button>
-                      </div>
-                    </td>
-                  </tr>
                 ))}
-              </tbody>
-            </table>
+             </div>
           </div>
-        )}
-      </section>
-
-      {/* Row 4: Inquiries + Notifications */}
-      <div className="responsive-grid-double">
-
-        {/* Inquiries */}
-        <section className="preview-section glass">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800 }}>Recent Inquiries</h3>
-            <Link to="/admin/inquiries" style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', textDecoration: 'none' }}>View all →</Link>
-          </div>
-          {inquiries.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>📩</div>
-              <p style={{ fontWeight: 600 }}>No inquiries yet</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {inquiries.map(inq => (
-                <div key={inq.id} style={{
-                  padding: '12px 14px', borderRadius: 10,
-                  background: 'var(--secondary)', border: '1.5px solid var(--border-color)'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 13 }}>{inq.user_email}</span>
-                    <Badge status={inq.status} />
-                  </div>
-                  <p style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Re: {inq.apartment_title}</p>
-                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inq.message}</p>
-                </div>
-              ))}
-            </div>
-          )}
         </section>
 
-        {/* Notifications */}
-        <section className="preview-section glass">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800 }}>Recent Notifications</h3>
-            <Link to="/admin/notifications" style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', textDecoration: 'none' }}>View all →</Link>
+        <section style={{ background: 'white', borderRadius: '20px', padding: '32px', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800 }}>Notifications</h3>
+            <Bell size={18} color="var(--text-muted)" />
           </div>
           {notifications.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>🔔</div>
-              <p style={{ fontWeight: 600 }}>No notifications</p>
-            </div>
+            <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>No new notifications</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {notifications.map(n => {
-                const iconMap = { booking: '📋', inquiry: '📩', payment: '💳', approval: '✅', message: '💬' };
-                return (
-                  <div 
-                    key={n.id} 
-                    onClick={() => handleNotifClick(n)}
-                    style={{
-                      display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 10,
-                      background: n.is_read ? 'var(--secondary)' : '#eff6ff',
-                      border: `1.5px solid ${n.is_read ? 'var(--border-color)' : '#bfdbfe'}`,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  >
-                    <span style={{ fontSize: 20 }}>{iconMap[n.type] || '🔔'}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: n.is_read ? 500 : 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.message}</p>
-                      <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>{formatDate(n.created_at)}</p>
-                    </div>
-                    {!n.is_read && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, marginTop: 4 }} />}
-                  </div>
-                );
-              })}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {notifications.map((n) => (
+                <div 
+                  key={n.id} 
+                  onClick={() => navigate('/admin/inquiries')}
+                  style={{ 
+                    padding: '12px', 
+                    borderRadius: '12px', 
+                    background: n.is_read ? '#f8fafc' : '#eff6ff', 
+                    border: '1px solid var(--border-color)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(15, 23, 42, 0.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <p style={{ fontSize: '13px', fontWeight: n.is_read ? 500 : 700 }}>{n.message}</p>
+                </div>
+              ))}
             </div>
+
           )}
         </section>
       </div>
-
-      {/* Row 5: Messaging */}
-      <section className="preview-section glass" style={{ marginTop: 24 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20 }}>Client Communications</h3>
-        {messages.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>💬</div>
-            <p style={{ fontWeight: 600 }}>No active conversations</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
-            {/* Group messages by thread */}
-            {Object.values(messages.reduce((acc, msg) => {
-              const otherUser = msg.sender_email === "admin@mahimbuilders.com" ? msg.receiver_email : msg.sender_email; 
-              const otherId = msg.sender_email === "admin@mahimbuilders.com" ? msg.receiver : msg.sender;
-              if (!acc[otherUser]) acc[otherUser] = { email: otherUser, id: otherId, msgs: [] };
-              acc[otherUser].msgs.push(msg);
-              return acc;
-            }, {})).map(thread => (
-              <div key={thread.email} style={{
-                background: 'var(--secondary)', border: '1.5px solid var(--border-color)',
-                borderRadius: 12, display: 'flex', flexDirection: 'column', height: 400
-              }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 700, fontSize: 13 }}>
-                  {thread.email}
-                </div>
-                <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {thread.msgs.map(m => (
-                    <div key={m.id} style={{
-                      alignSelf: m.sender_email === "admin@mahimbuilders.com" ? 'flex-end' : 'flex-start',
-                      background: m.sender_email === "admin@mahimbuilders.com" ? 'var(--accent)' : 'var(--bg-dark)',
-                      color: m.sender_email === "admin@mahimbuilders.com" ? 'white' : 'var(--text-primary)',
-                      padding: '8px 12px', borderRadius: 10, maxWidth: '85%', fontSize: 12
-                    }}>
-                      <p>{m.content}</p>
-                      <p style={{ fontSize: 9, opacity: 0.7, marginTop: 4, textAlign: 'right' }}>{new Date(m.timestamp).toLocaleTimeString()}</p>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ padding: 12, borderTop: '1px solid var(--border-color)', display: 'flex', gap: 8 }}>
-                  <input
-                    type="text"
-                    placeholder="Reply..."
-                    value={replyText[thread.id] || ""}
-                    onChange={(e) => setReplyText({ ...replyText, [thread.id]: e.target.value })}
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-dark)', color: 'white', fontSize: 12 }}
-                  />
-                  <button
-                    onClick={() => handleSendReply(thread.id)}
-                    style={{ padding: '8px 16px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
-                  >Send</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
     </div>
   );
 };

@@ -22,6 +22,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register"; // FIX: Was imported nowhere — Login links to /register but route was missing
 import PaymentManagement from "./pages/PaymentManagement";
 import UserManagement from "./pages/UserManagement";
+import SoldApartments from "./pages/SoldApartments";
+import Profile from "./pages/Profile";
 import DesignShowcase from "./pages/DesignShowcase";
 import Services from "./pages/Services";
 import SubmitPayment from "./pages/SubmitPayment";
@@ -60,6 +62,8 @@ export default function App() {
           <Route path="/admin/bookings" element={<Bookings />} />
           <Route path="/admin/inquiries" element={<Inquiries />} />
           <Route path="/admin/notifications" element={<Notifications />} />
+          <Route path="/admin/sold-apartments" element={<SoldApartments />} />
+          <Route path="/admin/profile" element={<Profile />} />
         </Route>
         {/* Client routes */}
         <Route element={<ClientLayout />}>

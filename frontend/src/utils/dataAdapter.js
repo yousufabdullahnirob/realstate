@@ -7,7 +7,8 @@ export const DataAdapter = {
       name: backendProject.name,
       location: backendProject.location,
       status: backendProject.status,
-      image: backendProject.image || null,
+      image: backendProject.image || `https://images.unsplash.com/featured/?architecture,building&sig=${backendProject.id}`,
+
       description: backendProject.description ? backendProject.description.split('\n\n') : [],
       land_area: backendProject.land_area,
       orientation: backendProject.orientation,
@@ -31,7 +32,8 @@ export const DataAdapter = {
       bedrooms: backendApt.bedrooms || '0',
       bathrooms: backendApt.bathrooms || '0',
       location: backendApt.location || 'Dhaka',
-      image: backendApt.image || null,
+      image: backendApt.image || `https://images.unsplash.com/featured/?apartment,room&sig=${backendApt.id}`,
+
       description: backendApt.description,
       project_id: backendApt.project,
     };

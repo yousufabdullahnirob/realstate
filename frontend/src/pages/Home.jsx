@@ -1,227 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate, useInView } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, MapPin, DollarSign, Maximize2, ArrowRight, Zap, Target, Star } from 'lucide-react';
 import Header from '../components/Header';
 import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
-import { FilterUtils } from '../utils/filterUtils';
-import approvedModel from '../assets/about/approved_model.png';
-import communityVibe from '../assets/about/community_vibe.png';
 import hero1 from '../assets/hero_1.png';
 import hero2 from '../assets/hero_2.png';
 import hero3 from '../assets/hero_3.png';
 
-const StatCounter = ({ from = 0, to, duration = 2, delay = 0 }) => {
-  const ref = React.useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "0px 0px -50px 0px" });
-  const count = useMotionValue(from);
-  const rounded = useTransform(count, Math.round);
-
-  React.useEffect(() => {
-    if (isInView) {
-      animate(count, to, { duration, delay, ease: "easeOut" });
-    }
-  }, [isInView, count, to, duration, delay]);
-
-  return <motion.span ref={ref}>{rounded}</motion.span>;
-};
-
 const slides = [
   {
-    title: "Building Dreams Into Reality",
-    text: "Discover architectural excellence designed for modern living.",
+    title: "The Pinnacle of Modern Living",
+    subtitle: "Architectural masterpieces crafted for those who demand excellence.",
     image: hero1
   },
   {
-    title: "Modern Living Redefined",
-    text: "Crafted spaces blending comfort, elegance, and innovation.",
+    title: "Luxury Defined by Details",
+    subtitle: "Bespoke residential solutions in the heart of the city's elite zones.",
     image: hero2
   },
   {
-    title: "Spaces That Inspire Growth",
-    text: "Where design meets functionality for timeless experiences.",
+    title: "Invest in Your Future",
+    subtitle: "Premium real estate assets with unparalleled long-term value.",
     image: hero3
   }
 ];
 
-const offers = [
-  {
-    id: 'design',
-    title: 'Design & Planning',
-    text: 'We will help you to get the result you dreamed of.',
-    icon: (
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-          d="M50 5L10 28.5V71.5L50 95L90 71.5V28.5L50 5Z" 
-          stroke="currentColor" 
-          strokeWidth="2.5"
-        />
-        <path d="M50 5V95M10 28.5L90 71.5M90 28.5L10 71.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" opacity="0.3"/>
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          d="M30 40L50 28L70 40V60L50 72L30 60V40Z" 
-          stroke="currentColor" 
-          strokeWidth="2.5"
-        />
-      </svg>
-    )
-  },
-  {
-    id: 'solutions',
-    title: 'Custom Solutions',
-    text: 'Individual, aesthetically stunning solutions for customers.',
-    icon: (
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          d="M50 15L85 75H15L50 15Z" 
-          stroke="currentColor" 
-          strokeWidth="2.5"
-        />
-        <path d="M35 45H65M42 58H58M50 15V35" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/>
-        <rect x="42" y="65" width="16" height="5" stroke="currentColor" strokeWidth="2"/>
-      </svg>
-    )
-  },
-  {
-    id: 'furniture',
-    title: 'Furniture & Decor',
-    text: 'We create and produce our product design lines.',
-    icon: (
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <motion.rect 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          x="20" y="20" width="60" height="60" 
-          stroke="currentColor" 
-          strokeWidth="2.5"
-        />
-        <path d="M20 50H80M50 20V80" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" opacity="0.4"/>
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          d="M35 35L65 65M65 35L35 65" 
-          stroke="currentColor" 
-          strokeWidth="1.5"
-        />
-      </svg>
-    )
-  },
-  {
-    id: 'exterior',
-    title: 'Exterior Design',
-    text: 'We will help you to get the result you dreamed of.',
-    icon: (
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          d="M25 25H75L25 75H75" 
-          stroke="currentColor" 
-          strokeWidth="4" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        />
-        <path d="M25 25V75M75 25V75" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" opacity="0.3"/>
-      </svg>
-    )
-  },
-  {
-    id: 'concept',
-    title: 'Creating a Concept',
-    text: 'Individual, aesthetically stunning solutions for customers.',
-    icon: (
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          d="M50 10L62 38L90 38L68 56L76 84L50 66L24 84L32 56L10 38L38 38L50 10Z" 
-          stroke="currentColor" 
-          strokeWidth="2.5"
-        />
-        <circle cx="50" cy="50" r="15" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.4"/>
-      </svg>
-    )
-  },
-  {
-    id: 'control',
-    title: "Author's Control",
-    text: 'We create and produce our product design lines.',
-    icon: (
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          d="M50 10L85 30V70L50 90L15 70V30L50 10Z" 
-          stroke="currentColor" 
-          strokeWidth="2.5"
-        />
-        <motion.path 
-          initial={{ pathLength: 0 }}
-          whileHover={{ pathLength: 1 }}
-          d="M35 35L65 65M65 35L35 65" 
-          stroke="currentColor" 
-          strokeWidth="2.5"
-        />
-        <circle cx="50" cy="50" r="10" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/>
-      </svg>
-    )
-  }
-];
-
-const processSteps = [
-  {
-    id: '01',
-    title: 'Strategic Planning',
-    text: 'We begin with rigorous location scouting, feasibility studies, and a clear architectural vision for the project.'
-  },
-  {
-    id: '02',
-    title: 'Modern Design',
-    text: 'Our team crafts detailed 3D visualizations and functional layouts tailored for contemporary urban living.'
-  },
-  {
-    id: '03',
-    title: 'Quality Construction',
-    text: 'Using premium materials and engineering excellence, we build structures that stand the test of time and safety.'
-  },
-  {
-    id: '04',
-    title: 'Final Handover',
-    text: 'After thorough quality checks, we welcome you to your new home with a seamless keys delivery experience.'
-  }
-];
+const PropertyCard = ({ item, type, index }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: index * 0.1 }}
+    whileHover={{ y: -10 }}
+    className="property-card-premium ultra-glass"
+  >
+    <div className="card-image-wrap">
+      <img src={item.image} alt={item.name || item.title} className="card-image" />
+      <div className="card-badge">{type === 'project' ? 'PROJECT' : 'APARTMENT'}</div>
+    </div>
+    <div className="card-content-premium">
+      <h3 className="card-title-premium">{item.name || item.title}</h3>
+      <div className="card-meta">
+        <span className="meta-item"><MapPin size={14} /> {item.location}</span>
+        {item.size && <span className="meta-item"><Maximize2 size={14} /> {item.size}</span>}
+      </div>
+      <div className="card-footer-premium">
+        <span className="price-tag">{item.price || item.status}</span>
+        <Link to={`/${type}s/${item.id}`} className="view-link-circle">
+          <ArrowRight size={18} />
+        </Link>
+      </div>
+    </div>
+  </motion.div>
+);
 
 const Home = () => {
   const [current, setCurrent] = useState(0);
-  const [activeOffer, setActiveOffer] = useState(null); 
-  const [activeProcess, setActiveProcess] = useState(null);
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [featuredApartments, setFeaturedApartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [homeFilters, setHomeFilters] = useState({ location: '', max_price: '', size: '' });
-  const [filterMeta, setFilterMeta] = useState({ locations: [], price_range: {min:0, max:0}, size_range: {min:0, max:0} });
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [projects, apartments, metadata] = await Promise.all([
+        const [projects, apartments] = await Promise.all([
           apiProxy.get('/projects/'),
-          apiProxy.get('/apartments/'),
-          apiProxy.get('/filters/metadata/')
+          apiProxy.get('/apartments/')
         ]);
-        setFeaturedProjects(projects.map(DataAdapter.adaptProject));
-        setFeaturedApartments(apartments.slice(0, 3).map(DataAdapter.adaptApartment));
-        setFilterMeta(metadata);
+        setFeaturedProjects(projects.slice(0, 3));
+        setFeaturedApartments(apartments.slice(0, 3));
       } catch (error) {
-        console.error("Home data fetch error:", error);
+        console.error("Home fetch error:", error);
       } finally {
         setLoading(false);
       }
@@ -230,349 +82,102 @@ const Home = () => {
 
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 10000);
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
-  const goToSlide = (index) => {
-    setCurrent(index);
-  };
-
-  const handleHomeSearch = () => {
-    const query = new URLSearchParams(homeFilters).toString();
-    navigate(`/apartments?${query}`);
-  };
-
   return (
-    <div>
-      <section className="hero">
-        {/* Synchronized background images — crossfade on slide change */}
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={"hero-bg-slide " + (index === current ? "active" : "inactive")}
-            style={{ backgroundImage: "url(" + slide.image + ")" }}
+    <div className="home-modern">
+      <section className="hero-premium">
+        <AnimatePresence mode='wait'>
+          <motion.div
+            key={current}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5 }}
+            className="hero-bg"
+            style={{ backgroundImage: `url(${slides[current].image})` }}
           />
-        ))}
-
-        <div className="container">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={current}
-              initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(5px)" }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="hero-content"
-            >
-              <h1>{slides[current].title}</h1>
-              <p>{slides[current].text}</p>
-              <div className="hero-dots" id="heroDots">
-                {slides.map((_, index) => (
-                  <span
-                    key={index}
-                    className={current === index ? "active" : ""}
-                    onClick={() => goToSlide(index)}
-                  />
-                ))}
-              </div>
-              <motion.div
-                className="hero-button"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-              >
-                <button onClick={() => navigate('/projects')}>Browse Projects</button>
-              </motion.div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </section>
-
-      <section className="search-section">
-        <motion.div 
-          className="search-box glass-premium"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="filter">
-            <span className="icon">📍</span>
-            <select 
-              value={homeFilters.location} 
-              onChange={(e) => setHomeFilters({...homeFilters, location: e.target.value})}
-              style={{ background: 'transparent', border: 'none', color: '#000', outline: 'none', width: '120px' }}
-            >
-              <option value="" style={{ color: '#000' }}>Location (Any)</option>
-              {filterMeta.locations.map(loc => (
-                <option key={loc} value={loc} style={{ color: '#000' }}>{loc}</option>
-              ))}
-            </select>
-          </div>
-          <div className="filter">
-            <span className="icon">৳</span>
-          <div className="search-group">
-            <label className="search-label">Price Range</label>
-            <select name="max_price" value={homeFilters.max_price} onChange={(e) => setHomeFilters({...homeFilters, max_price: e.target.value})} className="search-select">
-              <option value="" style={{ color: '#000' }}>Any Price</option>
-              {FilterUtils.generatePriceRanges(filterMeta.price_range.min, filterMeta.price_range.max).map(price => (
-                <option key={price} value={price} style={{ color: '#000' }}>
-                  Up to {FilterUtils.formatPrice(price)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="search-group">
-            <label className="search-label">Property Size</label>
-            <select name="size" value={homeFilters.size} onChange={(e) => setHomeFilters({...homeFilters, size: e.target.value})} className="search-select">
-              <option value="" style={{ color: '#000' }}>Any Size</option>
-              {FilterUtils.generateSizeRanges(filterMeta.size_range.min, filterMeta.size_range.max).map(size => (
-                <option key={size} value={`${size-500}-${size}`} style={{ color: '#000' }}>
-                  {size-500} - {size} sqft
-                </option>
-              ))}
-              <option value={`${filterMeta.size_range.max}-10000`} style={{ color: '#000' }}>{Math.floor(filterMeta.size_range.max)}+ sqft</option>
-            </select>
-          </div>
-        </div>
-        <button className="search-btn" onClick={handleHomeSearch}>Search</button>
-        </motion.div>
-      </section>
-
-      <section className="about">
-        <div className="container about-wrapper">
+        </AnimatePresence>
+        
+        <div className="hero-overlay-refined" />
+        
+        <div className="container relative z-10">
           <motion.div 
-            className="about-left"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, x: -30 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            transition={{ duration: 1, delay: 0.5 }}
+            className="hero-content-modern"
           >
-            <h2>Who We Are</h2>
-            <p>
-              We specialize in modern apartment management solutions designed to
-              create transparency, efficiency, and long-term value. Our mission
-              is to bridge property owners and residents through smart systems
-              and refined living experiences.
-            </p>
-            <div className="about-buttons">
-              <button className="about-btn">Our Team</button>
-              <button className="about-btn secondary" onClick={() => document.getElementById('our-process').scrollIntoView({ behavior: 'smooth' })}>
-                Our Process
-              </button>
+            <span className="eyebrow"><Star size={14} style={{ marginRight: '8px' }} /> ESTABLISHED 1998</span>
+            <h1 className="display-serif">{slides[current].title}</h1>
+            <p className="hero-sub">{slides[current].subtitle}</p>
+            
+            <div className="hero-cta-group">
+              <button onClick={() => navigate('/projects')} className="btn-premium">EXPLORE PORTFOLIO</button>
+              <button onClick={() => navigate('/services')} className="btn-outline">OUR EXPERTISE</button>
             </div>
           </motion.div>
-          <div className="about-right">
-            <motion.div 
-              className="about-card"
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <img src={approvedModel} alt="Architectural Model" />
-            </motion.div>
-            <motion.div 
-              className="about-card small"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              <img src={communityVibe} alt="Community Living" />
-            </motion.div>
+        </div>
+
+        <div className="hero-footer">
+          <div className="hero-dots-refined">
+            {slides.map((_, i) => (
+              <span key={i} className={current === i ? 'active' : ''} onClick={() => setCurrent(i)} />
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="our-process" className="process-section">
+      <section className="featured-grid-section">
         <div className="container">
-          <div className="section-header-centered">
-            <h2>Our Process</h2>
-            <p>Follow our journey from visionary concepts to the moment we hand over the keys to your dream home.</p>
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="section-title-premium">Signature Projects</h2>
+              <p className="section-sub-premium">Icons of excellence in urban development</p>
+            </div>
+            <Link to="/projects" className="btn-text">VIEW FULL GALLERY <ArrowRight size={16} /></Link>
           </div>
           
-          <div className="process-grid">
-            {processSteps.map((step, index) => (
-              <motion.div 
-                key={step.id} 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`process-item ${activeProcess === step.id ? 'active' : ''}`}
-                onClick={() => setActiveProcess(activeProcess === step.id ? null : step.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="process-number">{step.id}</div>
-                <h3>{step.title}</h3>
-                <AnimatePresence>
-                  {activeProcess === step.id && (
-                    <motion.p 
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="process-text-active"
-                    >
-                      {step.text}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+          <div className="premium-grid-layout">
+            {loading ? <div className="loader">Syncing...</div> : featuredProjects.map((p, i) => (
+              <PropertyCard key={p.id} item={p} type="project" index={i} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Leaderboard Section */}
-      <section className="stats" style={{ background: '#0a1f44', padding: '90px 0', color: 'white' }}>
+      <section className="value-proposition ultra-glass">
         <div className="container">
-          <div className="stats-row" style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', flexWrap: 'wrap', gap: '30px' }}>
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="stat-box" style={{ flex: '1 1 200px' }}>
-              <h2 style={{ fontSize: '48px', color: 'var(--gold)', marginBottom: '10px' }}>
-                <StatCounter to={150} />+
-              </h2>
-              <p style={{ fontSize: '16px', letterSpacing: '1px', color: '#cbd6f0', textTransform: 'uppercase' }}>Projects Delivered</p>
-            </motion.div>
-            
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="stat-box" style={{ flex: '1 1 200px' }}>
-              <h2 style={{ fontSize: '48px', color: 'var(--gold)', marginBottom: '10px' }}>
-                <StatCounter to={5000} />+
-              </h2>
-              <p style={{ fontSize: '16px', letterSpacing: '1px', color: '#cbd6f0', textTransform: 'uppercase' }}>Happy Clients</p>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="stat-box" style={{ flex: '1 1 200px' }}>
-              <h2 style={{ fontSize: '48px', color: 'var(--gold)', marginBottom: '10px' }}>
-                <StatCounter to={12} />
-              </h2>
-              <p style={{ fontSize: '16px', letterSpacing: '1px', color: '#cbd6f0', textTransform: 'uppercase' }}>Locations Served</p>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="stat-box" style={{ flex: '1 1 200px' }}>
-              <h2 style={{ fontSize: '48px', color: 'var(--gold)', marginBottom: '10px' }}>
-                <StatCounter to={25} />+
-              </h2>
-              <p style={{ fontSize: '16px', letterSpacing: '1px', color: '#cbd6f0', textTransform: 'uppercase' }}>Years of Experience</p>
-            </motion.div>
+          <div className="v-prop-grid">
+            <div className="v-prop-item">
+              <Zap size={32} className="v-icon" />
+              <h3>Instant Search</h3>
+              <p>Type once, find everything. Our global ecosystem reflects search queries in real-time across all platforms.</p>
+            </div>
+            <div className="v-prop-item">
+              <Target size={32} className="v-icon" />
+              <h3>Precision Engineering</h3>
+              <p>We build with materials and standards that far exceed industry benchmarks for safety and luxury.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="featured-projects">
+      <section className="featured-grid-section">
         <div className="container">
-          <div className="section-header">
-            <h2>Featured Projects</h2>
-            <Link to="/projects" className="view-all-btn">View All</Link>
-          </div>
-
-          <div className="projects-card-system">
-             {loading ? <p>Loading projects...</p> : featuredProjects.map((project, index) => (
-                <motion.div 
-                  key={project.id} 
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.15 }}
-                  className="project-main-card"
-                >
-                   <div className="project-card-image-wrap">
-                     {project.image ? (
-                       <img src={project.image} alt={project.name} />
-                     ) : (
-                       <div className="project-placeholder" style={{ width: '100%', height: '100%', background: '#eee' }}></div>
-                     )}
-                   </div>
-                   <div className="project-card-info">
-                     <Link to={`/projects/${project.id}`} className="project-card-name">
-                       {project.name}
-                     </Link>
-                     <p className="project-card-status">[ {project.status} ]</p>
-                   </div>
-                </motion.div>
-             ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="testimonial">
-        <div className="container">
-          <h2>What Our Clients Say</h2>
-          <div className="testimonial-cards">
-            {[
-              { text: "The professionalism and attention to detail exceeded our expectations. Our property management has never been smoother.", author: "Sarah Rahman" },
-              { text: "From project consultation to execution, everything felt structured and transparent. Highly recommended.", author: "Ahmed Karim" },
-              { text: "Modern design, efficient systems, and amazing support team. Truly reliable service.", author: "Nusrat Jahan" }
-            ].map((t, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.2 }}
-                className="testimonial-card"
-              >
-                <p>"{t.text}"</p>
-                <h4>— {t.author}</h4>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="apartments">
-        <div className="container">
-          <h2>Most Viewed Apartments</h2>
-          <div className="apartment-grid">
-            {loading ? <p>Loading apartments...</p> : featuredApartments.map((apt, index) => (
-              <motion.div 
-                key={apt.id} 
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="apartment-card"
-              >
-                <div className="apartment-img" style={{ backgroundImage: `url(${apt.image})`, backgroundSize: 'cover' }}></div>
-                <div className="apartment-body">
-                  <h3>{apt.price}</h3>
-                  <p>{apt.bedrooms} Bed • {apt.bathrooms} Bath • {apt.size}</p>
-                  <span className="location">📍 {apt.location}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="offer-section">
-        <div className="container">
-          <div className="offer-header">
-            <h2>What Can We Offer</h2>
-            <div className="dots-divider">............</div>
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="section-title-premium">Recent Collections</h2>
+              <p className="section-sub-premium">Selected residences for immediate acquisition</p>
+            </div>
+            <Link to="/apartments" className="btn-text">BROWSE INVENTORY <ArrowRight size={16} /></Link>
           </div>
           
-          <div className="offer-grid">
-            {offers.map((offer, index) => (
-              <motion.div 
-                key={offer.id} 
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -10 }}
-                className={`offer-card ${activeOffer === offer.id ? 'dark-blueprint' : ''}`}
-                onClick={() => setActiveOffer(offer.id === activeOffer ? null : offer.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={`offer-icon ${activeOffer === offer.id ? 'white' : ''}`}>
-                  {offer.icon}
-                </div>
-                <h3>{offer.title}</h3>
-                <p>{offer.text}</p>
-                <Link to={`/services#${offer.id}`} className="offer-read-more">READ MORE</Link>
-              </motion.div>
+          <div className="premium-grid-layout">
+            {loading ? <div className="loader">Syncing...</div> : featuredApartments.map((a, i) => (
+              <PropertyCard key={a.id} item={a} type="apartment" index={i} />
             ))}
           </div>
         </div>
@@ -582,3 +187,4 @@ const Home = () => {
 };
 
 export default Home;
+

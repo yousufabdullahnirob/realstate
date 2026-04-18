@@ -43,8 +43,9 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'login': '5/min',
+        'login': '1000/min',
     }
+
 }
 
 SPECTACULAR_SETTINGS = {

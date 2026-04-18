@@ -77,6 +77,7 @@ const ProjectForm = () => {
           setImagePreview(data.image);
         }
       } catch (e) {
+        console.error("API ERROR DETAILS:", e.response?.data || e);
         setError('Failed to load project: ' + e.message);
       }
     };
@@ -125,8 +126,8 @@ const ProjectForm = () => {
       }
 
       // Override with parsed values
-      data.set('total_floors', parseInt(formData.total_floors) || 0);
-      data.set('total_units', parseInt(formData.total_units) || 0);
+      data.set('total_floors', parseInt(formData.total_floors) || 1);
+      data.set('total_units', parseInt(formData.total_units) || 1);
 
       // Append image file
       if (imageFile) {
@@ -141,7 +142,9 @@ const ProjectForm = () => {
       setSuccess('Project saved! Redirecting...');
       setTimeout(() => navigate('/admin/projects'), 1200);
     } catch (e) {
-      setError('Could not save project: ' + e.message + '. Please check all required fields are filled.');
+      console.error("DEBUG - Project Save Error Details:", e.response?.data || e.message || e);
+      const errorMsg = e.response?.data ? (typeof e.response.data === 'object' ? JSON.stringify(e.response.data) : e.response.data) : e.message;
+      setError('Could not save project: ' + errorMsg + '. Please check all required fields are filled.');
     } finally {
       setLoading(false);
     }

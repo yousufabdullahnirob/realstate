@@ -83,35 +83,39 @@ const Inquiries = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>User Email</th>
-              <th>Apartment</th>
-              <th>Message</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th style={{ textAlign: 'right' }}>Actions</th>
+              <th className="col-id">ID</th>
+              <th className="col-email">User Email</th>
+              <th className="col-apt">Apartment</th>
+              <th className="col-msg">Message</th>
+              <th className="col-date">Date</th>
+              <th className="col-status">Status</th>
+              <th className="col-actions" style={{ textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {inquiries.map(inquiry => (
               <tr key={inquiry.id}>
                 <td style={{ color: 'var(--text-muted)' }}>#{inquiry.id}</td>
-                <td style={{ color: 'var(--text-primary)', fontWeight: '500' }}>{inquiry.user_email}</td>
-                <td>{inquiry.apartment_title}</td>
-                <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={inquiry.message}>
+                <td style={{ color: 'var(--text-primary)', fontWeight: '700' }}>{inquiry.user_email}</td>
+                <td style={{ fontWeight: '600' }}>{inquiry.apartment_title}</td>
+                <td style={{ lineHeight: '1.6' }}>
                   {inquiry.message}
                 </td>
-                <td>{new Date(inquiry.created_at).toLocaleDateString()}</td>
+                <td style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  {new Date(inquiry.created_at).toLocaleDateString()}
+                </td>
                 <td>
                   <span className={`status ${inquiry.status}`} style={{
-                    padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '700',
+                    padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800',
                     background: inquiry.status === 'new' ? '#eff6ff' : inquiry.status === 'contacted' ? '#fef3c7' : '#f1f5f9',
-                    color: inquiry.status === 'new' ? '#1e40af' : inquiry.status === 'contacted' ? '#92400e' : '#475569'
+                    color: inquiry.status === 'new' ? '#1e40af' : inquiry.status === 'contacted' ? '#92400e' : '#475569',
+                    display: 'inline-block'
                   }}>
                     {inquiry.status.toUpperCase()}
                   </span>
                 </td>
                 <td style={{ textAlign: 'right' }}>
+
                   <button 
                     className="edit-btn" 
                     onClick={() => handleOpenReply(inquiry)}

@@ -1,21 +1,44 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import apiProxy from '../utils/proxyClient';
+
+
 
 const ContactUs = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [status, setStatus] = useState('');
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate send
-    setStatus('Thank you! Message sent successfully.');
-    setFormData({ name: '', email: '', phone: '', message: '' });
-    setTimeout(() => setStatus(''), 5000);
+    
+    // REQUIRE LOGIN
+    if (!localStorage.getItem('access')) {
+        navigate('/login');
+        return;
+    }
+
+    try {
+        await apiProxy.post('/inquiries/submit/', {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.message
+        });
+        setStatus('Thank you! Message sent successfully.');
+        setFormData({ name: '', email: '', phone: '', message: '' });
+        setTimeout(() => setStatus(''), 5000);
+    } catch (err) {
+        setStatus('Failed to send message. Please try again.');
+    }
   };
+
 
   return (
     <motion.div 

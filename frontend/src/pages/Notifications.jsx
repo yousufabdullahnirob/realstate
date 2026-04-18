@@ -30,10 +30,18 @@ const Notifications = () => {
     // 1. Mark as read in DB if not already
     if (!notif.is_read) {
       try {
+        console.log(`[DEBUG] Marking notification ${notif.id} as read...`);
         await apiProxy.patch(`/v2/notifications/${notif.id}/`, { is_read: true });
+        
         // Immediate UI update
-        setNotifications(notifications.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
-      } catch (err) { console.error("Failed to mark as read:", err); }
+        setNotifications(notifications => notifications.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
+        
+        // Dispatch event for other components (like Topbar) to update
+        window.dispatchEvent(new CustomEvent('notifications-updated'));
+        console.log(`[DEBUG] Notification ${notif.id} marked as read successfully.`);
+      } catch (err) { 
+        console.error("Failed to mark as read:", err.response?.data || err.message || err); 
+      }
     }
 
     // 2. Navigate based on type
