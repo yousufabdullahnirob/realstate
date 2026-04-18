@@ -230,7 +230,7 @@ const Home = () => {
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [featuredApartments, setFeaturedApartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [homeFilters, setHomeFilters] = useState({ location: '', max_price: '', size: '' });
+  const [homeFilters, setHomeFilters] = useState({ location: '', max_price: '', min_size: '' });
   const [locationOptions, setLocationOptions] = useState([]);
   const [filterMeta, setFilterMeta] = useState({ locations: [], price_range: {min:0, max:0}, size_range: {min:0, max:0} });
   const navigate = useNavigate();
@@ -272,7 +272,7 @@ const Home = () => {
     const params = new URLSearchParams();
     if (homeFilters.location) params.set('location', homeFilters.location);
     if (homeFilters.max_price) params.set('max_price', homeFilters.max_price);
-    if (homeFilters.size) params.set('size', homeFilters.size);
+    if (homeFilters.min_size) params.set('min_size', homeFilters.min_size);
     const searchPath = params.toString() ? `/apartments?${params.toString()}` : '/apartments';
     navigate(searchPath);
   };
@@ -332,22 +332,22 @@ const Home = () => {
             style={{ 
               maxWidth: '1200px', 
               margin: '0 auto', 
-              background: 'rgba(255,255,255,0.95)', 
+              background: 'rgba(255,255,255,0.88)', 
               borderRadius: '20px', 
               padding: '30px', 
-              boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.2)'
+              boxShadow: '0 25px 60px rgba(15,23,42,0.14)', 
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(15,23,42,0.08)'
             }}
           >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'center', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '18px' }}>📍</span>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333' }}>Location</label>
                 <select
                   value={homeFilters.location}
                   onChange={(e) => setHomeFilters({ ...homeFilters, location: e.target.value })}
                   style={{ 
-                    flex: 1, 
+                    width: '100%', 
                     background: '#fff', 
                     border: '2px solid #e0e0e0', 
                     color: '#333', 
@@ -361,19 +361,19 @@ const Home = () => {
                   onFocus={(e) => e.target.style.borderColor = '#007bff'}
                   onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
                 >
-                  <option value="" style={{ color: '#333' }}>Location (Any)</option>
+                  <option value="" style={{ color: '#333' }}>Any</option>
                   {locationOptions.map((location) => (
                     <option key={location} value={location} style={{ color: '#333' }}>{location}</option>
                   ))}
                 </select>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '18px' }}>৳</span>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333' }}>Price Range</label>
                 <select
                   value={homeFilters.max_price}
                   onChange={(e) => setHomeFilters({ ...homeFilters, max_price: e.target.value })}
                   style={{ 
-                    flex: 1, 
+                    width: '100%', 
                     background: '#fff', 
                     border: '2px solid #e0e0e0', 
                     color: '#333', 
@@ -387,7 +387,7 @@ const Home = () => {
                   onFocus={(e) => e.target.style.borderColor = '#007bff'}
                   onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
                 >
-                  <option value="" style={{ color: '#333' }}>Price (Any)</option>
+                  <option value="" style={{ color: '#333' }}>Any</option>
                   {FilterUtils.generatePriceRanges(filterMeta.price_range.min, filterMeta.price_range.max).map(price => (
                     <option key={price} value={price} style={{ color: '#333' }}>
                       Up to {FilterUtils.formatPrice(price)}
@@ -395,13 +395,13 @@ const Home = () => {
                   ))}
                 </select>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '18px' }}>📐</span>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333' }}>Property Size</label>
                 <select
-                  value={homeFilters.size}
-                  onChange={(e) => setHomeFilters({ ...homeFilters, size: e.target.value })}
+                  value={homeFilters.min_size}
+                  onChange={(e) => setHomeFilters({ ...homeFilters, min_size: e.target.value })}
                   style={{ 
-                    flex: 1, 
+                    width: '100%', 
                     background: '#fff', 
                     border: '2px solid #e0e0e0', 
                     color: '#333', 
@@ -415,43 +415,35 @@ const Home = () => {
                   onFocus={(e) => e.target.style.borderColor = '#007bff'}
                   onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
                 >
-                  <option value="" style={{ color: '#333' }}>Size (Any)</option>
+                  <option value="" style={{ color: '#333' }}>Any</option>
                   {FilterUtils.generateSizeRanges(filterMeta.size_range.min, filterMeta.size_range.max).map(size => (
-                    <option key={size} value={`${size-500}-${size}`} style={{ color: '#333' }}>
-                      {size-500} - {size} sqft
+                    <option key={size} value={size} style={{ color: '#333' }}>
+                      {size} sqft +
                     </option>
                   ))}
-                  <option value={`${filterMeta.size_range.max}-10000`} style={{ color: '#333' }}>{Math.floor(filterMeta.size_range.max)}+ sqft</option>
                 </select>
               </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button 
-                className="btn-premium" 
+            <div style={{ textAlign: 'center' }}>
+              <motion.button
                 onClick={handleHomeSearch}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 style={{ 
-                  padding: '14px 40px', 
+                  background: 'linear-gradient(135deg, rgba(248,250,252,1) 0%, rgba(226,232,240,1) 100%)', 
+                  color: '#0f172a', 
+                  border: '1px solid rgba(15,23,42,0.12)', 
+                  padding: '16px 32px', 
                   borderRadius: '12px', 
-                  fontSize: '16px', 
+                  fontSize: '16px',
                   fontWeight: '600',
-                  background: 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)',
-                  color: '#fff',
-                  border: 'none',
                   cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  boxShadow: '0 4px 15px rgba(0,123,255,0.3)'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 6px 20px rgba(0,123,255,0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 15px rgba(0,123,255,0.3)';
+                  boxShadow: '0 10px 25px rgba(15,23,42,0.12)',
+                  transition: 'all 0.3s'
                 }}
               >
-                Search Apartments
-              </button>
+                Search Properties
+              </motion.button>
             </div>
           </motion.div>
         </div>
