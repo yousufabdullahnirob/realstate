@@ -203,12 +203,16 @@ class BookingSerializer(serializers.ModelSerializer):
         model = Booking
         fields = [
             'id', 'booking_reference', 'user', 'user_email', 'apartment', 'apartment_title',
-            'booking_date', 'status', 'advance_amount', 'transaction_id', 'payment_proof'
+            'booking_date', 'status', 'advance_amount', 'transaction_id', 'payment_proof',
+            'final_payment_due_date', 'is_locked', 'cancelled_by_admin', 'cancellation_reason'
         ]
         extra_kwargs = {
             'booking_reference': {'read_only': True},
             'user': {'read_only': True},
-            'status': {'read_only': True}
+            'status': {'read_only': True},
+            'is_locked': {'read_only': True},
+            'cancelled_by_admin': {'read_only': True},
+            'cancellation_reason': {'read_only': True}
         }
 
 from core.utils import validate_file_size, validate_image_or_pdf, get_unique_filename

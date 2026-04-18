@@ -15,6 +15,10 @@ from .views import (
     ProtectedMediaView, BookingCancelAPIView, FilterMetadataAPIView,
     ApartmentViewSet, BookingViewSet, MessageViewSet, NotificationViewSet, AdminListAPIView
 )
+from .admin_views import (
+    AdminSetBookingDueDateView, ApartmentsCSVExportView, ProjectsCSVExportView,
+    BookingsCSVExportView, SalesCSVExportView, AdminBookingCancelView
+)
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -50,6 +54,8 @@ urlpatterns = [
     path('bookings/<int:pk>/payment/', BookingPaymentUploadView.as_view(), name='booking-payment-upload'),
     path('admin/bookings/<int:pk>/approve/', AdminBookingApproveView.as_view(), name='admin-booking-approve'),
     path('admin/bookings/<int:pk>/reject/', AdminBookingRejectView.as_view(), name='admin-booking-reject'),
+    path('admin/bookings/<int:pk>/set-due-date/', AdminSetBookingDueDateView.as_view(), name='set-booking-due-date'),
+    path('admin/bookings/<int:pk>/force-cancel/', AdminBookingCancelView.as_view(), name='force-cancel-booking'),
     path('inquiries/submit/', InquiryCreateAPIView.as_view(), name='submit-inquiry'),
 
     # ADMIN APIs
@@ -62,6 +68,12 @@ urlpatterns = [
     path('admin/bookings/', AdminBookingListAPIView.as_view(), name='admin-bookings'),
     path('admin/inquiries/', InquiryListAPIView.as_view(), name='admin-inquiries'),
     path('admin/inquiries/<int:pk>/', InquiryUpdateAPIView.as_view(), name='update-inquiry'),
+    
+    # CSV Export endpoints
+    path('admin/export/apartments/', ApartmentsCSVExportView.as_view(), name='export-apartments-csv'),
+    path('admin/export/projects/', ProjectsCSVExportView.as_view(), name='export-projects-csv'),
+    path('admin/export/bookings/', BookingsCSVExportView.as_view(), name='export-bookings-csv'),
+    path('admin/export/sales/', SalesCSVExportView.as_view(), name='export-sales-csv'),
 
     # Admin apartment routes (used by ApartmentForm.jsx)
     path('admin/apartments/', ApartmentListCreateAPIView.as_view(), name='admin-apartment-list'),

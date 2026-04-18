@@ -20,8 +20,10 @@ from .serializers import (
 from .permissions import IsAdminRole, IsAgentRole, IsAdminOrAgentRole
 
 import os
+import csv
+from django.http import FileResponse, HttpResponseForbidden, HttpResponse
 from django.conf import settings
-from django.http import FileResponse, HttpResponseForbidden
+from datetime import datetime
 
 class FilterMetadataAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -302,13 +304,23 @@ class BookingCancelAPIView(APIView):
     def post(self, request, pk):
         try:
             booking = Booking.objects.get(pk=pk, user=request.user)
+            
+            # Constraint 1: Cannot cancel if locked (payment already received)
+            if booking.is_locked:
+                return Response({
+                    "error": "Cannot cancel: Payment has been received. Contact admin for cancellation."
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # Constraint 2: Cannot cancel if already confirmed/sold
             if booking.status in ['confirmed', 'sold']:
-                return Response({"error": "Cannot cancel a confirmed or sold booking."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "error": "Cannot cancel a confirmed or sold booking. Contact admin for assistance."
+                }, status=status.HTTP_400_BAD_REQUEST)
             
             booking.status = 'cancelled'
             booking.save()
 
-            # Also mark associated apartment as available if it was booked
+            # Also mark associated apartment as available
             apartment = booking.apartment
             if apartment.status == 'booked':
                 apartment.status = 'available'
@@ -446,16 +458,21 @@ class AdminBookingApproveView(APIView):
         try:
             booking = Booking.objects.get(pk=pk)
             booking.status = Booking.Status.CONFIRMED
+            booking.is_locked = True  # Lock booking - user cannot cancel
+            booking.cancelled_by_admin = False
             booking.save()
 
             # Create notification for user
             Notification.objects.create(
                 user=booking.user,
-                message=f"Your booking {booking.booking_reference} has been approved!",
+                message=f"Your booking {booking.booking_reference} has been approved! Payment verified.",
                 type=Notification.Type.APPROVAL
             )
 
-            return Response({"message": "Booking approved successfully"})
+            return Response({
+                "message": "Booking approved successfully",
+                "booking_locked": True
+            })
 
         except Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -466,7 +483,11 @@ class AdminBookingRejectView(APIView):
     def post(self, request, pk):
         try:
             booking = Booking.objects.get(pk=pk)
+            reason = request.data.get('reason', 'Payment verification failed')
+            
             booking.status = Booking.Status.CANCELLED
+            booking.cancelled_by_admin = True
+            booking.cancellation_reason = reason
             booking.save()
 
             # Update apartment status back to AVAILABLE
@@ -478,11 +499,11 @@ class AdminBookingRejectView(APIView):
             # Create notification for user
             Notification.objects.create(
                 user=booking.user,
-                message=f"Your booking {booking.booking_reference} has been rejected.",
+                message=f"Your booking {booking.booking_reference} has been rejected. Reason: {reason}",
                 type=Notification.Type.APPROVAL
             )
 
-            return Response({"message": "Booking rejected successfully"})
+            return Response({"message": "Booking rejected and apartment released"})
 
         except Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)

@@ -252,14 +252,16 @@ const ClientDashboard = () => {
                     </div>
                   )}
 
-                  {/* Cancel Button */}
-                  {book.status === 'pending' && (
+                  {/* Cancel Button */}\n                  {book.status === 'pending' && !book.is_locked && (
                     <button 
                       onClick={() => handleCancelBooking(book.id)}
                       style={{ marginTop: 12, background: 'transparent', border: '1px solid #fee2e2', color: '#991b1b', borderRadius: '4px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
                     >
                       Cancel Booking
                     </button>
+                  )}
+                  {book.is_locked && (
+                    <p style={{ marginTop: 12, fontSize: '12px', color: '#991b1b', fontWeight: 700 }}>🔒 Booking locked - Payment received</p>
                   )}
                 </div>
               );
