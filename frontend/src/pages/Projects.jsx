@@ -12,12 +12,16 @@ const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [locations, setLocations] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState('');
 
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const data = await apiProxy.get('/projects/'); 
-      setProjects(Array.isArray(data) ? data : []);
+      const data = await apiProxy.get('/projects/');
+      const projectList = Array.isArray(data) ? data : [];
+      setProjects(projectList);
+      setLocations(Array.from(new Set(projectList.map((project) => project.location).filter(Boolean))).sort());
     } catch (error) {
       console.error("Error fetching projects:", error);
     } finally {
@@ -30,9 +34,12 @@ const Projects = () => {
     fetchProjects();
   }, [updateSearch]);
 
-  const filteredProjects = projects.filter(project =>
-    activeFilter === 'all' || project.status.toLowerCase() === activeFilter.toLowerCase()
-  );
+  const filteredProjects = projects.filter((project) => {
+    const status = project.status ? project.status.toLowerCase() : '';
+    const matchesStatus = activeFilter === 'all' || status === activeFilter;
+    const matchesLocation = !selectedLocation || project.location === selectedLocation;
+    return matchesStatus && matchesLocation;
+  });
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh' }}>
@@ -55,47 +62,30 @@ const Projects = () => {
         </motion.div>
       </section>
 
-      <section className="search-section" style={{ marginTop: '0', background: 'transparent' }}>
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="search-box glass-premium"
-        >
-          <div className="filter">
-            <span className="icon">📍</span>
-            <select>
-              <option>Location</option>
-              <option>Dhaka</option>
-              <option>Chittagong</option>
-            </select>
-          </div>
-          <div className="filter">
-            <span className="icon">৳</span>
-            <select>
-              <option>Price (BDT)</option>
-              <option>50,00,000 - 1,00,00,000</option>
-              <option>1,00,00,000 - 2,00,00,000</option>
-            </select>
-          </div>
-          <button className="search-btn">Search</button>
-        </motion.div>
-      </section>
-
-      <section className="project-filter" style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '50px', flexWrap: 'wrap' }}>
-        {['all', 'completed', 'progress', 'future'].map((filter) => (
+      <section className="project-filter" style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '50px', flexWrap: 'wrap', alignItems: 'center', padding: '30px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+        {['all', 'completed', 'ongoing', 'upcoming'].map((filter) => (
           <button
             key={filter}
             className={`filter-btn ${activeFilter === filter ? 'active' : ''}`}
             onClick={() => setActiveFilter(filter)}
             style={{ padding: '10px 24px', borderRadius: '30px', cursor: 'pointer', background: activeFilter === filter ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: activeFilter === filter ? '#fff' : 'var(--text-muted)', border: '1px solid', borderColor: activeFilter === filter ? 'var(--primary)' : 'rgba(255,255,255,0.1)', transition: 'all 0.3s' }}
           >
-            {filter === 'all' ? 'All' : filter === 'progress' ? 'Under Progress' : filter === 'future' ? 'Future Planned' : 'Completed'}
+            {filter === 'all' ? 'All' : filter === 'completed' ? 'Completed' : filter === 'ongoing' ? 'Ongoing' : 'Upcoming'}
           </button>
         ))}
+
+        <select
+          value={selectedLocation}
+          onChange={(e) => setSelectedLocation(e.target.value)}
+          style={{ padding: '10px 20px', borderRadius: '30px', background: '#fff', color: '#000', border: '1px solid rgba(0,0,0,0.12)', minWidth: '220px' }}
+        >
+          <option value="" style={{ color: '#000' }}>All Locations</option>
+          {locations.map((location) => (
+            <option key={location} value={location} style={{ color: '#000' }}>{location}</option>
+          ))}
+        </select>
       </section>
 
-      <h1 style={{ marginBottom: '40px', fontSize: '32px', fontWeight: 800 }}>Our Iconic Projects</h1>
       <h1 style={{ marginBottom: '40px', fontSize: '32px', fontWeight: 800 }}>Our Iconic Projects</h1>
       
       <div className="property-grid">

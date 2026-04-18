@@ -6,6 +6,7 @@ import { Search, MapPin, DollarSign, Maximize2, ArrowRight, Zap, Target, Star } 
 import Header from '../components/Header';
 import apiProxy from '../utils/proxyClient';
 import { DataAdapter } from '../utils/dataAdapter';
+import { FilterUtils } from '../utils/filterUtils';
 import hero1 from '../assets/hero_1.png';
 import hero2 from '../assets/hero_2.png';
 import hero3 from '../assets/hero_3.png';
@@ -229,17 +230,26 @@ const Home = () => {
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [featuredApartments, setFeaturedApartments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [homeFilters, setHomeFilters] = useState({ location: '', max_price: '', size: '' });
+  const [locationOptions, setLocationOptions] = useState([]);
+  const [filterMeta, setFilterMeta] = useState({ locations: [], price_range: {min:0, max:0}, size_range: {min:0, max:0} });
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [projects, apartments] = await Promise.all([
+        const [projects, apartments, metadata] = await Promise.all([
           apiProxy.get('/projects/'),
-          apiProxy.get('/apartments/')
+          apiProxy.get('/apartments/'),
+          apiProxy.get('/filters/metadata/')
         ]);
-        setFeaturedProjects(projects.slice(0, 3));
-        setFeaturedApartments(apartments.slice(0, 3));
+        const adaptedProjects = Array.isArray(projects) ? projects.map(DataAdapter.adaptProject) : [];
+        setFeaturedProjects(adaptedProjects.slice(0, 3));
+        setFeaturedApartments(Array.isArray(apartments) ? apartments.slice(0, 3) : []);
+        setLocationOptions(
+          Array.from(new Set(adaptedProjects.map((project) => project.location).filter(Boolean))).sort()
+        );
+        setFilterMeta(metadata);
       } catch (error) {
         console.error("Home fetch error:", error);
       } finally {
@@ -253,6 +263,19 @@ const Home = () => {
     }, 8000);
     return () => clearInterval(interval);
   }, []);
+
+  const goToSlide = (index) => {
+    setCurrent(index);
+  };
+
+  const handleHomeSearch = () => {
+    const params = new URLSearchParams();
+    if (homeFilters.location) params.set('location', homeFilters.location);
+    if (homeFilters.max_price) params.set('max_price', homeFilters.max_price);
+    if (homeFilters.size) params.set('size', homeFilters.size);
+    const searchPath = params.toString() ? `/apartments?${params.toString()}` : '/apartments';
+    navigate(searchPath);
+  };
 
   return (
     <div className="home-modern">
@@ -295,6 +318,142 @@ const Home = () => {
               <span key={i} className={current === i ? 'active' : ''} onClick={() => setCurrent(i)} />
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="search-section" style={{ padding: '40px 0', background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)' }}>
+        <div className="container">
+          <motion.div 
+            className="search-container"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            style={{ 
+              maxWidth: '1200px', 
+              margin: '0 auto', 
+              background: 'rgba(255,255,255,0.95)', 
+              borderRadius: '20px', 
+              padding: '30px', 
+              boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}
+          >
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '18px' }}>📍</span>
+                <select
+                  value={homeFilters.location}
+                  onChange={(e) => setHomeFilters({ ...homeFilters, location: e.target.value })}
+                  style={{ 
+                    flex: 1, 
+                    background: '#fff', 
+                    border: '2px solid #e0e0e0', 
+                    color: '#333', 
+                    padding: '14px 16px', 
+                    borderRadius: '12px', 
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    outline: 'none',
+                    transition: 'border-color 0.3s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#007bff'}
+                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                >
+                  <option value="" style={{ color: '#333' }}>Location (Any)</option>
+                  {locationOptions.map((location) => (
+                    <option key={location} value={location} style={{ color: '#333' }}>{location}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '18px' }}>৳</span>
+                <select
+                  value={homeFilters.max_price}
+                  onChange={(e) => setHomeFilters({ ...homeFilters, max_price: e.target.value })}
+                  style={{ 
+                    flex: 1, 
+                    background: '#fff', 
+                    border: '2px solid #e0e0e0', 
+                    color: '#333', 
+                    padding: '14px 16px', 
+                    borderRadius: '12px', 
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    outline: 'none',
+                    transition: 'border-color 0.3s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#007bff'}
+                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                >
+                  <option value="" style={{ color: '#333' }}>Price (Any)</option>
+                  {FilterUtils.generatePriceRanges(filterMeta.price_range.min, filterMeta.price_range.max).map(price => (
+                    <option key={price} value={price} style={{ color: '#333' }}>
+                      Up to {FilterUtils.formatPrice(price)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '18px' }}>📐</span>
+                <select
+                  value={homeFilters.size}
+                  onChange={(e) => setHomeFilters({ ...homeFilters, size: e.target.value })}
+                  style={{ 
+                    flex: 1, 
+                    background: '#fff', 
+                    border: '2px solid #e0e0e0', 
+                    color: '#333', 
+                    padding: '14px 16px', 
+                    borderRadius: '12px', 
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    outline: 'none',
+                    transition: 'border-color 0.3s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#007bff'}
+                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                >
+                  <option value="" style={{ color: '#333' }}>Size (Any)</option>
+                  {FilterUtils.generateSizeRanges(filterMeta.size_range.min, filterMeta.size_range.max).map(size => (
+                    <option key={size} value={`${size-500}-${size}`} style={{ color: '#333' }}>
+                      {size-500} - {size} sqft
+                    </option>
+                  ))}
+                  <option value={`${filterMeta.size_range.max}-10000`} style={{ color: '#333' }}>{Math.floor(filterMeta.size_range.max)}+ sqft</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <button 
+                className="btn-premium" 
+                onClick={handleHomeSearch}
+                style={{ 
+                  padding: '14px 40px', 
+                  borderRadius: '12px', 
+                  fontSize: '16px', 
+                  fontWeight: '600',
+                  background: 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  boxShadow: '0 4px 15px rgba(0,123,255,0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(0,123,255,0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 15px rgba(0,123,255,0.3)';
+                }}
+              >
+                Search Apartments
+              </button>
+            </div>
+          </motion.div>
         </div>
       </section>
 
