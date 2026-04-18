@@ -11,6 +11,8 @@ from core.models import User, Project, Apartment, Inquiry, Notification, Project
 
 def seed_data():
     print("Seeding data...")
+    print("NOTE: Images are now handled via file uploads from device (not HTTP URLs)")
+    print("      Use the admin panel or API to upload project/apartment images after seeding.")
 
     # 1. Create Users
     admin, _ = User.objects.get_or_create(

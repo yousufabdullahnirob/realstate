@@ -109,7 +109,7 @@ class ApartmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         return super().retrieve(request, *args, **kwargs)
 
 class AnalyticsStatsView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsAdminOrAgentRole]
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 
     def get(self, request):
         total_views = Apartment.objects.aggregate(models.Sum('total_views'))['total_views__sum'] or 0
@@ -622,8 +622,8 @@ class CreatePropertyNotificationView(APIView):
 
 
 class AnalyticsSalesView(APIView):
-    """Returns sales breakdown data for admin dashboard charts."""
-    permission_classes = [permissions.IsAuthenticated, IsAdminOrAgentRole]
+    """Returns sales breakdown data for admin dashboard charts. ADMIN ONLY."""
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 
     def get(self, request):
         from .models import Sale, Booking
@@ -660,8 +660,8 @@ class AnalyticsSalesView(APIView):
 
 
 class AnalyticsProjectsView(APIView):
-    """Returns project status breakdown for admin dashboard charts."""
-    permission_classes = [permissions.IsAuthenticated, IsAdminOrAgentRole]
+    """Returns project status breakdown for admin dashboard charts. ADMIN ONLY."""
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 
     def get(self, request):
         from .models import Project
@@ -690,7 +690,7 @@ class AnalyticsProjectsView(APIView):
 # --- REFINED VIEWSETS ---
 
 class ApartmentViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing Apartments with price validation and role-based permissions."""
+    """ViewSet for managing Apartments with price validation and role-based permissions. ADMIN ONLY for create/update/delete."""
     queryset = Apartment.objects.all().order_by('-created_at')
     serializer_class = ApartmentSerializer
     
