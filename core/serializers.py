@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.models import (
     Apartment, ApartmentImage, User, Project, ProjectImage, 
-    Inquiry, Notification, Installment, Payment, PropertyView, Favorite, Booking, Message
+    Inquiry, Notification, PropertyView, Favorite, Booking, Message
 )
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -194,50 +194,24 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = ['id', 'user', 'message', 'type', 'is_read', 'created_at']
 
-class InstallmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Installment
-        fields = '__all__'
-
 class BookingSerializer(serializers.ModelSerializer):
-    installments = InstallmentSerializer(many=True, read_only=True)
     user_email = serializers.ReadOnlyField(source='user.email')
     apartment_title = serializers.ReadOnlyField(source='apartment.title')
-
-    total_paid = serializers.ReadOnlyField()
-    remaining_balance = serializers.ReadOnlyField()
+    payment_proof = serializers.FileField(required=False)
 
     class Meta:
         model = Booking
         fields = [
-            'id', 'booking_reference', 'user', 'user_email', 'apartment', 'apartment_title', 
-            'booking_date', 'status', 'advance_amount', 'installments', 
-            'total_paid', 'remaining_balance'
+            'id', 'booking_reference', 'user', 'user_email', 'apartment', 'apartment_title',
+            'booking_date', 'status', 'advance_amount', 'transaction_id', 'payment_proof'
         ]
         extra_kwargs = {
             'booking_reference': {'read_only': True},
-            'user': {'read_only': True}
+            'user': {'read_only': True},
+            'status': {'read_only': True}
         }
 
 from core.utils import validate_file_size, validate_image_or_pdf, get_unique_filename
-
-class PaymentSerializer(serializers.ModelSerializer):
-    payment_proof = serializers.FileField(
-        required=True, 
-        validators=[validate_file_size, validate_image_or_pdf]
-    )
-
-    class Meta:
-        model = Payment
-        fields = '__all__'
-        extra_kwargs = {
-            'verification_status': {'read_only': True}
-        }
-
-    def validate_payment_proof(self, value):
-        # Sanitize filename
-        value.name = get_unique_filename(value.name)
-        return value
 
 class PropertyViewSerializer(serializers.ModelSerializer):
     class Meta:

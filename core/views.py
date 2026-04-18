@@ -10,13 +10,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import (
     Apartment, User, Project, Inquiry, Notification,
-    ProjectImage, Payment, Installment, PropertyView, Favorite, Booking, Message
+    ProjectImage, PropertyView, Favorite, Booking, Message
 )
 from .serializers import (
     ApartmentSerializer, RegistrationSerializer, LoginSerializer,
     UserSerializer, ProjectSerializer, InquirySerializer,
-    NotificationSerializer, PaymentSerializer, InstallmentSerializer,
-    FavoriteSerializer, PasswordChangeSerializer, BookingSerializer, MessageSerializer
+    NotificationSerializer, FavoriteSerializer, PasswordChangeSerializer, BookingSerializer, MessageSerializer
 )
 from .permissions import IsAdminRole, IsAgentRole, IsAdminOrAgentRole
 
@@ -108,44 +107,6 @@ class ApartmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         instance.total_views = instance.views.count()
         instance.save()
         return super().retrieve(request, *args, **kwargs)
-
-class PaymentSubmitView(generics.CreateAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_create(self, serializer):
-        # Additional logic: Ensure user owns the booking if not admin
-        serializer.save()
-
-class PaymentVerifyView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
-
-    def post(self, request, pk):
-        try:
-            payment = Payment.objects.get(pk=pk)
-            status_val = request.data.get('status') # verified or rejected
-            if status_val in Payment.VerificationStatus.values:
-                payment.verification_status = status_val
-                payment.save()
-                
-                # If verified, mark installment as paid
-                if status_val == Payment.VerificationStatus.VERIFIED and payment.installment:
-                    payment.installment.is_paid = True
-                    payment.installment.paid_date = payment.payment_date
-                    payment.installment.save()
-
-                # Create notification for client
-                Notification.objects.create(
-                    user=payment.booking.user,
-                    message=f"Your payment with TrxID {payment.transaction_id} has been {status_val}.",
-                    type=Notification.Type.PAYMENT
-                )
-
-                return Response({"message": f"Payment {status_val} successfully"})
-            return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
-        except Payment.DoesNotExist:
-            return Response({"error": "Payment not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class AnalyticsStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminOrAgentRole]
@@ -443,26 +404,88 @@ class BookingCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         import uuid
-        from decimal import Decimal
         # Generate random booking reference
         ref = f"BKG-{uuid.uuid4().hex[:8].upper()}"
         booking = serializer.save(user=self.request.user, booking_reference=ref)
-        
-        # SYNC: Update apartment status to BOOKED
+
+        # Update apartment status to BOOKED
         apartment = booking.apartment
         if apartment.status == Apartment.Status.AVAILABLE:
             apartment.status = Apartment.Status.BOOKED
             apartment.save()
-            print(f"DEBUG: Apartment {apartment.id} status updated to BOOKED.")
 
-        # Create an initial installment for the advance amount
-        import datetime
-        Installment.objects.create(
-            booking=booking,
-            due_date=datetime.date.today() + datetime.timedelta(days=7),
-            amount=booking.advance_amount,
-            is_paid=False
-        )
+class BookingPaymentUploadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk, user=request.user)
+            if booking.status != Booking.Status.PENDING:
+                return Response({"error": "Booking is not in pending status"}, status=status.HTTP_400_BAD_REQUEST)
+
+            transaction_id = request.data.get('transaction_id')
+            payment_proof = request.FILES.get('payment_proof')
+
+            if not transaction_id or not payment_proof:
+                return Response({"error": "transaction_id and payment_proof are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            booking.transaction_id = transaction_id
+            booking.payment_proof = payment_proof
+            booking.save()
+
+            return Response({"message": "Payment proof uploaded successfully"})
+
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class AdminBookingApproveView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk)
+            booking.status = Booking.Status.CONFIRMED
+            booking.save()
+
+            # Create notification for user
+            Notification.objects.create(
+                user=booking.user,
+                message=f"Your booking {booking.booking_reference} has been approved!",
+                type=Notification.Type.APPROVAL
+            )
+
+            return Response({"message": "Booking approved successfully"})
+
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class AdminBookingRejectView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk)
+            booking.status = Booking.Status.CANCELLED
+            booking.save()
+
+            # Update apartment status back to AVAILABLE
+            apartment = booking.apartment
+            if apartment.status == Apartment.Status.BOOKED:
+                apartment.status = Apartment.Status.AVAILABLE
+                apartment.save()
+
+            # Create notification for user
+            Notification.objects.create(
+                user=booking.user,
+                message=f"Your booking {booking.booking_reference} has been rejected.",
+                type=Notification.Type.APPROVAL
+            )
+
+            return Response({"message": "Booking rejected successfully"})
+
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class NotificationListAPIView(generics.ListAPIView):
     queryset = Notification.objects.all().order_by('-created_at')
@@ -493,25 +516,14 @@ class ClientStatsView(APIView):
     def get(self, request):
         user = request.user
         bookings = Booking.objects.filter(user=user)
-        total_paid = Payment.objects.filter(
-            booking__in=bookings, 
-            verification_status='verified'
-        ).aggregate(models.Sum('amount'))['amount__sum'] or 0
-        
-        active_installments = Installment.objects.filter(
-            booking__in=bookings,
-            is_paid=False
-        ).count()
-        
-        upcoming = Installment.objects.filter(
-            booking__in=bookings,
-            is_paid=False
-        ).order_by('due_date').first()
+        confirmed_bookings = bookings.filter(status='confirmed').count()
+        pending_bookings = bookings.filter(status='pending').count()
+        total_bookings = bookings.count()
         
         return Response({
-            "active_installments": active_installments,
-            "total_paid": float(total_paid),
-            "upcoming_due": upcoming.due_date if upcoming else "N/A"
+            "total_bookings": total_bookings,
+            "confirmed_bookings": confirmed_bookings,
+            "pending_bookings": pending_bookings
         })
 
 class MyApartmentsView(generics.ListAPIView):
@@ -532,25 +544,6 @@ class MyBookingsView(generics.ListAPIView):
         if not self.request or not self.request.user or not self.request.user.is_authenticated:
             return Booking.objects.none()
         return Booking.objects.filter(user=self.request.user).order_by('-booking_date')
-
-class MyPaymentsView(generics.ListAPIView):
-    serializer_class = PaymentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        if not self.request or not self.request.user or not self.request.user.is_authenticated:
-            return Payment.objects.none()
-        return Payment.objects.filter(booking__user=self.request.user).order_by('-payment_date')
-
-class AdminPaymentListAPIView(generics.ListAPIView):
-    serializer_class = PaymentSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
-    queryset = Payment.objects.all().order_by('-payment_date')
-
-class AdminPendingPaymentListAPIView(generics.ListAPIView):
-    serializer_class = PaymentSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
-    queryset = Payment.objects.filter(verification_status='pending').order_by('-payment_date')
 
 class FavoriteToggleAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -729,22 +722,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             apartment.status = Apartment.Status.BOOKED
             apartment.save()
             print(f"DEBUG: Apartment {apartment.id} status updated to BOOKED.")
-
-class InstallmentViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing Installments with automated payment status updates."""
-    queryset = Installment.objects.all().order_by('due_date')
-    serializer_class = InstallmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_update(self, serializer):
-        # Save changes first
-        instance = serializer.save()
-        
-        # LOGICAL CONFIRMATION: If marked as paid, ensure paid_date is set
-        if instance.is_paid and not instance.paid_date:
-            instance.paid_date = timezone.now()
-            instance.save()
-            # Here we could also trigger notifications or update booking status
 
 class AdminListAPIView(generics.ListAPIView):
     """View to list all administrators, useful for starting a message thread."""

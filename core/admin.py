@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import (
     User, Project, ProjectImage, Apartment, ApartmentImage,
-    Inquiry, Booking, Installment, Payment, Sale,
+    Inquiry, Booking, Sale,
     Notification, PropertyView, Favorite
 )
 
@@ -53,22 +53,9 @@ class InquiryAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ['booking_reference', 'user', 'apartment', 'status', 'advance_amount', 'booking_date']
+    list_display = ['booking_reference', 'user', 'apartment', 'status', 'advance_amount', 'transaction_id', 'booking_date']
     list_filter = ['status']
-    search_fields = ['booking_reference', 'user__email']
-
-
-@admin.register(Installment)
-class InstallmentAdmin(admin.ModelAdmin):
-    list_display = ['booking', 'due_date', 'amount', 'is_paid', 'paid_date']
-    list_filter = ['is_paid']
-
-
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['transaction_id', 'booking', 'amount', 'payment_status', 'verification_status', 'payment_date']
-    list_filter = ['payment_status', 'verification_status']
-    search_fields = ['transaction_id', 'booking__booking_reference']
+    search_fields = ['booking_reference', 'user__email', 'transaction_id']
 
 
 @admin.register(Notification)

@@ -51,6 +51,7 @@ const Topbar = ({ onToggleSidebar }) => {
             placeholder="Search..." 
             value={searchTerm}
             onChange={(e) => updateSearch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') navigate('/apartments'); }}
             className="search-input-simple"
             style={{ paddingLeft: '36px' }}
           />

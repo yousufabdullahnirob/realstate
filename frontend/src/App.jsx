@@ -68,6 +68,7 @@ export default function App() {
         {/* Client routes */}
         <Route element={<ClientLayout />}>
           <Route path="/dashboard" element={<ClientDashboard />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/submit-payment" element={<SubmitPayment />} />
         </Route>
       </Routes>

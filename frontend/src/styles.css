@@ -2957,3 +2957,29 @@ html {
     border-color: var(--gold) !important;
     color: white !important;
 }
+
+/* Search Input Styling */
+.search-input-simple {
+    width: 280px;
+    height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    font-size: 14px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: var(--transition-premium);
+    outline: none;
+    opacity: 0.8;
+}
+
+.search-input-simple:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-muted);
+    background: var(--bg-card);
+    opacity: 1;
+}
+
+.search-input-simple::placeholder {
+    color: var(--text-muted);
+}

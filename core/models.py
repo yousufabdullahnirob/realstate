@@ -120,6 +120,8 @@ class Booking(models.Model):
     booking_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
     advance_amount = models.DecimalField(max_digits=20, decimal_places=2)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    payment_proof = models.FileField(upload_to='payment_proofs/', blank=True, null=True)
 
     def __str__(self):
         return f"Booking {self.booking_reference}"
@@ -134,52 +136,14 @@ class Booking(models.Model):
                 apartment.status = Apartment.Status.BOOKED
                 apartment.save()
 
-    @property
-    def total_paid(self):
-        """Calculates total paid including advance and paid installments"""
-        paid_installments = self.installments.filter(is_paid=True).aggregate(Sum('amount'))['amount__sum'] or 0
-        return self.advance_amount + paid_installments
-
-    @property
-    def remaining_balance(self):
-        """Calculates remaining balance based on apartment price and total paid"""
-        return self.apartment.price - self.total_paid
-
-class Installment(models.Model):
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='installments')
-    due_date = models.DateField()
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
-    is_paid = models.BooleanField(default=False)
-    paid_date = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Installment for {self.booking.booking_reference} - Due: {self.due_date}"
-
-class Payment(models.Model):
-    class PaymentStatus(models.TextChoices):
-        SUCCESS = 'success', 'Success'
-        FAILED = 'failed', 'Failed'
-    
-    class VerificationStatus(models.TextChoices):
-        PENDING = 'pending', 'Pending'
-        VERIFIED = 'verified', 'Verified'
-        REJECTED = 'rejected', 'Rejected'
-
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
-    installment = models.ForeignKey(Installment, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
-    transaction_id = models.CharField(max_length=100, unique=True)
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
-    payment_status = models.CharField(max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.SUCCESS)
-    verification_status = models.CharField(max_length=10, choices=VerificationStatus.choices, default=VerificationStatus.PENDING)
-    payment_date = models.DateTimeField(auto_now_add=True)
-    payment_gateway = models.CharField(max_length=50, default='Manual/Proof')
-    payment_proof = models.FileField(upload_to='payments/', null=True, blank=True)
-
-    def __str__(self):
-        return f"Payment {self.transaction_id} - {self.verification_status}"
-
 class Sale(models.Model):
+    apartment = models.OneToOneField(Apartment, on_delete=models.CASCADE, related_name='sale')
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchases')
+    sale_date = models.DateTimeField(auto_now_add=True)
+    final_price = models.DecimalField(max_digits=20, decimal_places=2)
+
+    def __str__(self):
+        return f"Sale of {self.apartment.title}"
     apartment = models.OneToOneField(Apartment, on_delete=models.CASCADE, related_name='sale')
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchases')
     sale_date = models.DateTimeField(auto_now_add=True)

@@ -333,14 +333,15 @@ const Home = () => {
               maxWidth: '1200px', 
               margin: '0 auto', 
               background: 'rgba(255,255,255,0.88)', 
-              borderRadius: '20px', 
+              borderRadius: '50px', 
               padding: '30px', 
               boxShadow: '0 25px 60px rgba(15,23,42,0.14)', 
               backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(15,23,42,0.08)'
+              border: '1px solid rgba(15,23,42,0.08)',
+              opacity: 0.9
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '20px', alignItems: 'end' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333' }}>Location</label>
                 <select
@@ -352,14 +353,15 @@ const Home = () => {
                     border: '2px solid #e0e0e0', 
                     color: '#333', 
                     padding: '14px 16px', 
-                    borderRadius: '12px', 
+                    borderRadius: '50px', 
                     fontSize: '14px',
                     fontWeight: '500',
                     outline: 'none',
-                    transition: 'border-color 0.3s'
+                    transition: 'border-color 0.3s',
+                    opacity: 0.8
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#007bff'}
-                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                  onFocus={(e) => { e.target.style.borderColor = '#007bff'; e.target.style.opacity = '1'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#e0e0e0'; e.target.style.opacity = '0.8'; }}
                 >
                   <option value="" style={{ color: '#333' }}>Any</option>
                   {locationOptions.map((location) => (
@@ -378,14 +380,15 @@ const Home = () => {
                     border: '2px solid #e0e0e0', 
                     color: '#333', 
                     padding: '14px 16px', 
-                    borderRadius: '12px', 
+                    borderRadius: '50px', 
                     fontSize: '14px',
                     fontWeight: '500',
                     outline: 'none',
-                    transition: 'border-color 0.3s'
+                    transition: 'border-color 0.3s',
+                    opacity: 0.8
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#007bff'}
-                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                  onFocus={(e) => { e.target.style.borderColor = '#007bff'; e.target.style.opacity = '1'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#e0e0e0'; e.target.style.opacity = '0.8'; }}
                 >
                   <option value="" style={{ color: '#333' }}>Any</option>
                   {FilterUtils.generatePriceRanges(filterMeta.price_range.min, filterMeta.price_range.max).map(price => (
@@ -406,14 +409,15 @@ const Home = () => {
                     border: '2px solid #e0e0e0', 
                     color: '#333', 
                     padding: '14px 16px', 
-                    borderRadius: '12px', 
+                    borderRadius: '50px', 
                     fontSize: '14px',
                     fontWeight: '500',
                     outline: 'none',
-                    transition: 'border-color 0.3s'
+                    transition: 'border-color 0.3s',
+                    opacity: 0.8
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#007bff'}
-                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                  onFocus={(e) => { e.target.style.borderColor = '#007bff'; e.target.style.opacity = '1'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#e0e0e0'; e.target.style.opacity = '0.8'; }}
                 >
                   <option value="" style={{ color: '#333' }}>Any</option>
                   {FilterUtils.generateSizeRanges(filterMeta.size_range.min, filterMeta.size_range.max).map(size => (
@@ -423,8 +427,6 @@ const Home = () => {
                   ))}
                 </select>
               </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
               <motion.button
                 onClick={handleHomeSearch}
                 whileHover={{ scale: 1.05 }}
@@ -433,16 +435,18 @@ const Home = () => {
                   background: 'linear-gradient(135deg, rgba(248,250,252,1) 0%, rgba(226,232,240,1) 100%)', 
                   color: '#0f172a', 
                   border: '1px solid rgba(15,23,42,0.12)', 
-                  padding: '16px 32px', 
-                  borderRadius: '12px', 
-                  fontSize: '16px',
+                  padding: '14px 24px', 
+                  borderRadius: '50px', 
+                  fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
                   boxShadow: '0 10px 25px rgba(15,23,42,0.12)',
-                  transition: 'all 0.3s'
+                  transition: 'all 0.3s',
+                  opacity: 0.9,
+                  height: 'fit-content'
                 }}
               >
-                Search Properties
+                Search
               </motion.button>
             </div>
           </motion.div>
