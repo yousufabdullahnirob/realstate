@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiProxy from '../utils/proxyClient';
 
-const Field = ({ label, hint, children }) => (
+const Field = ({ label, hint, id, children }) => (
   <div style={{ marginBottom: 20 }}>
-    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+    <label 
+      htmlFor={id}
+      style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}
+    >
       {label}
     </label>
     {hint && <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{hint}</p>}
@@ -180,8 +183,8 @@ const ApartmentForm = () => {
           <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 24, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
             Basic Information
           </h3>
-          <Field label="Apartment Title *" hint="e.g. Mahim Tower - Unit 4B, Floor 8">
-            <input style={inputStyle} name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Mahim Palace - Type A, Floor 5" required />
+          <Field label="Apartment Title *" hint="e.g. Mahim Tower - Unit 4B, Floor 8" id="title">
+            <input id="title" style={inputStyle} name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Mahim Palace - Type A, Floor 5" required />
           </Field>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Field label="Project" hint="Which project does this apartment belong to?">
@@ -227,8 +230,8 @@ const ApartmentForm = () => {
             Specifications
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <Field label="Price (BDT) *" hint="Must be between 1 Crore (10,000,000) and 3 Crore (30,000,000)">
-              <input style={inputStyle} type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 12000000" required />
+            <Field label="Price (BDT) *" hint="Must be between 1 Crore (10,000,000) and 3 Crore (30,000,000)" id="price">
+              <input id="price" style={inputStyle} type="number" name="price" value={formData.price} onChange={handleChange} placeholder="e.g. 12000000" required />
             </Field>
             <Field label="Floor Area (sqft) *">
               <input style={inputStyle} type="number" name="floor_area_sqft" value={formData.floor_area_sqft} onChange={handleChange} placeholder="e.g. 1250" required />

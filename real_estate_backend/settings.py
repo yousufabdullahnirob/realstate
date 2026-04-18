@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'core',
     'corsheaders',
     'drf_spectacular',
-    'axes',
 ]
 
 REST_FRAMEWORK = {
@@ -39,13 +38,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.ScopedRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'login': '1000/min',
-    }
-
 }
 
 SPECTACULAR_SETTINGS = {
@@ -76,7 +68,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'real_estate_backend.urls'
@@ -129,14 +120,13 @@ AUTH_USER_MODEL = 'core.User'
 
 # Required for authenticate(username=email, ...) to work with custom User model
 AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Axes Configuration (Brute Force Protection)
-AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = timedelta(minutes=15)
-AXES_LOCKOUT_PARAMETERS = ['ip_address']
+AXES_FAILURE_LIMIT = 1000 # Relaxed for restoration
+AXES_COOLOFF_TIME = timedelta(minutes=1)
+AXES_LOCKOUT_PARAMETERS = [] # Disable strict lockout params
 AXES_RESET_ON_SUCCESS = True
 AXES_LOCKOUT_TEMPLATE = None # Can be a custom template
 

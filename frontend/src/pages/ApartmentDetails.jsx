@@ -12,6 +12,8 @@ const ApartmentDetails = () => {
   const [showInquiryModal, setShowInquiryModal] = useState(false);
   const [inquiryMessage, setInquiryMessage] = useState("");
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [inquiryLoading, setInquiryLoading] = useState(false);
+  const [inquirySuccess, setInquirySuccess] = useState(false);
 
   const fetchApartment = async () => {
     try {
@@ -35,16 +37,22 @@ const ApartmentDetails = () => {
         navigate('/login');
         return;
     }
+    setInquiryLoading(true);
     try {
         await apiProxy.post('/inquiries/submit/', {
             apartment: id,
             message: inquiryMessage
         });
-        alert("Inquiry sent successfully!");
-        setShowInquiryModal(false);
+        setInquirySuccess(true);
         setInquiryMessage("");
+        setTimeout(() => {
+            setShowInquiryModal(false);
+            setInquirySuccess(false);
+        }, 3000);
     } catch (err) {
         alert("Failed to send inquiry.");
+    } finally {
+        setInquiryLoading(false);
     }
   };
 
@@ -222,23 +230,42 @@ const ApartmentDetails = () => {
                             onClick={e => e.stopPropagation()}
                         >
                             <h3>Inquiry for {apartment.title}</h3>
-                            <form onSubmit={handleInquiry}>
-                                <div className="form-group" style={{ margin: '20px 0' }}>
-                                    <label>Your Message</label>
-                                    <textarea 
-                                        required 
-                                        rows="5"
-                                        value={inquiryMessage}
-                                        onChange={e => setInquiryMessage(e.target.value)}
-                                        placeholder="I am interested in this apartment. Please provide more details."
-                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '8px' }}
-                                    ></textarea>
-                                </div>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button type="submit" className="contact-btn" style={{ flex: 1 }}>Submit Inquiry</button>
-                                    <button type="button" className="about-btn" onClick={() => setShowInquiryModal(false)} style={{ flex: 1, background: '#f1f5f9' }}>Cancel</button>
-                                </div>
-                            </form>
+                            {inquirySuccess ? (
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    style={{ padding: '40px 0', textAlign: 'center' }}
+                                >
+                                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                                    <p style={{ fontWeight: 700, fontSize: '18px', color: '#0f172a' }}>Success!</p>
+                                    <p style={{ color: '#64748b', marginTop: '8px' }}>Your inquiry has been sent to Mahim Builders!</p>
+                                </motion.div>
+                            ) : (
+                                <form onSubmit={handleInquiry}>
+                                    <div className="form-group" style={{ margin: '20px 0' }}>
+                                        <label>Your Message</label>
+                                        <textarea 
+                                            required 
+                                            rows="5"
+                                            value={inquiryMessage}
+                                            onChange={e => setInquiryMessage(e.target.value)}
+                                            placeholder="I am interested in this apartment. Please provide more details."
+                                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '8px' }}
+                                        ></textarea>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button 
+                                            type="submit" 
+                                            disabled={inquiryLoading}
+                                            className="contact-btn" 
+                                            style={{ flex: 1, background: inquiryLoading ? '#94a3b8' : 'var(--primary)', cursor: inquiryLoading ? 'not-allowed' : 'pointer' }}
+                                        >
+                                            {inquiryLoading ? "Sending..." : "Submit Inquiry"}
+                                        </button>
+                                        <button type="button" className="about-btn" onClick={() => setShowInquiryModal(false)} style={{ flex: 1, background: '#f1f5f9' }}>Cancel</button>
+                                    </div>
+                                </form>
+                            )}
                         </motion.div>
                     </motion.div>
                 )}

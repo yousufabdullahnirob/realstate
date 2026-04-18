@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiProxy from "../utils/proxyClient";
 import { formatBDT } from "../utils/formatters";
+import { Settings } from "lucide-react";
 
 const ClientDashboard = () => {
   const [stats, setStats] = useState({ active_installments: 0, total_paid: 0, upcoming_due: "N/A" });
@@ -20,7 +21,7 @@ const ClientDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, propsRes, booksRes, favsRes, paysRes] = await Promise.allSettled([
+        const [statsRes, propsRes, booksRes, favsRes, paysRes, adminsRes, msgsRes] = await Promise.allSettled([
           apiProxy.get("/client/stats/"),
           apiProxy.get("/apartments/my/"),
           apiProxy.get("/v2/bookings/"), // Use v2 for dynamic fields
@@ -137,9 +138,30 @@ const ClientDashboard = () => {
             </h1>
             <p style={{ fontSize: 14, color: "#94a3b8", marginTop: 6 }}>Here is an overview of your account.</p>
           </div>
-          <Link to="/apartments" style={{ padding: "10px 20px", background: "#0ea5e9", color: "#fff", borderRadius: 8, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>
-            Find More Apartments
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <Link 
+              to="/profile" 
+              style={{ 
+                width: '40px', height: '40px', borderRadius: '10px', 
+                background: '#f1f5f9', display: 'flex', alignItems: 'center', 
+                justifyContent: 'center', cursor: 'pointer', color: '#475569',
+                transition: 'all 0.3s ease', border: '1px solid #e2e8f0'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'rotate(30deg)';
+                e.currentTarget.style.color = '#0ea5e9';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'rotate(0deg)';
+                e.currentTarget.style.color = '#475569';
+              }}
+            >
+              <Settings size={20} />
+            </Link>
+            <Link to="/apartments" style={{ padding: "10px 20px", background: "#0ea5e9", color: "#fff", borderRadius: 8, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>
+              Find More Apartments
+            </Link>
+          </div>
         </div>
       </div>
 

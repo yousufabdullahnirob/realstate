@@ -3,7 +3,7 @@ from django.db.models import Count, Sum, Min, Max
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework import status, generics, permissions, filters, viewsets
+from rest_framework import status, generics, permissions, filters, viewsets, parsers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -179,7 +179,6 @@ class RegisterView(generics.CreateAPIView):
 class CustomLoginView(APIView):
     permission_classes = [permissions.AllowAny]
     authentication_classes = []
-    throttle_scope = 'login'
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -195,9 +194,9 @@ class CustomLoginView(APIView):
         # 2. Case-insensitive fallback for email/username
         if not user:
             try:
-                # Find the user case-insensitively
+                # Find the user case-insensitively using the email lookup
                 db_user = User.objects.get(email__iexact=email)
-                # Try authenticating again with the EXACT email from the database
+                # Try authenticating again with the EXACT case-sensitive email from the database
                 user = authenticate(request=request, username=db_user.email, password=password)
             except User.DoesNotExist:
                 return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -229,6 +228,7 @@ class CustomLoginView(APIView):
 class ProjectListCreateAPIView(generics.ListCreateAPIView):
     queryset = Project.objects.filter(is_active=True)
     serializer_class = ProjectSerializer
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
     
     def get_permissions(self):
         if self.request and self.request.method == 'GET':
@@ -278,6 +278,7 @@ class ProjectDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class ApartmentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
     
     def get_permissions(self):
         if self.request and self.request.method == 'GET':

@@ -3,28 +3,33 @@ import time
 
 BASE_URL = "http://localhost:8000/api"
 
-def run_performance_test():
-    print("--- PERFORMANCE TESTING: API Response Latency ---")
-    
-    url = f"{BASE_URL}/apartments/"
+def measure_latency(endpoint):
+    url = f"{BASE_URL}{endpoint}"
     start_time = time.time()
-    
     try:
         response = requests.get(url, timeout=10)
         end_time = time.time()
-        
         latency_ms = (end_time - start_time) * 1000
-        print(f"Endpoint: {url}")
-        print(f"Response Time: {latency_ms:.2f} ms")
-        
-        # User requested 2 seconds threshold report
-        if latency_ms < 2000:
-            print(f"[OK] Status: Acceptable (Below 2000ms threshold)")
-        else:
-            print(f"[WARN] Status: Slow (Exceeds 2000ms threshold)")
-            
+        return latency_ms, response.status_code
     except Exception as e:
-        print(f"[ERROR] Performance test failed: {e}")
+        return None, str(e)
+
+def run_benchmarks():
+    print("--- PERFORMANCE BENCHMARK: API LATENCY ---")
+    threshold = 2000 # 2 seconds
+    
+    endpoints = [
+        "/apartments/",
+        "/projects/",
+    ]
+    
+    for ep in endpoints:
+        latency, status = measure_latency(ep)
+        if latency is not None:
+            status_tag = "[OK]" if latency < threshold else "[WARN]"
+            print(f"{status_tag} {ep}: {latency:.2f} ms (Status: {status})")
+        else:
+            print(f"[FAIL] {ep}: Connection Error ({status})")
 
 if __name__ == "__main__":
-    run_performance_test()
+    run_benchmarks()

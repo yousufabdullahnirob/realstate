@@ -128,6 +128,10 @@ const ProjectForm = () => {
       // Override with parsed values
       data.set('total_floors', parseInt(formData.total_floors) || 1);
       data.set('total_units', parseInt(formData.total_units) || 1);
+      
+      // Ensure numeric fields are present
+      if (!formData.total_floors || formData.total_floors === "") data.set('total_floors', 1);
+      if (!formData.total_units || formData.total_units === "") data.set('total_units', 1);
 
       // Append image file
       if (imageFile) {
@@ -143,8 +147,20 @@ const ProjectForm = () => {
       setTimeout(() => navigate('/admin/projects'), 1200);
     } catch (e) {
       console.error("DEBUG - Project Save Error Details:", e.response?.data || e.message || e);
-      const errorMsg = e.response?.data ? (typeof e.response.data === 'object' ? JSON.stringify(e.response.data) : e.response.data) : e.message;
-      setError('Could not save project: ' + errorMsg + '. Please check all required fields are filled.');
+      let errorMsg = '';
+      if (e.response?.data) {
+        if (typeof e.response.data === 'object') {
+          // Parse DRF field errors into readable string
+          errorMsg = Object.entries(e.response.data)
+            .map(([field, msgs]) => `${field.replace('_', ' ')}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join(' | ');
+        } else {
+          errorMsg = String(e.response.data);
+        }
+      } else {
+        errorMsg = e.message;
+      }
+      setError('Could not save project: ' + errorMsg);
     } finally {
       setLoading(false);
     }
@@ -312,9 +328,8 @@ const ProjectForm = () => {
         {/* Submit */}
         <div style={{ display: 'flex', gap: 12 }}>
           <button
-            type="button"
+            type="submit"
             disabled={loading}
-            onClick={handleSubmit}
             style={{
               flex: 1, padding: '14px', borderRadius: 10, border: 'none',
               background: loading ? '#94a3b8' : '#0f172a',

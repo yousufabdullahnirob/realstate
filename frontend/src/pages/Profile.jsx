@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import apiProxy from "../utils/proxyClient";
 
 const Profile = () => {
-    const [user, setUser] = useState({ full_name: "", email: "" });
+    const [user, setUser] = useState({ full_name: "", email: "", phone: "" });
     const [passwords, setPasswords] = useState({ old_password: "", new_password: "", confirm_password: "" });
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState({ type: "", msg: "" });
@@ -11,7 +11,7 @@ const Profile = () => {
         const fetchProfile = async () => {
             try {
                 const data = await apiProxy.get("/profile/update/");
-                setUser({ full_name: data.full_name, email: data.email });
+                setUser({ full_name: data.full_name, email: data.email, phone: data.phone || "" });
             } catch (err) {
                 setStatus({ type: "error", msg: "Failed to load profile." });
             } finally {
@@ -87,6 +87,15 @@ const Profile = () => {
                             className="admin-input" 
                             value={user.email} 
                             onChange={e => setUser({...user, email: e.target.value})}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8 }}>Phone Number</label>
+                        <input 
+                            type="text" 
+                            className="admin-input" 
+                            value={user.phone} 
+                            onChange={e => setUser({...user, phone: e.target.value})}
                         />
                     </div>
                     <button type="submit" className="approve-btn" style={{ marginTop: 8, width: "fit-content" }}>Update Profile</button>

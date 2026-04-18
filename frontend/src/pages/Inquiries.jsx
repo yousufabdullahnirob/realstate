@@ -10,6 +10,7 @@ const Inquiries = () => {
   const [activeInquiry, setActiveInquiry] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [replySuccess, setReplySuccess] = useState(false);
 
   const fetchInquiries = async () => {
     try {
@@ -51,8 +52,11 @@ const Inquiries = () => {
 
       // 3. Cleanup & Refresh
       await fetchInquiries();
-      setShowModal(false);
-      alert("Reply sent successfully and inquiry marked as contacted.");
+      setReplySuccess(true);
+      setTimeout(() => {
+        setShowModal(false);
+        setReplySuccess(false);
+      }, 2000);
     } catch (err) {
       alert("Failed to send reply: " + err.message);
     } finally {
@@ -154,45 +158,55 @@ const Inquiries = () => {
             padding: '32px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
           }}>
             <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '8px' }}>Reply to Inquiry</h3>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>
-              From: <strong>{activeInquiry.user_email}</strong> regarding <strong>{activeInquiry.apartment_title}</strong>
-            </p>
             
-            <form onSubmit={handleReplySubmit}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '8px' }}>Your Response</label>
-                <textarea 
-                  required
-                  rows="5"
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Type your reply here..."
-                  style={{ width: '100%', padding: '16px', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '14px', resize: 'none', outline: 'none' }}
-                />
+            {replySuccess ? (
+              <div style={{ padding: '40px 0', textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', marginBottom: '16px' }}>✔️</div>
+                <p style={{ fontWeight: 800, color: '#0ea5e9' }}>Reply sent successfully!</p>
               </div>
-              
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button 
-                  type="button" 
-                  onClick={() => setShowModal(false)}
-                  style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: '700', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  disabled={submitting}
-                  style={{ 
-                    padding: '10px 24px', borderRadius: '8px', border: 'none', 
-                    background: '#0ea5e9', color: '#fff', fontWeight: '800', 
-                    cursor: submitting ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 6px -1px rgba(14, 165, 233, 0.2)'
-                  }}
-                >
-                  {submitting ? "Sending..." : "Send Reply"}
-                </button>
-              </div>
-            </form>
+            ) : (
+              <>
+                <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>
+                  From: <strong>{activeInquiry.user_email}</strong> regarding <strong>{activeInquiry.apartment_title}</strong>
+                </p>
+                
+                <form onSubmit={handleReplySubmit}>
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '8px' }}>Your Response</label>
+                    <textarea 
+                      required
+                      rows="5"
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Type your reply here..."
+                      style={{ width: '100%', padding: '16px', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '14px', resize: 'none', outline: 'none' }}
+                    />
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => setShowModal(false)}
+                      style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#f1f5f9', color: '#475569', fontWeight: '700', cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      disabled={submitting}
+                      style={{ 
+                        padding: '10px 24px', borderRadius: '8px', border: 'none', 
+                        background: '#0ea5e9', color: '#fff', fontWeight: '800', 
+                        cursor: submitting ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 4px 6px -1px rgba(14, 165, 233, 0.2)'
+                      }}
+                    >
+                      {submitting ? "Sending..." : "Send Reply"}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

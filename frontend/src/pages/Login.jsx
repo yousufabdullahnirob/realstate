@@ -16,9 +16,10 @@ const Login = () => {
   const isExpired = new URLSearchParams(location.search).get('expired');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    const cleanEmail = email.trim();
     try {
-      const data = await apiProxy.post('/login/', { email, password });
+      const data = await apiProxy.post('/login/', { email: cleanEmail, password });
       localStorage.setItem('access', data.access);
       localStorage.setItem('refresh', data.refresh);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -36,7 +37,6 @@ const Login = () => {
         alert(error.message || 'Login failed. Please check your credentials.');
       }
     }
-
   };
 
   return (
