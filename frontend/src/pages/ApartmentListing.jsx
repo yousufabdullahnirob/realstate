@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
+import { motion } from 'framer-motion';
 import apiProxy from '../utils/proxyClient';
 import { formatBDT } from '../utils/formatters';
 import { useSearch } from '../context/SearchContext';
@@ -36,6 +37,18 @@ const ApartmentListing = () => {
 
   return (
     <div style={{ padding: '60px 40px', minHeight: '100vh', background: 'var(--bg-dark)' }}>
+      <section className="apt-hero" style={{ margin: '-60px -40px 40px -40px' }}>
+        <motion.h1
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >Available Apartments</motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >Find the perfect apartment within this project.</motion.p>
+      </section>
       <h1 style={{ marginBottom: '40px', fontSize: '32px', fontWeight: 800 }}>Available Apartments</h1>
       
       <div className="property-grid">
