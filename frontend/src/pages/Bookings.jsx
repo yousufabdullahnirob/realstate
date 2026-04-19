@@ -118,8 +118,8 @@ const Bookings = () => {
   return (
     <div className="page-content">
       <div className="container">
-        <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2>Bookings Management</h2>
+        <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fef2f2', padding: '10px', borderRadius: '8px', border: '2px solid #ef4444' }}>
+          <h2>Bookings Management <span style={{ color: '#ef4444' }}>--- TESTING ACTIVE V3 ---</span></h2>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button 
               onClick={() => handleExport('bookings')}
