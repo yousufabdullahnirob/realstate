@@ -65,6 +65,7 @@ const offers = [
     title: 'Custom Solutions',
     text: 'Individual, aesthetically stunning solutions for customers.',
     fullText: 'No two projects are identical, and neither are our solutions. We specialize in bespoke architectural and interior solutions tailored strictly to your unique requirements. Whether you need specialized smart-home integrations, custom-built storage systems, or unique material sourcing, our team designs solutions that are as functional as they are visually striking.',
+    image: '/service_2.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -84,6 +85,7 @@ const offers = [
     title: 'Furniture & Decor',
     text: 'We create and produce our product design lines.',
     fullText: 'A beautiful space is defined by what fills it. We offer complete interior furnishing services, sourcing premium global decor and crafting bespoke furniture pieces tailored to your exact floor plan. From selecting the perfect fabrics and luxury finishes to curating modern art pieces, our designers ensure your interior reflects absolute elegance and unparalleled comfort.',
+    image: '/service_3.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.rect 
@@ -109,7 +111,7 @@ const offers = [
     title: 'Exterior Design',
     text: 'We will help you to get the result you dreamed of.',
     fullText: 'First impressions matter. Our exterior design services focus on creating stunning facades and harmonious outdoor spaces that blend perfectly with the surrounding environment. We expertly balance form and function, incorporating durable high-end materials, beautiful landscaping, and striking outdoor lighting to maximize your property\'s curb appeal and longevity.',
-    image: '/service_2.png',
+    image: '/service_4.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -130,6 +132,7 @@ const offers = [
     title: 'Creating a Concept',
     text: 'Individual, aesthetically stunning solutions for customers.',
     fullText: 'At the heart of every iconic building is a powerful core concept. We dedicate time to establishing a unique theme—be it minimalist, modern, or neo-classical—that dictates the design language of your entire project. This cohesive creative direction ensures that every room, texture, and architectural element tells the same beautiful story.',
+    image: '/service_5.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
@@ -148,6 +151,7 @@ const offers = [
     title: "Author's Control",
     text: 'We create and produce our product design lines.',
     fullText: 'A great design is only as good as its execution. Through our Author\'s Control service, the original architects who designed your project actively supervise the construction phase. We conduct rigorous site inspections to guarantee that contractors strictly follow the blueprints and use the specified premium materials, ensuring the final build is nothing short of a masterpiece.',
+    image: '/service_6.png',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <motion.path 
