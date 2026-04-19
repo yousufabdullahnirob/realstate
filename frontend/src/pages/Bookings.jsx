@@ -31,7 +31,7 @@ const Bookings = () => {
   };
 
   const handleApprove = async (bookingId) => {
-    if (!window.confirm('Approve this booking?')) return;
+    alert(`DEBUG: Processing Approval for ID ${bookingId}`);
     console.log(`[Admin] Approving Booking ID: ${bookingId}`);
     try {
       const response = await apiProxy.post(`/admin/bookings/${bookingId}/approve/`);
@@ -39,7 +39,7 @@ const Bookings = () => {
       setBookings(prev => prev.map(b => 
         b.id === bookingId ? { ...b, status: 'confirmed', is_locked: true } : b
       ));
-      alert('Booking approved and locked!');
+      alert('SUCCESS: Booking approved and locked!');
     } catch (e) {
       console.error(`[Admin] Approve failed:`, e);
       alert('Error: ' + e.message);
@@ -47,7 +47,7 @@ const Bookings = () => {
   };
 
   const handleReject = async (bookingId) => {
-    if (!window.confirm('Reject this booking?')) return;
+    alert(`DEBUG: Processing Rejection for ID ${bookingId}`);
     console.log(`[Admin] Rejecting Booking ID: ${bookingId}`);
     try {
       const response = await apiProxy.post(`/admin/bookings/${bookingId}/reject/`);
@@ -55,7 +55,7 @@ const Bookings = () => {
       setBookings(prev => prev.map(b => 
         b.id === bookingId ? { ...b, status: 'cancelled' } : b
       ));
-      alert('Booking rejected!');
+      alert('SUCCESS: Booking rejected!');
     } catch (e) {
       console.error(`[Admin] Reject failed:`, e);
       alert('Error: ' + e.message);
@@ -177,39 +177,42 @@ const Bookings = () => {
                       <td>{b.is_locked ? '🔒 Yes' : 'No'}</td>
                       <td>
                         {b.status === 'pending' && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', zIndex: 10 }}>
                               <button 
                                 id={`approve-btn-${b.id}`}
-                                onClick={(e) => { e.stopPropagation(); handleApprove(b.id); }}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleApprove(b.id); }}
                                 style={{ 
                                   background: '#10b981', color: 'white', border: '2px solid #059669', 
                                   padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', 
                                   fontSize: '12px', fontWeight: '800', width: '100%',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                  position: 'relative', zIndex: 20
                                 }}
                               >
                                 APPROVE NOW
                               </button>
                               <button 
                                 id={`reject-btn-${b.id}`}
-                                onClick={(e) => { e.stopPropagation(); handleReject(b.id); }}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleReject(b.id); }}
                                 style={{ 
                                   background: '#ef4444', color: 'white', border: '2px solid #dc2626', 
                                   padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', 
                                   fontSize: '12px', fontWeight: '800', width: '100%',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                  position: 'relative', zIndex: 20
                                 }}
                               >
                                 REJECT NOW
                               </button>
                               <button 
                                 id={`due-btn-${b.id}`}
-                                onClick={(e) => { e.stopPropagation(); setShowDueDateForm(prev => ({ ...prev, [b.id]: !prev[b.id] })); }}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDueDateForm(prev => ({ ...prev, [b.id]: !prev[b.id] })); }}
                                 style={{ 
                                   background: '#f59e0b', color: 'white', border: '2px solid #d97706', 
                                   padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', 
                                   fontSize: '12px', fontWeight: '800', width: '100%',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                  position: 'relative', zIndex: 20
                                 }}
                               >
                                 SET DUE DATE
