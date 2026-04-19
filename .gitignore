@@ -14,10 +14,6 @@ venv/
 # Database
 db.sqlite3
 
-# Media & Static
-media/
-staticfiles/
-
 # OS
 .DS_Store
 Thumbs.db
