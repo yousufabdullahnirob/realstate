@@ -7,7 +7,7 @@ from datetime import date, timedelta
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'real_estate_backend.settings')
 django.setup()
 
-from core.models import User, Project, Apartment, Inquiry, Notification, ProjectImage, ApartmentImage, PropertyView, Booking, Installment
+from core.models import User, Project, Apartment, Inquiry, Notification, ProjectImage, ApartmentImage, PropertyView, Booking
 
 def seed_data():
     print("Seeding data...")
@@ -297,14 +297,6 @@ def seed_data():
         status=Booking.Status.CONFIRMED
     )
     
-    # Add an Installment for that booking
-    Installment.objects.create(
-        booking=booking,
-        due_date=date.today() + timedelta(days=30),
-        amount=100000,
-        is_paid=False
-    )
-
     print("Done seeding data!")
 
 if __name__ == "__main__":

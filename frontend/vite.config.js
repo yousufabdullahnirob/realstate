@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server: {
     port: 5173,
-    host: true,
+    host: '127.0.0.1',
     strictPort: true,
     // FIX: Added proxy — avoids CORS issues during development
     proxy: {
