@@ -199,6 +199,23 @@ const ClientDashboard = () => {
                     }}>{book.status}</span>
                   </div>
 
+                  {/* ADMIN UPDATES (Due Date & Alerts) - ADDED FOR VISIBILITY */}
+                  {book.final_payment_due_date && (
+                    <div style={{ marginBottom: 12, padding: '8px 12px', background: '#ecfdf5', border: '1px solid #10b981', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '12px' }}>📅</span>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: '#065f46' }}>
+                        Final Payment Due: {new Date(book.final_payment_due_date).toLocaleDateString("en-BD", { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  )}
+
+                  {book.cancelled_by_admin && book.cancellation_reason && (
+                    <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef2f2', border: '1px solid #ef4444', borderRadius: '8px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#991b1b', marginBottom: 2 }}>Admin Note (Rejection Reason):</p>
+                      <p style={{ fontSize: '13px', color: '#b91c1c' }}>{book.cancellation_reason}</p>
+                    </div>
+                  )}
+
                   {/* Payment Proof Upload (only for pending) */}
                   {book.status === 'pending' && !book.transaction_id && (
                     <div style={{ background: "#f8fafc", padding: 12, borderRadius: 8, marginBottom: 12 }}>
