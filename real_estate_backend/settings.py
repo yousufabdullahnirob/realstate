@@ -16,8 +16,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-l!agi4r%6m9o$@sr(&uhb5u*ak
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # FIX: Was empty [] — causes Django to reject all requests and crash the server
-allowed_hosts_env = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0')
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+# Allows Render and other hosts to connect
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -143,5 +143,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 cors_origins_env = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:5177,http://127.0.0.1:5177')
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
 
-# FIX: Added — allows credentials (JWT tokens) to pass through CORS
+# Allows both Vercel and local dev to connect
+CORS_ALLOW_ALL_ORIGINS = True 
 CORS_ALLOW_CREDENTIALS = True
