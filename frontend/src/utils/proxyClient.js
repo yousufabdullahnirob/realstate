@@ -1,5 +1,6 @@
 // Use relative URL so Vite dev proxy handles routing — avoids CORS issues
-const BASE_URL = '/api';
+// Use environment variable for production, fallback to current localhost for development
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 const getHeaders = (isJson = true) => {
   const headers = {};

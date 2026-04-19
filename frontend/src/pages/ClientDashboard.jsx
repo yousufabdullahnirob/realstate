@@ -51,13 +51,13 @@ const ClientDashboard = () => {
     };
     fetchData();
 
-    // REAL-TIME SIMULATION: Polling for messages every 10 seconds
+    // REAL-TIME SIMULATION: Polling for messages every 5 seconds
     const interval = setInterval(async () => {
       try {
         const msgs = await apiProxy.get("/v2/messages/", { bypassCache: true });
         setMessages(msgs);
       } catch (e) { console.error("Polling error:", e); }
-    }, 10000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);

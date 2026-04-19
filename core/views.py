@@ -757,7 +757,10 @@ class MessageViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Users can only see messages they sent or received
+        # Admins can see all messages to manage inquiries/chats
+        if self.request.user.role == User.Role.ADMIN:
+            return Message.objects.all().order_by('timestamp')
+        # Regular users only see messages they sent or received
         return Message.objects.filter(
             models.Q(sender=self.request.user) | models.Q(receiver=self.request.user)
         ).order_by('timestamp')
