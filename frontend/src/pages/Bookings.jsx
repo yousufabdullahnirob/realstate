@@ -98,7 +98,8 @@ const Bookings = () => {
 
   const handleExport = async (reportType) => {
     try {
-      window.location.href = `/api/admin/export/${reportType}/`;
+      const filename = `${reportType}_report_${new Date().toISOString().split('T')[0]}.csv`;
+      await apiProxy.download(`/admin/export/${reportType}/`, filename);
     } catch (e) {
       alert('Export failed: ' + e.message);
     }
