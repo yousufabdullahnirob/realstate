@@ -177,26 +177,44 @@ const Bookings = () => {
                       <td>{b.is_locked ? '🔒 Yes' : 'No'}</td>
                       <td>
                         {b.status === 'pending' && (
-                          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                            <button 
-                              onClick={() => handleApprove(b.id)}
-                              style={{ background: '#10b981', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                            >
-                              ✅ Approve
-                            </button>
-                            <button 
-                              onClick={() => handleReject(b.id)}
-                              style={{ background: '#ef4444', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                            >
-                              ❌ Reject
-                            </button>
-                            <button 
-                              onClick={() => setShowDueDateForm(prev => ({ ...prev, [b.id]: !prev[b.id] }))}
-                              style={{ background: '#f59e0b', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
-                            >
-                              📅 Due Date
-                            </button>
-                          </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <button 
+                                id={`approve-btn-${b.id}`}
+                                onClick={(e) => { e.stopPropagation(); handleApprove(b.id); }}
+                                style={{ 
+                                  background: '#10b981', color: 'white', border: '2px solid #059669', 
+                                  padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', 
+                                  fontSize: '12px', fontWeight: '800', width: '100%',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                }}
+                              >
+                                APPROVE NOW
+                              </button>
+                              <button 
+                                id={`reject-btn-${b.id}`}
+                                onClick={(e) => { e.stopPropagation(); handleReject(b.id); }}
+                                style={{ 
+                                  background: '#ef4444', color: 'white', border: '2px solid #dc2626', 
+                                  padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', 
+                                  fontSize: '12px', fontWeight: '800', width: '100%',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                }}
+                              >
+                                REJECT NOW
+                              </button>
+                              <button 
+                                id={`due-btn-${b.id}`}
+                                onClick={(e) => { e.stopPropagation(); setShowDueDateForm(prev => ({ ...prev, [b.id]: !prev[b.id] })); }}
+                                style={{ 
+                                  background: '#f59e0b', color: 'white', border: '2px solid #d97706', 
+                                  padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', 
+                                  fontSize: '12px', fontWeight: '800', width: '100%',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                }}
+                              >
+                                SET DUE DATE
+                              </button>
+                            </div>
                         )}
                         {b.status === 'confirmed' && (
                           <button 
