@@ -56,7 +56,7 @@ const apiProxy = {
     }
   },
 
-  post: async (endpoint, payload) => {
+  post: async (endpoint, payload = {}) => {
     const isFormData = payload instanceof FormData;
     try {
       const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -73,7 +73,7 @@ const apiProxy = {
     }
   },
 
-  patch: async (endpoint, payload) => {
+  patch: async (endpoint, payload = {}) => {
     const isFormData = payload instanceof FormData;
     try {
       const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -90,7 +90,7 @@ const apiProxy = {
     }
   },
 
-  put: async (endpoint, payload) => {
+  put: async (endpoint, payload = {}) => {
     const isFormData = payload instanceof FormData;
     try {
       const response = await fetch(`${BASE_URL}${endpoint}`, {

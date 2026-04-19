@@ -32,26 +32,32 @@ const Bookings = () => {
 
   const handleApprove = async (bookingId) => {
     if (!window.confirm('Approve this booking?')) return;
+    console.log(`[Admin] Approving Booking ID: ${bookingId}`);
     try {
-      await apiProxy.post(`/admin/bookings/${bookingId}/approve/`);
+      const response = await apiProxy.post(`/admin/bookings/${bookingId}/approve/`);
+      console.log(`[Admin] Approve response:`, response);
       setBookings(prev => prev.map(b => 
         b.id === bookingId ? { ...b, status: 'confirmed', is_locked: true } : b
       ));
       alert('Booking approved and locked!');
     } catch (e) {
+      console.error(`[Admin] Approve failed:`, e);
       alert('Error: ' + e.message);
     }
   };
 
   const handleReject = async (bookingId) => {
     if (!window.confirm('Reject this booking?')) return;
+    console.log(`[Admin] Rejecting Booking ID: ${bookingId}`);
     try {
-      await apiProxy.post(`/admin/bookings/${bookingId}/reject/`);
+      const response = await apiProxy.post(`/admin/bookings/${bookingId}/reject/`);
+      console.log(`[Admin] Reject response:`, response);
       setBookings(prev => prev.map(b => 
         b.id === bookingId ? { ...b, status: 'cancelled' } : b
       ));
       alert('Booking rejected!');
     } catch (e) {
+      console.error(`[Admin] Reject failed:`, e);
       alert('Error: ' + e.message);
     }
   };
@@ -61,10 +67,12 @@ const Bookings = () => {
       alert('Please select a due date');
       return;
     }
+    console.log(`[Admin] Setting due date for Booking ID ${bookingId} to ${dueDate[bookingId]}`);
     try {
-      await apiProxy.post(`/admin/bookings/${bookingId}/set-due-date/`, {
+      const response = await apiProxy.post(`/admin/bookings/${bookingId}/set-due-date/`, {
         final_payment_due_date: dueDate[bookingId]
       });
+      console.log(`[Admin] Due date response:`, response);
       setBookings(prev => prev.map(b => 
         b.id === bookingId ? { ...b, final_payment_due_date: dueDate[bookingId] } : b
       ));
@@ -72,6 +80,7 @@ const Bookings = () => {
       setDueDate(prev => ({ ...prev, [bookingId]: '' }));
       alert('Due date set successfully!');
     } catch (e) {
+      console.error(`[Admin] Due date error:`, e);
       alert('Error: ' + e.message);
     }
   };
@@ -97,6 +106,7 @@ const Bookings = () => {
   };
 
   const handleExport = async (reportType) => {
+    alert(`Exporting ${reportType}... If you see this, the fix is active.`);
     try {
       const filename = `${reportType}_report_${new Date().toISOString().split('T')[0]}.csv`;
       await apiProxy.download(`/admin/export/${reportType}/`, filename);
@@ -115,13 +125,13 @@ const Bookings = () => {
               onClick={() => handleExport('bookings')}
               style={{ background: '#0ea5e9', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}
             >
-              📥 Export Bookings
+              📥 EXPORT V2 (Bookings)
             </button>
             <button 
               onClick={() => handleExport('sales')}
               style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}
             >
-              📥 Export Sales
+              📥 EXPORT V2 (Sales)
             </button>
           </div>
         </div>
